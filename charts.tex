@@ -1,0 +1,16 @@
+
+\usetikzlibrary{shapes.geometric, arrows, positioning, decorations.markings}
+
+\ifnarrow
+\tikzstyle{entity} = [rectangle, inner sep=3mm, minimum width=2.7cm, text centered, draw=black]
+\else
+\tikzstyle{entity} = [rectangle, inner sep=3mm, minimum width=3.0cm, text centered, draw=black]
+\fi
+
+\tikzstyle{arrow} = [thick,->,>=stealth,line width=0.4pt]
+
+\tikzstyle{arrowHuge} = [thick, decoration={markings,mark=at position
+   1 with {\arrow[semithick]{open triangle 60}}},
+   double distance=1.4pt, shorten >= 5.5pt,
+   preaction = {decorate},
+   postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]

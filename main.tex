@@ -1,0 +1,291 @@
+
+\documentclass[${FONT}pt $DRAFT]{$DOCUMENT} % ,draft
+
+%%
+%% Capture ENV vars from envsubst
+%%
+
+\def\AFIVE{$AFIVE}
+\def\COMMITHASH{$COMMIT_HASH}
+\def\COMMITTS{$COMMIT_TS}
+\def\COVER{$COVER}
+\def\DOMAIN{$DOMAIN}
+\def\EBOOK{$EBOOK}
+\def\EMAIL{$EMAIL}
+\def\KINDLE{$KINDLE}
+\def\LARGE{$LARGE}
+\def\NARROW{$NARROW}
+\def\PHONE{$PHONE}
+\def\PRINT{$PRINT}
+\def\QR{$QR}
+\def\RIDERO{$RIDERO}
+\def\DMK{$DMK}
+\def\TABLET{$TABLET}
+
+%%
+%% Constants
+%%
+
+\def\NIL{}
+\def\TRUE{true}
+
+%%
+%% if selectors
+%%
+
+\input{ifs}
+
+% globals
+\newlength{\marginparoffset}
+\setlength{\marginparoffset}{0mm}
+
+
+\usepackage[T2A]{fontenc}
+\usepackage{tikz}
+\usepackage{tocloft}
+\usepackage{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english,russian]{babel}
+
+
+%% hyphenation in tt
+\usepackage[shortcuts]{extdash}
+
+% for proper ' and `
+\usepackage{textcomp}
+\usepackage{upquote}
+
+% to replace strings
+\usepackage{xstring}
+
+% extra space at the end of macros
+\usepackage{xspace}
+
+% linebreaks in verbatim for mobile
+\usepackage{spverbatim}
+
+% http://www.khirevich.com/latex/microtype/
+\usepackage[
+  activate={true, nocompatibility},
+  final,
+  tracking=true,
+  kerning=true,
+  spacing=true,
+  factor=1100,
+  stretch=10,
+  shrink=10
+]{microtype}
+
+% better captions
+\usepackage[font=small]{caption}
+
+\captionsetup{labelsep=period}
+
+\captionsetup[listing]{name=Листинг}
+\captionsetup[figure]{name=Рис.}
+
+% https://tex.stackexchange.com/a/417276
+% ifthispageodd macro
+\usepackage{scrextend}
+
+% underline
+\usepackage[normalem]{ulem}
+
+% for QR codes in
+\usepackage{qrcode}
+
+% to have bold tt fonts in code listings
+\usepackage{bold-extra}
+
+% better macro args
+\usepackage{xparse}
+
+% file trees
+\usepackage{dirtree}
+\input{DT}
+
+% code highlight
+\usepackage[newfloat=true]{minted}
+\usemintedstyle{print}
+%% \setminted{fontsize=\small} %% reduce minted font
+\SetupFloatingEnvironment{listing}{placement=H}
+
+\ifnarrow
+\setminted{breaklines=true}
+\fi
+
+% mobile headers
+\ifnarrow
+\usepackage{sectsty}
+\sectionfont{\raggedright}
+\subsectionfont{\raggedright}
+\subsubsectionfont{\raggedright}
+\fi
+
+% index
+\usepackage{index}
+\newindex{default}{idx}{ind}{Предметный указатель}
+\usepackage[
+  unbalanced,
+  itemlayout=abshang,
+  indentunit=0.25em,
+  totoc
+]{idxlayout}
+\ifnarrow
+\idxlayout{columns=1}
+\else
+\idxlayout{columns=2}
+\fi
+
+\usepackage{setspace}
+
+
+% href ursl for ebooks
+\ifebook
+\usepackage[hidelinks, hyperindex=false]{hyperref}
+\fi
+
+
+% no indent for items in lists (in mobile)
+\ifnarrow
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*}
+\fi
+
+%% geometry presets
+\input{$GEOMETRY}
+
+%% \geometry{showframe} %% debug frames
+
+\setlength{\parskip}{0.32em}
+
+\pagestyle{plain}
+\pagenumbering{arabic}
+
+\setcounter{tocdepth}{1}
+
+\widowpenalty=10000
+\clubpenalty=10000
+\tolerance=500
+\hyphenpenalty=500
+\hfuzz=0.5pt
+\emergencystretch=5pt
+
+\input{charts}
+\input{macro}
+
+\author{Иван Гришаев}
+\title{Clojure на производстве. Том второй}
+\date{}
+
+\usepackage{pdfpages}
+
+%%
+%% Kindle or Phone
+%%
+\ifnarrow
+
+%% Remove labels for subchapters
+\usepackage{titlesec}
+\titlelabel{}
+
+%% Small page numbers
+\usepackage{fancyhdr}
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \fancyfoot[C]{\tiny\thepage}}
+\pagestyle{plain}
+
+\fi
+
+%% add space b/w number and footnote
+\let\oldfootnote\footnote
+\renewcommand\footnote[1]{\oldfootnote{\hspace{1mm}#1}}
+
+
+%% for ebook, remove top margin for ToC
+\ifebook
+\setlength{\cftbeforetoctitleskip}{0pt}
+\setlength{\cftaftertoctitleskip}{2em}
+\fi
+
+\begin{document}
+
+\input{hyphenation}
+
+
+% add cover when set
+\ifx\COVER\NIL
+\else
+\includepdf{\COVER}
+\setcounter{page}{1}
+\fi
+
+
+% always add title page
+\input{title}
+
+
+% opening page (UDK & BBK) / annotation
+\ifridero
+  \iflarge
+    \includepdf[pages={1}]{media/ridero_opening_large.pdf}
+  \else
+    \includepdf[pages={1}]{media/ridero_opening_normal.pdf}
+  \fi
+\else
+ \input{abstract}
+\fi
+
+
+% fix a widow line in TOC for A5
+\ifafive
+\setlength{\cftbeforetoctitleskip}{12mm}
+\fi
+
+% the same for large
+\iflarge
+\setlength{\cftbeforetoctitleskip}{25mm}
+\fi
+
+%%
+%% ToC https://tex.stackexchange.com/questions/41555/
+%%
+\let\Contentsline\contentsline
+\renewcommand\contentsline[3]{\thispagestyle{empty}\Contentsline{#1}{#2}{#3}}
+\cleardoublepage
+\tableofcontents
+
+\clearpage
+\input{about}
+
+%% \blank\include{ch1-web}
+%% \blank\include{ch2-spec}
+%% \blank\include{ch3-exceptions}
+%% \blank\include{ch4-mutability}
+%% \blank\include{ch5-config}
+%% \blank\include{ch6-systems}
+%% \blank\include{ch7-tests}
+
+% works only in book class
+\ifprint
+\backmatter
+\fi
+
+\include{afterword}
+
+% https://tex.stackexchange.com/questions/203720/
+\makeatletter\@openrightfalse\makeatother
+
+\printindex
+
+\ifprint
+\input{exit}
+\input{exit}
+\fi
+
+\ifebook
+\input{author}
+\fi
+
+\end{document}

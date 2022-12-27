@@ -1,0 +1,54 @@
+
+\newpage
+
+\thispagestyle{empty}
+
+\noindent
+
+\ifnarrow
+
+\noindent
+\begin{tabular}{ @{}p{2.5cm} @{}p{4cm} }
+
+\begin{minipage}{2.5cm}
+\input{avatar}
+\end{minipage}
+
+&
+  \vspace{0.25cm}
+  {\Large\textbf{Об авторе}}
+
+\end{tabular}
+
+{\small
+
+\noindent
+Иван Гришаев~--- увлеченный программист. Последние восемь лет занимается языком
+Clojure и редактором Emacs. Работает удаленно в стартапе Audience
+Republic. Ведет блог о программировании и удаленной работе \SITELINK.
+}
+
+\else
+
+\begin{tabular}{ @{}p{2.5cm} @{}p{5cm} }
+
+\begin{minipage}{2.5cm}
+\input{avatar}
+\end{minipage}
+
+&
+
+\vspace{-1cm}
+
+\section*{Об авторе}
+
+{\small
+
+Иван Гришаев~--- увлеченный программист. Последние восемь лет занимается языком
+Clojure и редактором Emacs. Работает удаленно в стартапе Audience
+Republic. Ведет блог о программировании и удаленной работе \SITELINK.
+
+}
+
+\end{tabular}
+\fi

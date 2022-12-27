@@ -1,0 +1,7 @@
+COVER=media/cover_phone.jpg
+DOCUMENT=report
+EBOOK=true
+GEOMETRY=geom-phone
+JOB=clojure_phone
+NARROW=true
+PHONE=true

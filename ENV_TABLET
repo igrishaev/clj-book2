@@ -1,0 +1,7 @@
+COVER=media/cover_tablet.jpg
+DOCUMENT=report
+EBOOK=true
+GEOMETRY=geom-tablet
+JOB=clojure_tablet
+NARROW=
+TABLET=true

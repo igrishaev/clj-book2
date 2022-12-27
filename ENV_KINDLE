@@ -1,0 +1,7 @@
+COVER=media/cover_kindle.jpg
+NARROW=true
+DOCUMENT=report
+GEOMETRY=geom-kindle
+JOB=clojure_kindle
+EBOOK=true
+KINDLE=true
