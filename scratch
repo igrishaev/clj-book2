@@ -6,3 +6,22 @@
 \\textbf{\1}
 
 \scalebox{.5}{\chart{...}}
+
+~~~\(.+\)
+\(.+\)
+~~~
+
+
+sublime
+
+(?s)~~~(.+?)\n(.+?)~~~
+\\begin{english}\n  \\begin{$1}\n$2  \\end{$1}\n\\end{english}
+
+`(.+?)`
+\\code{$1}
+
+\*(.+?)\*
+\\textbf{$1}
+
+ —
+~---
