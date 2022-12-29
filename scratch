@@ -1,0 +1,8 @@
+~~~\(.+\)
+\\begin{english}
+  \\begin{\1}
+
+\*\*\(.+\)\*\*
+\\textbf{\1}
+
+\scalebox{.5}{\chart{...}}

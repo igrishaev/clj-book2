@@ -1,0 +1,15 @@
+
+\begin{tikzpicture}[auto, node distance=1.5cm]
+
+\node (parent) [entity, above = of node, minimum width=2cm]  {\code{[1 [2 3] 4]}};
+\node (left)   [entity, left  = of node, minimum width=2cm]  {\code{1}};
+\node (node)   [entity, line width=0.4mm]                    {\code{[2 3]}};
+\node (right)  [entity, right = of node, minimum width=2cm]  {\code{4}};
+\node (child)  [entity, below = of node, minimum width=2cm]  {\code{2}};
+
+\draw [arrow] (node) -- (left);
+\draw [arrow] (node) -- (right);
+\draw [arrow] (node) -- (child);
+\draw [arrow] (node) -- (parent);
+
+\end{tikzpicture}
