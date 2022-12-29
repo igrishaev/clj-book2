@@ -1173,10 +1173,8 @@ XML-узлов в том же виде (словарь с ключами \code{:
 
 \begin{english}
   \begin{clojure}
-{% raw %}
 (set loc-orgs)
 #{{:name "re-Store"}}
-{% endraw %}
   \end{clojure}
 \end{english}
 
@@ -1437,3 +1435,702 @@ XML-узлов в том же виде (словарь с ключами \code{:
 подход требует, чтобы все находились в памяти целиком. Он не сработает для очень
 больших документов с миллионами записей, но пока что не будем волноваться об
 этом.
+
+\section{Редактирование}
+
+До сих пор мы игнорировали другую возможность зипперов. Во время обхода можно не
+только читать, но и менять локации. В широком плане нам доступны все операции
+CRUD (Create, Read, Update, Delete), знакомые из веб-разработки. Ниже мы
+разберем, как они работают в зипперах.
+
+Напомним, зиппер принимает третью функцию \code{make-node}, в которую до сих пор мы
+передавали \code{nil}. В ней не было нужды, потому что мы только читали
+данные. Зиппер вызовет функцию в момент, когда мы просим вернуть данные с учётом
+изменений, которые внесли в локации. Функция принимает два параметра: ветку и
+потомков. Ее задача~--- соединить их должным образом.
+
+Для простых коллекций вроде вектора функция проста~--- нужно только обернуть
+потомков в \code{vec}, чтобы получить из последовательности вектор. В \code{vector-zip}
+функция чуть сложнее, потому что учитывает метаданные. Приведём код этого
+зиппера без сокращений:
+
+\begin{english}
+  \begin{clojure}
+(defn vector-zip
+  [root]
+  (zipper vector?
+          seq
+          (fn [node children]
+            (with-meta (vec children) (meta node)))
+          root))
+  \end{clojure}
+\end{english}
+
+Видим, что новый вектор (форма \code{(vec children)}) копирует метаданные прежнего
+вектора (переменная \code{node}). Если вы дополняете оригинал через \code{assoc} или
+\code{conj}, метаданные сохраняются. В случае с \code{vector-zip} мы строим новый вектор,
+поэтому оборачиваем его в \code{with-meta}. Если убрать \code{with-meta}, на выходе
+получим вектор без метаданных, что может повлиять на логику программы.
+
+У XML-зиппера сборка иная: потомков помещают в поле \code{:content}.
+
+\begin{english}
+  \begin{clojure}
+(fn [node children]
+  (assoc node :content (and children (apply vector children))))
+  \end{clojure}
+\end{english}
+
+Для нашего \code{map-zip}, который работает со словарями, функция сборки выглядела бы
+как \code{assoc} или \code{into} с набором пар \code{MapEntry}.
+
+Зиппер неявно вызывает эту функцию, если находит изменённые узлы. Для изменения
+служат функции \code{zip/edit}, \code{zip/replace} и другие. Но перед тем, как рассмотреть
+их, объясним, как именно протекают изменения в зиппере.
+
+Особенность в том, что изменения сказываются не на исходных данных, а на
+локациях. Если изменить текущую локацию, она помечается флагом \code{:changed?}. Это
+сигнал к пересборке данных с помощью функции \code{zip/root}, о которой скажем чуть
+позже.
+
+Рассмотрим пример с вектором \code{[1 2 3]}. Переместимся на двойку и удвоим её с
+помощью функции \code{zip/edit}. Она принимает локацию, функцию и остаточные
+аргументы~--- подход, знакомый вам из атомов (\code{swap!}) и коллекций (\code{update}). По
+аналогии с ними, локация получит новое значение, которое вернула функция на базе
+прежнего.
+
+Локация до изменений:
+
+\begin{english}
+  \begin{clojure}
+(-> [1 2 3]
+    zip/vector-zip
+    zip/down
+    zip/right)
+
+[2 {:l [1] :pnodes [[1 2 3]] :ppath nil :r (3)}]
+  \end{clojure}
+\end{english}
+
+и после. Обратите внимание ключ \code{:changed?}:
+
+\begin{english}
+  \begin{clojure}
+(def loc-2
+  (-> [1 2 3]
+      zip/vector-zip
+      zip/down
+      zip/right
+      (zip/edit * 2)))
+
+[4 {:l [1] :pnodes [[1 2 3]] :ppath nil :r (3)
+    :changed? true}]
+  \end{clojure}
+\end{english}
+
+Далее нам бы хотелось получить изменённый вектор \code{[1 4 3]}. Сделаем это вручную:
+
+\begin{english}
+  \begin{clojure}
+(-> loc-2
+    zip/up
+    zip/node)
+;; [1 4 3]
+  \end{clojure}
+\end{english}
+
+То же самое делает функция \code{zip/root}, которая принимает локацию с
+изменениями. Её алгоритм следующий:
+
+- подняться до первичной локации, повторно вызывая \code{zip/up};
+- вернуть узел.
+
+Чтобы получить результат за один проход, добавим \code{zip/root} на конец стрелочного
+оператора:
+
+\begin{english}
+  \begin{clojure}
+(-> [1 2 3]
+    zip/vector-zip
+    zip/down
+    zip/right
+    (zip/edit * 2)
+    zip/root)
+;; [1 4 3]
+  \end{clojure}
+\end{english}
+
+Основная работа происходит в функции \code{zip/up}, которую мы вызвали вручную или
+неявно в \code{zip/root}. При подъёме вверх она проверяет, была ли изменена локация,
+и если да, перестраивает её с помощью \code{make-node}. Приведём её код в сокращении:
+
+\begin{english}
+  \begin{clojure}
+(defn up
+  [loc]
+  (let [[node {... changed? :changed? :as path}] loc]
+    (when pnodes
+      (let [pnode (peek pnodes)]
+        (with-meta (if changed?
+                     [(make-node loc pnode (concat l ...))
+                      (and ppath (assoc ...))]
+                     [pnode ppath])
+                   (meta loc))))))
+  \end{clojure}
+\end{english}
+
+\subsection{Множественное изменение}
+
+При изменении одной локации проблем не возникает. Однако мы редко изменяем одну
+локацию~--- на практике это делают по признаку, то есть пакетно.
+
+Ранее мы раскладывали зиппер в цепочку локаций с помощью \code{iter-zip}, а затем
+пропускали через серию \code{map}, \code{filter} и других функций. Для редактирования этот
+метод не подходит. Предположим, мы выбрали второй элемент из результата
+\code{zip-iter} и исправили его:
+
+\begin{english}
+  \begin{clojure}
+(def loc-seq
+  (-> [1 2 3]
+      zip/vector-zip
+      iter-zip))
+
+(-> loc-seq (nth 2) (zip/edit * 2))
+;; [4 {:l [1] :pnodes [[1 2 3]] :ppath nil :r (3)
+;;    :changed? true}]
+  \end{clojure}
+\end{english}
+
+Функция \code{zip-iter} устроена так, что каждая следующая локация получается из
+предыдущей. Вызов \code{zip/edit} на одном из элементов не повлияет на
+последующие. Если подняться вверх от последней локации, получим вектор без
+изменений.
+
+\begin{english}
+  \begin{clojure}
+(-> loc-seq last zip/up zip/node)
+;; [1 2 3]
+  \end{clojure}
+\end{english}
+
+Как видно из примера, выражение с \code{zip/edit} не повлияло на результат.
+
+При редактировании зипперов применяют следующие паттерны.
+
+\textbf{Изменяется один элемент.} В этом случае мы итерируем зиппер до тех пор, пока
+не встретим нужную локацию в цепочке. Затем меняем её и вызываем \code{zip/root}.
+
+\textbf{Изменяются многие элементы.} С помощью \code{loop} и \code{zip/next} мы вручную
+итерируем зиппер. При этом задана функция, которая либо меняет локацию, любо
+оставляет нетронутой. В форму \code{recur} попадает \code{zip/next} от её результата. Если
+изменения были, \code{zip/next} оттолкнётся от новой, а не исходной локации.
+
+Для изменения локаций служат функции:
+
+\begin{itemize}
+
+\item
+  \code{zip/replace}~--- буквальная замена текущего узла на другой.
+
+\item
+  \code{zip/edit}~--- Редактирование узла. По аналогии с \code{update} и \code{swap!} принимает
+  функцию и добавочные аргументы. Первым аргументом функция получит текущей
+  узел. Результат заменит содержимое локации.
+
+\item
+  \code{zip/remove}~--- Удаляет локацию и перемещает указатель на родителя.
+
+\end{itemize}
+
+Функции для вставки соседей и потомков:
+
+\begin{itemize}
+
+\item
+  \code{zip/insert-left}~--- добавить соседа слева от текущей локации;
+
+\item
+  \code{zip/insert-right}~--- добавить соседа справа;
+
+\item
+  \code{zip/insert-child}~--- добавить текущей локации потомка в начало;
+
+\item
+  \code{zip/append-child}~--- добавить потомка в конец.
+
+\end{itemize}
+
+Разница между соседом и потомком в иерархии. Сосед находится на одном уровне с
+локацией, а потомок ниже. В центре диаграммы находится локация с вектором \code{[2
+3]}. Её соседи~--- числа 1 и 4, а потомки~--- 2 и 3.
+
+%% TODO
+%% {: .asciichart}
+%% \begin{english}
+%%  \begin{
+%%}
+%%                 ┌─────────────┐
+%%                 │ [1 [2 3] 4] │
+%%                 └─────────────┘
+%%                        ▲
+%%                        │
+%%     ┌───────┐    ┏━━━━━━━━━━━┓    ┌───────┐
+%%     │   1   │◀───┃   [2 3]   ┃───▶│   4   │
+%%     └───────┘    ┗━━━━━━━━━━━┛    └───────┘
+%%                        │
+%%                  ┌─────┴─────┐
+%%                  ▼           ▼
+%%              ┌───────┐   ┌───────┐
+%%              │   2   │   │   3   │
+%%              └───────┘   └───────┘
+%%   \end{
+%%}
+%% \end{english}
+
+Рассмотрим функции на простых примерах. Предположим, в глубине вложенных
+векторов находится ключ \code{:error}, и нужно исправить его на \code{:ok}. Сперва добавим
+предикат для поиска:
+
+\begin{english}
+  \begin{clojure}
+(defn loc-error? [loc]
+  (some-> loc zip/node (= :error)))
+  \end{clojure}
+\end{english}
+
+Теперь ищем локацию, исправляем её и поднимаемся к корню:
+
+\begin{english}
+  \begin{clojure}
+(def data [1 2 [3 4 [5 :error]]])
+
+(def loc-error
+  (->> data
+       zip/vector-zip
+       iter-zip
+       (find-first loc-error?)))
+
+(-> loc-error
+    (zip/replace :ok)
+    zip/root)
+
+;; [1 2 [3 4 [5 :ok]]]
+  \end{clojure}
+\end{english}
+
+Другой пример~--- поменять во вложеном векторе все \code{nil} на 0, чтобы обезопасить
+математические расчеты. На этот раз локация может быть не одна, поэтому
+понадобится обход через \code{loop}. На каждом шаге мы проверяем, подходит ли
+локация, и если да, передаём в \code{recur} вызов \code{zip/next} от изменённой версии:
+
+\begin{english}
+  \begin{clojure}
+(def data [1 2 [5 nil 2 [3 nil]] nil 1])
+
+(loop [loc (zip/vector-zip data)]
+  (if (zip/end? loc)
+    (zip/node loc)
+    (if (-> loc zip/node nil?)
+      (recur (zip/next (zip/replace loc 0)))
+      (recur (zip/next loc)))))
+
+;; [1 2 [5 0 2 [3 0]] 0 1]
+  \end{clojure}
+\end{english}
+
+То же самое, но заменить все отрицательные числа по модулю. Для начала объявим
+функцию \code{abs} (с версии 1.11 она встроена в Clojure):
+
+\begin{english}
+  \begin{clojure}
+(defn abs [num]
+  (if (neg? num)
+    (- num)
+    num))
+  \end{clojure}
+\end{english}
+
+Обход похож на предыдущий, но теперь вместо \code{zip/replace} мы вызываем
+\code{zip/edit}, который обновляет содержимое локации, отталкиваясь от прежнего
+значения:
+
+\begin{english}
+  \begin{clojure}
+(def data [-1 2 [5 -2 2 [-3 2]] -1 5])
+
+(loop [loc (zip/vector-zip data)]
+  (if (zip/end? loc)
+    (zip/node loc)
+    (if (and (-> loc zip/node number?)
+             (-> loc zip/node neg?))
+      (recur (zip/next (zip/edit loc abs)))
+      (recur (zip/next loc)))))
+  \end{clojure}
+\end{english}
+
+В обоих случаях цикл выглядит одинаково. Если это конечная локация, вернём её
+узел. В противном случае, если локация подходит предикату, меняем ее содержимое
+с помощью \code{zip/edit}. От изменённой локации переходим к следующей. Это ключевой
+момент: в предпоследней строке вызов \code{zip/next} принимает результат \code{zip/edit},
+а не исходную локацию. Поэтому изменения будут переданы в следующий шаг \code{loop}.
+
+Примеры выше образуют паттерны~--- повторяющиеся приёмы. Поместим их в отдельные
+функции, чтобы не тратить на них внимание в будущем.
+
+\textbf{Поиск локации по предикату.} Принимает начальную локацию и предикат, начинает
+итерацию. Вернёт первую же локацию, которая подошла предикату:
+
+\begin{english}
+  \begin{clojure}
+(defn find-loc [loc loc-pred]
+  (->> loc
+       iter-zip
+       (find-first loc-pred)))
+  \end{clojure}
+\end{english}
+
+\textbf{Обход локаций с изменениями.} Перебирает локации с помощью \code{zip/next} и
+\code{loop/recur}. При переходе на следующий шаг оборачивает локацию в
+функцию. Ожидается, что функция либо изменит локацию, либо вернёт её без
+изменений. Это обобщённая версия цикла, что мы написали выше.
+
+\begin{english}
+  \begin{clojure}
+(defn alter-loc [loc loc-fn]
+  (loop [loc loc]
+    (if (zip/end? loc)
+      loc
+      (-> loc loc-fn zip/next recur))))
+  \end{clojure}
+\end{english}
+
+Перепишем примеры с новыми функциями. Найдём в векторе локацию, чей узел равен
+двойке:
+
+\begin{english}
+  \begin{clojure}
+(defn loc-2? [loc]
+  (-> loc zip/node (= 2)))
+
+(def loc-2
+  (-> [1 2 3]
+      zip/vector-zip
+      (find-loc loc-2?)))
+  \end{clojure}
+\end{english}
+
+Удвоим её и выйдем на конечный вектор:
+
+\begin{english}
+  \begin{clojure}
+(-> loc-2 (zip/edit * 2) zip/root)
+;; [1 4 2]
+  \end{clojure}
+\end{english}
+
+Изменим отрицательные числа по модулю. Для этого заведём функцию \code{loc-abs}. Если
+в узле отрицательное число, вернём исправленную локацию, а иначе~--- исходную:
+
+\begin{english}
+  \begin{clojure}
+(defn loc-abs [loc]
+  (if (and (-> loc zip/node number?)
+           (-> loc zip/node neg?))
+    (zip/edit loc abs)
+    loc))
+  \end{clojure}
+\end{english}
+
+Осталось передать её в \code{alter-loc}:
+
+\begin{english}
+  \begin{clojure}
+(-> [-1 2 [5 -2 2 [-3 2]] -1 5]
+    zip/vector-zip
+    (alter-loc loc-abs)
+    zip/node)
+
+;; [1 2 [5 2 2 [3 2]] 1 5]
+  \end{clojure}
+\end{english}
+
+Как только мы вынесли часть кода в функции, преобразования стали короче и
+понятней. Как правило, любое действие над зиппером можно обобщить и поместить в
+функцию, тем самым упростив логику.
+
+\subsection{Цены в XML}
+
+Перейдём к практическим примерам с XML и товарами. Подготовим следующий файл
+\code{products-price.xml}:
+
+\begin{english}
+  \begin{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <organization name="re-Store">
+    <product type="fiber" price="8.99">VIP Fiber Plus</product>
+    <product type="iphone" price="899.99">iPhone 11 Pro</product>
+  </organization>
+  <organization name="DNS">
+    <branch name="Office 2">
+      <bundle>
+        <product type="fiber" price="9.99">Premium iFiber</product>
+        <product type="iphone" price="999.99">iPhone 11 Pro</product>
+      </bundle>
+    </branch>
+  </organization>
+</catalog>
+  \end{xml}
+\end{english}
+
+Обратите внимание, что у товаров появились цены~--- характеристика, которая часто
+меняется.
+
+Напомним, что с точки зрения Clojure XML~--- это вложенные словари с ключами
+\code{:tag}, \code{:attrs} и \code{:content}. После изменений мы бы хотели видеть его в
+привычном, текстовом виде. Понадобится обратное действие~--- из структуры данных
+получить XML в виде текста. Для этого импортируем модуль \code{clojure.xml}. Его
+функция \code{emit} выводит XML на печать.
+
+Часто \code{emit} оборачивают в \code{with-out-str}~--- макрос для перехвата печати в
+строку. В примерах ниже мы просто выводим XML в консоль. \code{Emit} не поддерживает
+отступы, поэтому мы добавили их вручную для ясности.
+
+\textbf{Первая задача}~--- сделать скидку 10\% на все айфоны. У нас готовы почти все
+абстракции, так что опишем решение сверху вниз:
+
+\begin{english}
+  \begin{clojure}
+(require '[clojure.xml :as xml])
+
+(-> "products-price.xml"
+    ->xml-zipper
+    (alter-loc alter-iphone-price)
+    zip/node
+    xml/emit)
+  \end{clojure}
+\end{english}
+
+Этих пяти строк достаточно для нашей задачи. Под вопросом только функция
+\code{alter-iphone-price}. Ожидается, что для локации-айфона она вернёт её же, но с
+другим атрибутом \code{price}. Локация другого типа останется без изменений. Опишем
+функцию:
+
+\begin{english}
+  \begin{clojure}
+(defn alter-iphone-price [loc]
+  (if (loc-iphone? loc)
+    (zip/edit loc alter-attr-price 0.9)
+    loc))
+  \end{clojure}
+\end{english}
+
+Предикат \code{loc-iphone?} проверяет локацию на "айфонность". Мы уже писали его в
+прошлом разделе:
+
+\begin{english}
+  \begin{clojure}
+(defn loc-iphone? [loc]
+  (let [node (zip/node loc)]
+    (and (-> node :tag (= :product))
+         (-> node :attrs :type (= "iphone")))))
+  \end{clojure}
+\end{english}
+
+Осталась функция \code{alter-attr-price}. Она принимает узел (содержимое локации) и
+должна изменить его атрибут \code{:price}. Второй аргумент функции~--- коэффициент, на
+который нужно умножить текущую цену. Небольшая трудность в том, что атрибуты в
+XML~--- строки. Чтобы выполнить умножение, нужно вывести число из строки, умножить
+на коэффициент, а результат привести в строку с округлением до двух цифр. Все
+вместе даёт нам функцию:
+
+\begin{english}
+  \begin{clojure}
+(defn alter-attr-price [node ratio]
+  (update-in node [:attrs :price]
+             (fn [price]
+               (->> price
+                    read-string
+                    (* ratio)
+                    (format "%.2f")))))
+  \end{clojure}
+\end{english}
+
+Быстрая проверка этой функции:
+
+\begin{english}
+  \begin{clojure}
+(alter-attr-price {:attrs {:price "10"}} 1.1)
+;; {:attrs {:price "11.00"}}
+  \end{clojure}
+\end{english}
+
+Теперь когда известны все компоненты, запустим первое выражение и получим XML:
+
+\begin{english}
+  \begin{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <organization name="re-Store">
+    <product price="8.99" type="fiber">VIP Fiber Plus</product>
+    <product price="809.99" type="iphone">iPhone 11 Pro</product>
+  </organization>
+  <organization name="DNS">
+    <branch name="Office 2">
+      <bundle>
+        <product price="9.99" type="fiber">Premium iFiber</product>
+        <product price="899.99" type="iphone">iPhone 11 Pro</product>
+      </bundle>
+    </branch>
+  </organization>
+</catalog>
+  \end{xml}
+\end{english}
+
+Видим, что цена на айфоны изменилась на 10%, а у остальных товаров осталась
+прежней.
+
+\textbf{Более сложная задача}~--- во все наборы (бандлы) добавить новый товар~---
+гарнитуру. Опять же, опишем решение сверху вниз:
+
+\begin{english}
+  \begin{clojure}
+(-> "products-price.xml"
+    ->xml-zipper
+    (alter-loc add-to-bundle)
+    zip/node
+    xml/emit)
+  \end{clojure}
+\end{english}
+
+Решение отличается только функций \code{add-to-bundle}. Её логика следующая: если
+текущая локация~--- набор, добавить ему потомка, а если нет, просто вернуть
+локацию.
+
+\begin{english}
+  \begin{clojure}
+(defn add-to-bundle [loc]
+  (if (loc-bundle? loc)
+    (zip/append-child loc node-headset)
+    loc))
+  \end{clojure}
+\end{english}
+
+Проверка на набор:
+
+\begin{english}
+  \begin{clojure}
+(defn loc-bundle? [loc]
+  (some-> loc zip/node :tag (= :bundle)))
+  \end{clojure}
+\end{english}
+
+Функция \code{zip/append-child} добавляет значение в конец потомков локации. В данном
+случае это узел \code{node-headset}, который вынесли в константу:
+
+\begin{english}
+  \begin{clojure}
+(def node-headset
+  {:tag :product
+   :attrs {:type "headset"
+           :price "199.99"}
+   :content ["AirPods Pro"]})
+  \end{clojure}
+\end{english}
+
+Итоговый XML, где в наборах появился новый товар:
+
+\begin{english}
+  \begin{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <organization name="re-Store">
+    <product price="8.99" type="fiber">VIP Fiber Plus</product>
+    <product price="899.99" type="iphone">iPhone 11 Pro</product>
+  </organization>
+  <organization name="DNS">
+    <branch name="Office 2">
+      <bundle>
+        <product price="9.99" type="fiber">Premium iFiber</product>
+        <product price="999.99" type="iphone">iPhone 11 Pro</product>
+        <product price="199.99" type="headset">AirPods Pro</product>
+      </bundle>
+    </branch>
+  </organization>
+</catalog>
+  \end{xml}
+\end{english}
+
+\textbf{Третья задача}~--- упразднить все наборы. Возможно, руководство решило, что
+продавать товары в наборах невыгодно. Что ж, бывает. Для программиста это
+значит, что из XML уходят все теги \code{<bundle>}, однако их товары должны перейти в
+организацию.
+
+И в третий раз решение отличается лишь целевой функцией:
+
+\begin{english}
+  \begin{clojure}
+(-> "products-price.xml"
+    ->xml-zipper
+    (alter-loc disband-bundle)
+    zip/node
+    xml/emit)
+  \end{clojure}
+\end{english}
+
+Опишем алгоритм \code{disband-bundle}. Если текущий узел~--- набор, сохраним его
+потомков (товары) в переменную, чтобы не потерять их. Затем удалим
+набор. Функция удаления вернёт предка локации, в нашем случае
+организацию. Присоединим к ней товары и вернем её.
+
+\begin{english}
+  \begin{clojure}
+(defn disband-bundle [loc]
+  (if (loc-bundle? loc)
+    (let [products (zip/children loc)
+          loc-org (zip/remove loc)]
+      (append-childs loc-org products))
+    loc))
+  \end{clojure}
+\end{english}
+
+Функция \code{append-childs}~--- это обёртка над встроенной
+\code{zip/append-child}. Последняя присоединяет только один элемент, что
+неудобно. Чтобы присоединить их список, напишем свёртку:
+
+\begin{english}
+  \begin{clojure}
+(defn append-childs [loc items]
+  (reduce (fn [loc item]
+            (zip/append-child loc item))
+          loc
+          items))
+  \end{clojure}
+\end{english}
+
+Финальный XML без наборов, но с теми же товарами:
+
+\begin{english}
+  \begin{xml}
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+  <organization name="re-Store">
+    <product price="8.99" type="fiber">VIP Fiber Plus</product>
+    <product price="899.99" type="iphone">iPhone 11 Pro</product>
+  </organization>
+  <organization name="DNS">
+    <branch name="Office 2">
+      <product price="9.99" type="fiber">Premium iFiber</product>
+      <product price="999.99" type="iphone">iPhone 11 Pro</product>
+    </branch>
+  </organization>
+</catalog>
+  \end{xml}
+\end{english}
+
+Надеемся, этих примеров достаточно, чтобы читатель понял, как редактировать
+зипперы. Обратите внимание, что кода получилось немного: для каждой задачи мы
+писали в среднем три функции. Другое преимущество в том, что нет состояния. Все
+функции чистые, и их вызов не сказывается на данных. Если на середине выскочит
+исключение, дерево XML не будет частично изменённым.
