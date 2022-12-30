@@ -25,6 +25,7 @@ RUN apt-get install -y -q \
     texlive-latex-extra \
     texlive-lang-cyrillic \
     texlive-fonts-extra \
+    inkscape \
     cm-super
 
 # java & clojure

@@ -25,3 +25,4 @@ media/corr/
 *.fls
 .dtmp
 clojure-in-production.zip
+svg-inkscape

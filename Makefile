@@ -44,6 +44,7 @@ clear-files:
 	rm -f *.toc
 	rm -f *.pyg
 	rm -rf _minted-*
+	rm -rf svg-inkscape
 	rm -f *.out
 
 clear-pdf:
