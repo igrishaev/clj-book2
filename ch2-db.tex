@@ -1430,9 +1430,9 @@ SQLite подходит для хранения настроек или исто
 
 SQLite ведет себя как обычная реляционная база данных. Ее основные сущности~--- таблицы, первичные ключи и индексы. База поддерживает транзакции, когда изменяются записи либо в нескольких таблицах, либо ни в одной. Для чтения нет ограничений на число клиентов, но для записи это не так: только один клиент может изменять данные. При попытке сделать это второй клиент получит ошибку, что база заблокирована на запись. Поэтому SQLite используют в основном в программах для одного пользователя. В этом случае данные меняются по очереди, а не параллельно.
 
-[sqlite-backup]: https://www.sqlite.org/backup.html
+\def\urlsqlitebackup{https://www.sqlite.org/backup.html}
 
-Особенность SQLite в том, что она может хранить данные в памяти без обращения к диску. Это полезно, когда программа интенсивно читает данные. Если загрузить их в память целиком, доступ к данным будет быстрее. Иногда программа выполняет долгий расчет и использует базу в памяти как временное хранилище. Позже ее можно [сохранить на диск][sqlite-backup].
+Особенность SQLite в том, что она может хранить данные в памяти без обращения к диску. Это полезно, когда программа интенсивно читает данные. Если загрузить их в память целиком, доступ к данным будет быстрее. Иногда программа выполняет долгий расчет и использует базу в памяти как временное хранилище. Позже ее можно \footurl{сохранить на диск}{\urlsqlitebackup}[SQLite backup].
 
 Как и в PostgreSQL, работа с SQLite сводится к функциям query, \code{insert!}, \code{update!} и другим. Разница в том, что, во-первых, нужно подключить драйвер базы, а во-вторых, изменить JDBC-спеку. Добавьте драйвер SQLite в проект:
 
@@ -2322,10 +2322,10 @@ where id = :id;
 
 Запросы в исходном виде удобны для отладки. Если вы написали выборку с помощью ORM, то должны убедиться, что она порождает верный SQL. Нужно вызвать уловный объект \code{QuerySet} и проверить логи базы. С сырым SQL этот шаг отпадает: его можно выполнить в PGAdmin или схожей программе с минимальными усилиями.
 
-[hugsql-org]: https://www.hugsql.org/
-[hugsql-gh]: https://github.com/layerware/hugsql
+\def\urlhugsqlorg{https://www.hugsql.org/}
+\def\urlhugsqlgh{https://github.com/layerware/hugsql}
 
-Принцип "SQL на шаблонах" предлагает библиотека [HugSQL][hugsql-org]. Подключите ее в проект (понадобится свежая версия \code{tools.reader}):
+Принцип <<SQL на шаблонах>> предлагает библиотека \footurl{HugSQL}{\urlhugsqlorg}[HugSQL]. Подключите ее в проект (понадобится свежая версия \code{tools.reader}):
 
 \begin{english}
   \begin{clojure}
@@ -2611,15 +2611,15 @@ id, fname, lname
   \end{clojure}
 \end{english}
 
-HugSQL предлагает многие другие возможности. Ознакомьтесь с ними на странице проекта.
+HugSQL предлагает многие другие возможности. Ознакомьтесь с ними \footurl{на странице}{\urlhugsqlgh}[layerware/hugsql] проекта.
 
-[yesql-gh]: https://github.com/krisajenkins/yesql
+\def\urlyesql{https://github.com/krisajenkins/yesql}
 
-Завершая раздел, отметим похожие библиотеки. [Yesql][yesql-gh] предлагает аналогичный подход: по файлу запросов библиотека строит функции Clojure. Отличие в том, что при генерации вы указываете JDBC-спеку по умолчанию. В этом случае ее не нужно передавать в каждую функцию явно. Для транзакций и особых случаев спеку передают в словаре опций. Yesql портирована на Python, Ruby, Golang и другие популярные языки.
+Завершая раздел, отметим похожие библиотеки. \footurl{Yesql}{\urlyesql}[Yesql] предлагает аналогичный подход: по файлу запросов библиотека строит функции Clojure. Отличие в том, что при генерации вы указываете JDBC-спеку по умолчанию. В этом случае ее не нужно передавать в каждую функцию явно. Для транзакций и особых случаев спеку передают в словаре опций. Yesql портирована на Python, Ruby, Golang и другие популярные языки.
 
-[conman-gh]: https://github.com/luminus-framework/conman
+\def\urlconman{https://github.com/luminus-framework/conman}
 
-Еще одна библиотека называется [Conman][conman-gh]. Это обертка над HugSQL с некоторыми упрощениями. Conman входит в состав фреймворка Luminus и является важной его частью. Можно использовать его отдельно от Luminus в проектах на другом стеке.
+Еще одна библиотека называется \footurl{Conman}{\urlconman}[Conman]. Это обертка над HugSQL с некоторыми упрощениями. Conman входит в состав фреймворка Luminus и является важной его частью. Можно использовать его отдельно от Luminus в проектах на другом стеке.
 
 \subsubsection{Построители}
 
@@ -2643,9 +2643,9 @@ String sql = QueryBuilder.select("u.*", "p.*")
 
 Принцип работает и в Clojure с той разницей, что вместо объекта используют привычный словарь. Специальная функция обходит его и строит SQL. Поскольку данные неизменяемы, каждая операция над словарем вернет новый словарь. Снижается риск ошибки, что мы случайно изменим запрос, на который используется в другом месте.
 
-[honeysql]: https://github.com/seancorfield/honeysql
+\def\urlhoneysql{https://github.com/seancorfield/honeysql}
 
-Библиотека [HoneySql][honeysql] работает по принципу "SQL как данные". Добавьте ее в проект:
+Библиотека \footurl{HoneySql}{\urlhoneysql}[Honey SQL] работает по принципу <<SQL как данные>>. Добавьте ее в проект:
 
 \begin{english}
   \begin{clojure}
@@ -4342,9 +4342,9 @@ Clojure предлагает несколько библиотек для миг
 
 \subsubsection{Migratus}
 
-[migratus-pg]: https://github.com/yogthos/migratus
+\def\urlmigratus{https://github.com/yogthos/migratus}
 
-Проект [Migratus][migratus-pg] состоит из двух частей: библиотеки и плагина к lein. Проще всего начать работу при помощи плагина. Добавьте его в проект:
+Проект \footurl{Migratus}{\urlmigratus}[Migratus] состоит из двух частей: библиотеки и плагина к lein. Проще всего начать работу при помощи плагина. Добавьте его в проект:
 
 \begin{english}
   \begin{clojure}
@@ -4635,9 +4635,9 @@ SELECT * FROM requests;
   \end{clojure}
 \end{english}
 
-[iplocation]: https://iplocation.com
+\def\urliploc{https://iplocation.com}
 
-Код страны получим с помощью сервиса [IPLocation][iplocation] по HTTP API. Сервис принимает POST-запрос с адресом и выдает JSON с информацией о нем. Напишем функцию:
+Код страны получим с помощью сервиса \footurl{IP Location}{\urliploc}[IP Location] по HTTP API. Сервис принимает POST-запрос с адресом и выдает JSON с информацией о нем. Напишем функцию:
 
 \begin{english}
   \begin{clojure}
@@ -4697,9 +4697,9 @@ SELECT * FROM requests;
 
 \subsubsection{Ragtime}
 
-[ragtime]: https://github.com/weavejester/ragtime
+\def\urlragtime{https://github.com/weavejester/ragtime}
 
-Коротко рассмотрим вторую библиотеку под названием [Ragtime][ragtime]. Ее принцип такой же, что мы рассмотрели выше. Это .sql-файлы в папке, их чтение и обход, таблица с именами обработанных миграций. В отличие от Migratus, Ragtime более гибок: если первый привязан к драйверу JDBC, то Ragtime основан на протоколах, которые легко адаптировать под любую базу, не обязательно реляционную.
+Коротко рассмотрим вторую библиотеку под названием \footurl{Ragtime}{\urlragtime}[Ragtime]. Ее принцип такой же, что мы рассмотрели выше. Это .sql-файлы в папке, их чтение и обход, таблица с именами обработанных миграций. В отличие от Migratus, Ragtime более гибок: если первый привязан к драйверу JDBC, то Ragtime основан на протоколах, которые легко адаптировать под любую базу, не обязательно реляционную.
 
 Протоколы \code{DataStore} и \code{Migration} описывают хранилище данных и миграцию. Встроенный пакет \code{ragtime.jdbc} расширяет их для JDBC-совместимых баз, как это делает Migratus. За счет этого Ragtime можно применить к разным базам, например Cassandra, MongoDB или Datomic. Работая в Exoscale, автор написал библиотеку миграций для Cassandra на базе Ragtime. Присмотритесь к этой библиотеке, если в проекте участвуют не только JDBC-совместимые базы.
 
@@ -4707,15 +4707,15 @@ SELECT * FROM requests;
 
 \subsection{Next.JDBC}
 
-[next-jdbc]: https://github.com/seancorfield/next-jdbc
+\def\urlnextjdbc{https://github.com/seancorfield/next-jdbc}
 
-Библиотека [Next.JDBC][next-jdbc]~--- это следующий этап в адаптации JDBC для Clojure. Проект ставит следующие цели:
+Библиотека \footurl{Next.JDBC}{\urlnextjdbc}[Next JDBC]~--- это следующий этап в адаптации JDBC для Clojure. Проект ставит следующие цели:
 
 - ускорить обработку выборки. Автор считает неоптимальным текущее проеобразование \code{ResultSet} в коллекцию Clojure. На больших результатах алгоритм действительно замедляется.
 
-[datafy]: https://clojure.github.io/clojure/branch-master/clojure.datafy-api.html
+\def\urldatafy{https://clojure.github.io/clojure/branch-master/clojure.datafy-api.html}
 
-- Обеспечить более тесную связь с Clojure за счет [протокола Datafy][datafy]. Протокол появился в Clojure 1.11 и служит посредником между сущностями Java и Clojure.
+- Обеспечить более тесную связь с Clojure за счет \footurl{протокола Datafy}{\urldatafy}[Datafy]. Протокол появился в Clojure 1.11 и служит посредником между сущностями Java и Clojure.
 
 - Предложить более простой и понятный API. Прежняя библиотека различает функции \code{query}, \code{execute!}, \code{db-do-commands} и другие; вдобавок она обязывает помнить об их особенностях. Next.JDBC планирует сократить разнообразие API.
 
@@ -4957,9 +4957,9 @@ vals.attnum)
   \end{clojure}
 \end{english}
 
-Как видно, интерфейс Next.JDBC в целом похож на предшественника. Функции ведут себя так же, но дают больше контроля за происходящим. Если у вас долгий опыт работы с \code{clojure.java.jdbc}, перейти на Next.JDBC будет несложно. Тонкости перехода описаны в [Wiki-документации][jdbc-next-migration] проекта. Там же вы узнаете о других возможностях JDBC.next.
+\def\urljdbcnextmig{https://github.com/seancorfield/next-jdbc/blob/develop/doc/migration-from-clojure-java-jdbc.md}
 
-[jdbc-next-migration]: https://github.com/seancorfield/next-jdbc/blob/develop/doc/migration-from-clojure-java-jdbc.md
+Как видно, интерфейс Next.JDBC в целом похож на предшественника. Функции ведут себя так же, но дают больше контроля за происходящим. Если у вас долгий опыт работы с \code{clojure.java.jdbc}, перейти на Next.JDBC будет несложно. Тонкости перехода описаны в \footurl{Wiki-документации}{\urljdbcnextmig}[Wiki] проекта. Там же вы узнаете о других возможностях JDBC.next.
 
 \subsection{Заключение}
 
