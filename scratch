@@ -35,5 +35,12 @@ sublime
 ##\s(.+)
 \\subsection{$1}
 
+###\s(.+)
+\\subsubsection{$1}
+
+####\s(.+)
+\\paragraph{$1}
+
+
 ó
 \\'{о}
