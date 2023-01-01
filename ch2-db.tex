@@ -1179,10 +1179,21 @@ COMMIT
 
 Уровень изоляции управляет подобными случаями. Современные базы выделяют следующие уровни:
 
-- READ UNCOMMITTED
-- READ COMMITTED
-- REPEATABLE READ
-- SERIALIZABLE
+\begin{itemize}
+
+\item
+  READ UNCOMMITTED
+
+\item
+  READ COMMITTED
+
+\item
+  REPEATABLE READ
+
+\item
+  SERIALIZABLE
+
+\end{itemize}
 
 Они следуют по нарастанию безопасности в работе с параллельными транзакциями. С уровнем READ UNCOMMITTED транзакции B доступны незавершенные изменения, сделанные в A. Возможно, они подлежат откату, потому полагаться на эти данные будет ошибочно.
 
