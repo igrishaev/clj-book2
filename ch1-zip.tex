@@ -182,7 +182,6 @@
 \begin{figure}[H]
   \centering
   \includesvg{charts/zip01.svg}
-%%   \caption{Начальная позиция}
   \label{fig:chart-zip-01}
 \end{figure}
 
@@ -191,7 +190,6 @@
 \begin{figure}[H]
   \centering
   \includesvg{charts/zip02.svg}
-%%   \caption{Результат смещения вниз}
   \label{fig:chart-zip-02}
 \end{figure}
 
@@ -200,7 +198,6 @@
 \begin{figure}[H]
   \centering
   \includesvg{charts/zip03.svg}
-%%   \caption{Перемещение вправо}
   \label{fig:chart-zip-03}
 \end{figure}
 
@@ -314,8 +311,6 @@ nil
 \begin{figure}[H]
   \centering
   \includesvg{charts/zip04.svg}
-%%   \chart{chart-zip-04}
-%%   \caption{Исходная позиция}
   \label{fig:chart-zip-04}
 \end{figure}
 
@@ -324,8 +319,6 @@ nil
 \begin{figure}[H]
   \centering
   \includesvg{charts/zip05.svg}
-%%   \chart{chart-zip-05}
-%%   \caption{Шаг вниз}
   \label{fig:chart-zip-05}
 \end{figure}
 
@@ -333,9 +326,7 @@ nil
 
 \begin{figure}[H]
   \centering
-\includesvg{charts/zip06.svg}
-%%   \chart{chart-zip-06}
-%%   \caption{Шаг вправо}
+  \includesvg{charts/zip06.svg}
   \label{fig:chart-zip-06}
 \end{figure}
 
@@ -343,9 +334,7 @@ nil
 
 \begin{figure}[H]
   \centering
-\includesvg{charts/zip07.svg}
-%%   \chart{chart-zip-07}
-%%   \caption{Шаг вниз}
+  \includesvg{charts/zip07.svg}
   \label{fig:chart-zip-07}
 \end{figure}
 
@@ -353,9 +342,7 @@ nil
 
 \begin{figure}[H]
   \centering
-\includesvg{charts/zip08.svg}
-%%   \chart{chart-zip-08}
-%%   \caption{Шаг вправо}
+  \includesvg{charts/zip08.svg}
   \label{fig:chart-zip-08}
 \end{figure}
 
@@ -368,9 +355,7 @@ nil
 
 \begin{figure}[H]
   \centering
-\includesvg{charts/zip09.svg}
-%%   \chart{chart-zip-09}
-%%   \caption{Текущая локация}
+  \includesvg{charts/zip09.svg}
   \label{fig:chart-zip-09}
 \end{figure}
 
@@ -378,9 +363,7 @@ nil
 
 \begin{figure}[H]
   \centering
-\includesvg{charts/zip10.svg}
-%%   \chart{chart-zip-10}
-%%   \caption{Шаг вверх}
+  \includesvg{charts/zip10.svg}
   \label{fig:chart-zip-10}
 \end{figure}
 
@@ -388,9 +371,7 @@ nil
 
 \begin{figure}[H]
   \centering
-\includesvg{charts/zip11.svg}
-%%   \chart{chart-zip-11}
-%%   \caption{Шаг вправо}
+  \includesvg{charts/zip11.svg}
   \label{fig:chart-zip-11}
 \end{figure}
 
@@ -1550,8 +1531,15 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
 То же самое делает функция \code{zip/root}, которая принимает локацию с
 изменениями. Её алгоритм следующий:
 
-- подняться до первичной локации, повторно вызывая \code{zip/up};
-- вернуть узел.
+\begin{itemize}
+
+\item
+  подняться до первичной локации, повторно вызывая \code{zip/up};
+
+\item
+  вернуть узел.
+
+\end{itemize}
 
 Чтобы получить результат за один проход, добавим \code{zip/root} на конец стрелочного
 оператора:
@@ -1676,7 +1664,6 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
 \begin{figure}[H]
   \centering
   \includesvg{charts/zip12.svg}
-%%   \chart{chart-zip-12}
   \caption{Иерархия вектора}
   \label{fig:chart-zip-12}
 \end{figure}
@@ -2184,8 +2171,6 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \begin{figure}[H]
   \centering
   \includesvg{charts/zip13.svg}
-%%   \caption{foo}
-%%   \label{fig:chart-zip-aaa}
 \end{figure}
 
 С шагом вниз мы провалимся в очередной вектор \code{[1 2 3]} и так далее. Ради
@@ -2523,13 +2508,11 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 Таким образом, потомки доллара~--- рубль и лира. Изобразим мнимое дерево и
 обозначим уровни:
 
-%%                   ┌───────┐
-%%      1            │  usd  │
-%%                   └───────┘
-%%                       │
-%%           ┌───────┐   │   ┌───────┐
-%%      2    │  rub  │◀──┴──▶│  lir  │
-%%           └───────┘       └───────┘
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip14.svg}
+  \label{fig:chart-zip-14}
+\end{figure}
 
 Для каждой валюты второго уровня найдём потомков по такому же правилу. Для
 удобства напишем функцию \code{get-children}:
@@ -2548,17 +2531,11 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 
 Новое дерево:
 
-%%                       ┌───────┐
-%%     1                 │  usd  │
-%%                       └───────┘
-%%                           │
-%%               ┌───────┐   │   ┌───────┐
-%%     2         │  rub  │◀──┴──▶│  lir  │
-%%               └───────┘       └───────┘
-%%                   │               │
-%%        ┌───────┐  │  ┌───────┐    │  ┌───────┐
-%%     3  │  eur  │◀─┴─▶│  yen  │    └─▶│  tug  │
-%%        └───────┘     └───────┘       └───────┘
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip15.svg}
+  \label{fig:chart-zip-15}
+\end{figure}
 
 Заметим, что это виртуальное дерево, о котором мы говорили недавно. У нас нет
 этого дерева на руках~--- оно получается в процессе. Функция \code{make-children}
@@ -2570,20 +2547,11 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 валюте \code{to}. Пусть это будут йены. Это значит, мы соединили \code{from} и \code{to} с
 помощью других валют. Обозначим решение на схеме:
 
-
-%%                       ┌───────┐
-%%     1                 │  usd  │
-%%                       └───────┘
-%%                           │
-%%               ┌───────┐   │   ┌ ─ ─ ─ ┐
-%%     2         │  rub  │◀──┘
-%%               └───────┘       └ ─ ─ ─ ┘
-%%                   │
-%%        ┌ ─ ─ ─ ┐  │  ┌───────┐       ┌ ─ ─ ─ ┐
-%%     3             └─▶│  yen  │
-%%        └ ─ ─ ─ ┘     └───────┘       └ ─ ─ ─ ┘
-
-
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip16.svg}
+  \label{fig:chart-zip-16}
+\end{figure}
 
 Чтобы получить цепочку обмена, локацию \code{to} передают в функцию \code{zip/path}. Она
 вернёт вектор родителей локации, не включая ее саму. Путь к локации и её узел
@@ -2756,20 +2724,11 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \end{clojure}
 \end{english}
 
-%%                        ┌───────┐
-%%                        │[1 2 3]│
-%%                        └───────┘
-%%                            │
-%%                ┌───────┐   │
-%%                │[1 2 3]│◀──┘
-%%                └───────┘
-%%                    │
-%%         ┌───────┐  │
-%%         │[1 2 3]│◀─┘
-%%         └───────┘
-%%             │
-%%             │
-%%     ...   ◀─┘
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip17.svg}
+  \label{fig:chart-zip-17}
+\end{figure}
 
 Поскольку в зиппере нет условия, по которому производство потомков
 останавливается, их вложенность неограничена. Функция \code{iter-zip} вернёт
@@ -2801,35 +2760,21 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 
 Читатель заметит, что получился замкнутый круг:
 
-%%              ┌───────┐
-%%         ┌───▶│  rub  │────┐
-%%         │    └───────┘    │
-%%         │                 ▼
-%%     ┌───────┐         ┌───────┐
-%%     │  eur  │◀────────│  usd  │
-%%     └───────┘         └───────┘
-
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip18.svg}
+  \label{fig:chart-zip-18}
+\end{figure}
 
 Недостаток прошлого решения в том, что оно не учитывает цикличность
 правил. Предположим, клиент хочет обменять рубли на лиры. Начнём строить дерево
 от рубля. Начало цепочки:
 
-%%                        ┌───────┐
-%%                        │  rub  │
-%%                        └───────┘
-%%                            │
-%%                ┌───────┐   │
-%%                │  usd  │◀──┘
-%%                └───────┘
-%%                    │
-%%         ┌───────┐  │
-%%         │  eur  │◀─┘
-%%         └───────┘
-%%             │
-%%  ┌───────┐  │
-%%  │  rub  │◀─┘
-%%  └───────┘
-
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip19.svg}
+  \label{fig:chart-zip-19}
+\end{figure}
 
 Мы снова пришли к рублю. Для него мы получим доллар, для доллара евро, затем
 рубль. Если продолжить итерацию, будем бесконечно погружаться в эту цепочку.
@@ -2855,24 +2800,11 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 выбраться. Нам может повезти, когда мы удачно шагнули в ветку с решением
 (слева), а бесконечная ветка (справа) осталась нетронутой:
 
-%%                  ┌───────┐
-%%                  │  rub  │
-%%                  └───────┘
-%%                      │
-%%          ┌───────┐   │   ┌───────┐
-%%          │  yen  │◀──┴──▶│  usd  │
-%%          └───────┘       └───────┘
-%%              │               │
-%%  ┏━━━━━━━┓   │               │   ┌───────┐
-%%  ┃  lir  ┃◀──┘               └──▶│  eur  │
-%%  ┗━━━━━━━┛                       └───────┘
-%%                                      │
-%%                                      │   ┌───────┐
-%%                                      └──▶│  rub  │
-%%                                          └───────┘
-%%                                              │
-%%                                              │
-%%                                              └──▶  ...
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip20.svg}
+  \label{fig:chart-zip-20}
+\end{figure}
 
 Однако это везение, и на него нельзя полагаться в решении задач.
 
@@ -2884,48 +2816,22 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 обход поможет добраться до цели. Вертикальный обход ушёл бы вы бесконечность,
 потому что обе ветви цикличны.
 
-
-%%                            ┌───────┐
-%%                          ┌─│  rub  │
-%%                          │ └───────┘
-%%                          ▼
-%%                      ┌───────┐   ┌───────┐
-%%                      │  yen  │──▶│  usd  │
-%%                      └───────┘   └───────┘
-%%                                      │
-%%                    ┌─────────────────┘
-%%                    ▼
-%%                ┏━━━━━━━┓                ┌───────┐
-%%                ┃  lir  ┃───────────────▶│  eur  │
-%%                ┗━━━━━━━┛                └───────┘
-%%                                             │
-%%           ┌─────────────────────────────────┘
-%%           ▼
-%%       ┌───────┐   ┌───────┐         ┌───────┐   ┌───────┐
-%%       │  rub  │──▶│  tug  │────────▶│  yen  │──▶│  rub  │
-%%       └───────┘   └───────┘         └───────┘   └───────┘
-%%           │                                         │
-%%           │                                         │
-%%    ...  ◀─┘                                         └─▶  ...
-
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip21.svg}
+  \label{fig:chart-zip-21}
+\end{figure}
 
 Проблема в том, что модуль \code{clojure.zip} предлагает только один способ обхода~---
 в глубину с помощью \code{zip/next}. Другого алгоритма не предусмотрено. Мы напишем
 свою функцию, чтобы обойти зиппер "послойно". Говоря иначе, для дерева как на
 рисунке:
 
-
-%%                             ┌───────┐
-%%   1                         │   1   │
-%%                             └───────┘
-%%                                 │
-%%               ┌───────┐         │         ┌───────┐
-%%   2           │   2   │◀────────┴────────▶│   3   │
-%%               └───────┘                   └───────┘
-%%                   │                           │
-%%       ┌───────┐   │   ┌───────┐   ┌───────┐   │   ┌───────┐
-%%   3   │   4   │◀──┴──▶│   5   │   │   6   │◀──┴──▶│   7   │
-%%       └───────┘       └───────┘   └───────┘       └───────┘
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip22.svg}
+  \label{fig:chart-zip-22}
+\end{figure}
 
 \noindent
 мы получим слои:
