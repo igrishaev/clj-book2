@@ -198,19 +198,16 @@ user=> (str/replace "Two minutes, Turkish!", #"Two" "Five")
 
 Содержимое окна будет примерно таким:
 
-\begin{english}
-  \begin{text}
-TODO
-{}
-  JAVA_MAIN_CLASS_68934=clojure.main
-  LC_TERMINAL=iTerm2
-  COLORTERM=truecolor
-  LOGNAME=ivan
-  TERM_PROGRAM_VERSION=3.3.12
-  PWD=/Users/ivan/work/book-sessions
-  SHELL=/bin/zsh
-  \end{text}
-\end{english}
+\dirtree{%
+ .1 \{\}.
+ .2 JAVA\_MAIN\_CLASS\_68934=clojure.main.
+ .2 LC\_TERMINAL=iTerm2.
+ .2 COLORTERM=truecolor.
+ .2 LOGNAME=ivan.
+ .2 TERM\_PROGRAM\_VERSION=3.3.12.
+ .2 PWD=/Users/ivan/work/book-sessions.
+ .2 SHELL=/bin/zsh.
+}
 
 Опробуйте случай с ошибкой: поделите число на ноль или сложите число с \code{nil}. REPL не завершится, но выведет исключение на экран:
 
@@ -2404,7 +2401,7 @@ Possible completions are:
 
 Команды \code{cider-eval-region}, \code{cider-eval-buffer} и другие выполняют код из разных областей. Как следует из названий, \code{-region} выполняет выделенный код, в котором может быть несколько форм. Команда \code{-buffer} охватывает буфер цели.
 
-Команда \code{cider-eval-defun-at-point} выполняет определение~--- формы \code{def}, \code{defn}, \code{defmacro} и другие. Особенность в том, курсор может быть в любом месте формы, а не обязательно на конце. В примере ниже установите курсор на место черты и выполните команду. TODO % Результатом станет переменная \code{#'user-description} (объект \code{Var}).
+Команда \code{cider-eval-defun-at-point} выполняет определение~--- формы \code{def}, \code{defn}, \code{defmacro} и другие. Особенность в том, курсор может быть в любом месте формы, а не обязательно на конце. В примере ниже установите курсор на место черты и выполните команду. Результатом станет переменная \code{\#'user-description} (объект \code{Var}).
 
 \begin{english}
   \begin{clojure}
@@ -3970,7 +3967,7 @@ Help message...
 
 \def\urlcorespecalpha{https://github.com/clojure/core.specs.alpha}
 
-Некоторые формы допускают разную запись. Например, у формы \code{defn} может быть несколько тел, в \code{def} может быть строка документации, pre- и post-проверки и многое другое. Приведите их к единому виду, чтобы не усложнять код проверками if/else. Один из способов это сделать~--- разобрать форму на части функцией \code{conform} из Clojure.spec. Для разбора понадобятся определения; взять их можно из пакета \footurl{clojure.core.specs.alpha}{\urlcorespecalpha}[core.\-specs.\-alpha], где собраны спеки основных конструкций: \code{ns}, \code{let}, \code{def} и других.
+Некоторые формы допускают разную запись. Например, у формы \code{defn} может быть несколько тел, в \code{def} может быть строка документации, pre- и post-проверки и многое другое. Приведите их к единому виду, чтобы не усложнять код проверками if/else. Один из способов это сделать~--- разобрать форму на части функцией \code{conform} из Clojure.spec. Для разбора понадобятся определения; взять их можно из пакета \footurl{clojure.core.specs.alpha}{\urlcorespecalpha}[Core Specs Alpha], где собраны спеки основных конструкций: \code{ns}, \code{let}, \code{def} и других.
 
 \subsubsection{Отладочный тег}
 
@@ -4845,7 +4842,7 @@ Some features will not be available without it!
 
 \def\urlcomponent{https://github.com/stuartsierra/component}
 
-Мы подробно рассмотрели системы в первой книге, поэтому не будем начинать все с нуля. Покажем только, как представить сервер nREPL в виде компонента. В качестве системы выберем библиотеку \footurl{Component}{\urlcomponent}[Component]. Добавьте ее в зависимости:
+Мы подробно рассмотрели системы в первой книге, поэтому не будем начинать все с нуля. Покажем только, как представить сервер nREPL в виде компонента. В качестве системы выберем библиотеку \footurl{Component}{\urlcomponent}[Com\-po\-nent]. Добавьте ее в зависимости:
 
 \begin{english}
   \begin{clojure}
