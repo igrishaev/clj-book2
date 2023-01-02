@@ -179,28 +179,28 @@
 
 Покажем это на схеме. Начальная позиция, указатель на исходном векторе:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-01}
-  \caption{Начальная позиция}
+  \includesvg{charts/zip01.svg}
+%%   \caption{Начальная позиция}
   \label{fig:chart-zip-01}
 \end{figure}
 
 Шаг вниз, указатель на единице:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-02}
-  \caption{Результат смещения вниз}
+  \includesvg{charts/zip02.svg}
+%%   \caption{Результат смещения вниз}
   \label{fig:chart-zip-02}
 \end{figure}
 
 Шаг вправо, указатель на двойке:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-03}
-  \caption{Перемещение вправо}
+  \includesvg{charts/zip03.svg}
+%%   \caption{Перемещение вправо}
   \label{fig:chart-zip-03}
 \end{figure}
 
@@ -311,46 +311,51 @@ nil
 
 Рисунки ниже показывают, что происходит на каждом шаге. Исходная позиция:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-04}
-  \caption{Исходная позиция}
+  \includesvg{charts/zip04.svg}
+%%   \chart{chart-zip-04}
+%%   \caption{Исходная позиция}
   \label{fig:chart-zip-04}
 \end{figure}
 
 Шаг вниз:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-05}
-  \caption{Шаг вниз}
+  \includesvg{charts/zip05.svg}
+%%   \chart{chart-zip-05}
+%%   \caption{Шаг вниз}
   \label{fig:chart-zip-05}
 \end{figure}
 
 Вправо:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-06}
-  \caption{Шаг вправо}
+\includesvg{charts/zip06.svg}
+%%   \chart{chart-zip-06}
+%%   \caption{Шаг вправо}
   \label{fig:chart-zip-06}
 \end{figure}
 
 Вниз:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-07}
-  \caption{Шаг вниз}
+\includesvg{charts/zip07.svg}
+%%   \chart{chart-zip-07}
+%%   \caption{Шаг вниз}
   \label{fig:chart-zip-07}
 \end{figure}
 
 Вправо. Мы у цели:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-08}
-  \caption{Шаг вправо}
+\includesvg{charts/zip08.svg}
+%%   \chart{chart-zip-08}
+%%   \caption{Шаг вправо}
   \label{fig:chart-zip-08}
 \end{figure}
 
@@ -361,28 +366,31 @@ nil
 
 То же самое графически. Текущая локация (тройка):
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-09}
-  \caption{Текущая локация}
+\includesvg{charts/zip09.svg}
+%%   \chart{chart-zip-09}
+%%   \caption{Текущая локация}
   \label{fig:chart-zip-09}
 \end{figure}
 
 Шаг вверх:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-10}
-  \caption{Шаг вверх}
+\includesvg{charts/zip10.svg}
+%%   \chart{chart-zip-10}
+%%   \caption{Шаг вверх}
   \label{fig:chart-zip-10}
 \end{figure}
 
 Шаг вправо:
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-11}
-  \caption{Шаг вправо}
+\includesvg{charts/zip11.svg}
+%%   \chart{chart-zip-11}
+%%   \caption{Шаг вправо}
   \label{fig:chart-zip-11}
 \end{figure}
 
@@ -1665,9 +1673,10 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
 локацией, а потомок ниже. В центре диаграммы находится локация с вектором \code{[2
 3]}. Её соседи~--- числа 1 и 4, а потомки~--- 2 и 3.
 
-\begin{figure}[ht!]
+\begin{figure}[H]
   \centering
-  \chart{chart-zip-12}
+  \includesvg{charts/zip12.svg}
+%%   \chart{chart-zip-12}
   \caption{Иерархия вектора}
   \label{fig:chart-zip-12}
 \end{figure}
@@ -2172,28 +2181,12 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 Покажем наше положение не схеме. Шаги влево и право сдвинут нас на единицу и
 тройку:
 
-%% TODO
-%% \begin{figure}[ht!]
-%%   \centering
-%%   \includesvg{media/chart-foo.svg}
-%% %%   \chart{media/foobar.svg}
-%% %%   \caption{foo}
-%% %%   \label{fig:chart-zip-aaa}
-%% \end{figure}
-
-%%               ┌───────────┐
-%%               │     1     │
-%%               └───────────┘
-%%                     ▲
-%%                     │
-%%  ┌───────┐    ┏━━━━━━━━━━━┓    ┌───────┐
-%%  │   1   │◀───┃     2     ┃───▶│   3   │
-%%  └───────┘    ┗━━━━━━━━━━━┛    └───────┘
-%%                     │
-%%                     ▼
-%%                 ┌───────┐
-%%                 │[1 2 3]│
-%%                 └───────┘
+\begin{figure}[H]
+  \centering
+  \includesvg{charts/zip13.svg}
+%%   \caption{foo}
+%%   \label{fig:chart-zip-aaa}
+\end{figure}
 
 С шагом вниз мы провалимся в очередной вектор \code{[1 2 3]} и так далее. Ради
 интереса спустимся вниз и вправо пять раз, и всё равно окажемся в двойке:
@@ -3192,6 +3185,7 @@ HTML. Разбор основан на Java-библиотеке \footurl{JSoup}
   \end{clojure}
 \end{english}
 
+\noindent
 и выполните пример:
 
 \begin{english}
