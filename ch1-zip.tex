@@ -38,12 +38,12 @@
 \def\huet{https://en.wikipedia.org/wiki/Gerard\_Huet}
 \def\huetzipper{https://www.st.cs.uni-saarland.de/edu/seminare/2005/advanced-fp/docs/huet-zipper.pdf}
 
-Термин <<зиппер>> ввел французкий ученый \footurl{Жерар Юэ}{\huet}[G\'{e}rard Huet]
+Термин <<зиппер>> ввел ученый \footurl{Жерар Юэ}{\huet}[G\'{e}rard Huet]
 (G\'{e}rard Huet) в 1996 году. Юэ занимался деревьями и искал универсальный
-способ работы с ними. В знаменитой работе \footurl{<<Functional Pearl: The Zipper>>}{\huetzipper}[The Zipper]
-Юэ привел концепцию зиппера на языке OCaml. Документ
-привлек внимание простотой и ясностью: описание зиппера, включая код и
-комментарии, уместились на четырех страницах. Современные зипперы почти не
+способ работы с ними. В знаменитой работе \footurl{<<Functional Pearl: The
+  Zipper>>}{\huetzipper}[The Zipper] Юэ привел концепцию зиппера на языке
+OCaml. Документ привлек внимание простотой и ясностью: описание зиппера, включая
+код и комментарии, уместились на четырех страницах. Современные зипперы почти не
 отличаются от того изложения 1996 года.
 
 Хотя Юэ отмечает, что зиппер можно создать на любом языке, лучше всего они
@@ -264,9 +264,7 @@ nil
     zip/down
     zip/left
     zip/left
-    zip/left
     ...)
-
 ;; nil
   \end{clojure}
 \end{english}
@@ -302,7 +300,7 @@ nil
       zip/right))
 
 (zip/node loc3)
-3
+;; 3
   \end{clojure}
 \end{english}
 
@@ -479,18 +477,19 @@ XML-документ. Нужный тег может располагаться 
 
 \begin{english}
   \begin{clojure}
-(def loc-seq (iterate zip/next vzip))
+(def loc-seq
+  (iterate zip/next vzip))
 
 (->> loc-seq
      (take 6)
      (map zip/node))
 
 ;; ([1 [2 3] 4]
-;;   1
-;;   [2 3]
-;;   2
-;;   3
-;;   4)
+;;  1
+;;  [2 3]
+;;  2
+;;  3
+;;  4)
   \end{clojure}
 \end{english}
 
