@@ -26,3 +26,4 @@ media/corr/
 .dtmp
 clojure-in-production.zip
 svg-inkscape
+*.w18
