@@ -1496,7 +1496,8 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
 \begin{english}
   \begin{clojure}
 (fn [node children]
-  (assoc node :content (and children (apply vector children))))
+  (assoc node :content
+              (and children (apply vector children))))
   \end{clojure}
 \end{english}
 
@@ -1531,6 +1532,7 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
   \end{clojure}
 \end{english}
 
+\noindent
 и после. Обратите внимание ключ \code{:changed?}:
 
 \begin{english}
@@ -1642,15 +1644,16 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
 
 Как видно из примера, выражение с \code{zip/edit} не повлияло на результат.
 
-При редактировании зипперов применяют следующие паттерны.
+При редактировании зипперов применяют следующие техники.
 
 \textbf{Изменяется один элемент.} В этом случае мы итерируем зиппер до тех пор, пока
 не встретим нужную локацию в цепочке. Затем меняем её и вызываем \code{zip/root}.
 
-\textbf{Изменяются многие элементы.} С помощью \code{loop} и \code{zip/next} мы вручную
-итерируем зиппер. При этом задана функция, которая либо меняет локацию, любо
-оставляет нетронутой. В форму \code{recur} попадает \code{zip/next} от её результата. Если
-изменения были, \code{zip/next} оттолкнётся от новой, а не исходной локации.
+\textbf{Изменяются многие элементы.} С помощью функций \code{loop} и
+\code{zip/next} мы вручную итерируем зиппер. При этом задана функция, которая
+либо меняет локацию, любо оставляет нетронутой. В форму \code{recur} попадает
+\code{zip/next} от её результата. Если изменения были, \code{zip/next}
+оттолкнётся от новой, а не исходной локации.
 
 Для изменения локаций служат функции:
 
@@ -1871,22 +1874,34 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
 
 \subsection{Цены в XML}
 
-Перейдём к практическим примерам с XML и товарами. Подготовим следующий файл
-\code{products-price.xml}:
+Перейдём к практическим примерам с XML и товарами. Подготовим файл
+\code{products-price.xml} (листинг \ref{fig:chart-xml-01} справа). Обратите
+внимание, что у товаров появились цены~--- характеристика, которая часто
+меняется.
+
+\begin{figure}[ht!]
 
 \begin{english}
   \begin{xml}
 <?xml version="1.0" encoding="UTF-8"?>
 <catalog>
   <organization name="re-Store">
-    <product type="fiber" price="8.99">VIP Fiber Plus</product>
-    <product type="iphone" price="899.99">iPhone 11 Pro</product>
+    <product type="fiber" price="8.99">
+      VIP Fiber Plus
+    </product>
+    <product type="iphone" price="899.99">
+      iPhone 11 Pro
+    </product>
   </organization>
   <organization name="DNS">
     <branch name="Office 2">
       <bundle>
-        <product type="fiber" price="9.99">Premium iFiber</product>
-        <product type="iphone" price="999.99">iPhone 11 Pro</product>
+        <product type="fiber" price="9.99">
+          Premium iFiber
+        </product>
+        <product type="iphone" price="999.99">
+          iPhone 11 Pro
+        </product>
       </bundle>
     </branch>
   </organization>
@@ -1894,8 +1909,10 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
   \end{xml}
 \end{english}
 
-Обратите внимание, что у товаров появились цены~--- характеристика, которая часто
-меняется.
+\caption{XML с товарами и ценами}
+\label{fig:chart-xml-01}
+
+\end{figure}
 
 Напомним, что с точки зрения Clojure XML~--- это вложенные словари с ключами
 \code{:tag}, \code{:attrs} и \code{:content}. После изменений мы бы хотели видеть его в
