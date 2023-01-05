@@ -1953,7 +1953,7 @@ CRUD (Create, Read, Update, Delete), знакомые из веб-разрабо
   \end{clojure}
 \end{english}
 
-Предикат \code{loc-iphone?} проверяет локацию на "айфонность". Мы уже писали его в
+Предикат \code{loc-iphone?} проверяет локацию на <<айфонность>>. Мы уже писали его в
 прошлом разделе:
 
 \begin{english}
@@ -1993,21 +1993,32 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \end{clojure}
 \end{english}
 
-Теперь когда известны все компоненты, запустим первое выражение и получим XML:
+Теперь когда известны все компоненты, запустим первое выражение и получим XML
+как в листинге \ref{fig:chart-xml-02} справа.
+
+\begin{figure}[ht!]
 
 \begin{english}
   \begin{xml}
 <?xml version="1.0" encoding="UTF-8"?>
 <catalog>
   <organization name="re-Store">
-    <product price="8.99" type="fiber">VIP Fiber Plus</product>
-    <product price="809.99" type="iphone">iPhone 11 Pro</product>
+    <product price="8.99" type="fiber">
+      VIP Fiber Plus
+    </product>
+    <product price="809.99" type="iphone">
+      iPhone 11 Pro
+    </product>
   </organization>
   <organization name="DNS">
     <branch name="Office 2">
       <bundle>
-        <product price="9.99" type="fiber">Premium iFiber</product>
-        <product price="899.99" type="iphone">iPhone 11 Pro</product>
+        <product price="9.99" type="fiber">
+          Premium iFiber
+        </product>
+        <product price="899.99" type="iphone">
+          iPhone 11 Pro
+        </product>
       </bundle>
     </branch>
   </organization>
@@ -2015,7 +2026,12 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \end{xml}
 \end{english}
 
-Видим, что цена на айфоны изменилась на 10%, а у остальных товаров осталась
+\caption{XML со скидкой}
+\label{fig:chart-xml-02}
+
+\end{figure}
+
+Видим, что цена на айфоны изменилась на 10\%, а у остальных товаров осталась
 прежней.
 
 \textbf{Более сложная задача}~--- во все наборы (бандлы) добавить новый товар~---
