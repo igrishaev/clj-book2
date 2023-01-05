@@ -527,7 +527,6 @@ XML-документ. Нужный тег может располагаться 
       zip/vector-zip
       zip/next
       zip/next
-      zip/next
       zip/next))
 
 loc-end
@@ -850,11 +849,15 @@ Clojure предлагает XML-парсер, который вернет ст�
    [{:tag :product
      :attrs {:type "iphone"}
      :content ["iPhone 11 Pro"]}
-    {:tag :product :attrs {:type "iphone"} :content ["iPhone SE"]}]}
+    {:tag :product
+     :attrs {:type "iphone"}
+     :content ["iPhone SE"]}]}
   {:tag :organization
    :attrs {:name "DNS"}
    :content
-   [{:tag :product :attrs {:type "tablet"} :content ["iPad 3"]}
+   [{:tag :product
+     :attrs {:type "tablet"}
+     :content ["iPad 3"]}
     {:tag :product
      :attrs {:type "notebook"}
      :content ["Macbook Pro"]}]}]}
@@ -893,6 +896,7 @@ Clojure предлагает XML-парсер, который вернет ст�
   \end{clojure}
 \end{english}
 
+\noindent
 и выборку с преобразованием:
 
 \begin{english}
@@ -957,22 +961,18 @@ Clojure предлагает XML-парсер, который вернет ст�
     <product type="tablet">iPad 3</product>
     <product type="notebook">Macbook Pro</product>
   </branch>
-  <branch name="Office 2">
-    <product type="tablet">iPad 4</product>
-    <product type="phone">Samsung A6+</product>
-  </branch>
 </organization>
   \end{xml}
 \end{english}
 
 Код выше, где мы слепо выбираем данные по уровню, сработает неверно. В списке
-товаров окажется филиал:
+товаров окажется узел:
 
 \begin{english}
   \begin{clojure}
 ("iPhone 11 Pro"
  "iPhone SE"
- {:tag :product, :attrs {:type "tablet"}, :content ["iPad 3"]} ...)
+ {:tag :product :attrs {:type "tablet"} :content ...})
   \end{clojure}
 \end{english}
 
@@ -986,7 +986,7 @@ Clojure предлагает XML-парсер, который вернет ст�
      (filter loc-product?)
      (map loc->product))
 
-("iPhone 11 Pro" "iPhone SE" "iPad 3" "Macbook Pro" "iPad 4" "Samsung A6+")
+("iPhone 11 Pro" "iPhone SE" "iPad 3" "Macbook Pro")
   \end{clojure}
 \end{english}
 
@@ -1006,10 +1006,9 @@ XML-узлов в том же виде (словарь с ключами \code{:
   \begin{clojure}
 (defn xml-seq
   [root]
-  (tree-seq
-    (complement string?)
-    (comp seq :content)
-    root))
+  (tree-seq (complement string?)
+            (comp seq :content)
+            root))
   \end{clojure}
 \end{english}
 
@@ -1033,7 +1032,7 @@ XML-узлов в том же виде (словарь с ключами \code{:
      (filter node-product?)
      (mapcat :content))
 
-("iPhone 11 Pro" "iPhone SE" "iPad 3" "Macbook Pro" "iPad 4" "Samsung A6+")
+("iPhone 11 Pro" "iPhone SE" "iPad 3" "Macbook Pro")
   \end{clojure}
 \end{english}
 
@@ -1057,10 +1056,10 @@ XML-узлов в том же виде (словарь с ключами \code{:
   \begin{clojure}
 (def xml-nodes
   (->> "products-branch.xml"
-     io/resource
-     io/file
-     xml/parse
-     xml-seq))
+       io/resource
+       io/file
+       xml/parse
+       xml-seq))
   \end{clojure}
 \end{english}
 
@@ -1070,7 +1069,9 @@ XML-узлов в том же виде (словарь с ключами \code{:
 \begin{english}
   \begin{clojure}
 (-> xml-nodes (nth 2))
-;; {:tag :product :attrs {:type "iphone"} :content ["iPhone 11 Pro"]}
+;; {:tag :product
+;;  :attrs {:type "iphone"}
+;;  :content ["iPhone 11 Pro"]}
   \end{clojure}
 \end{english}
 
@@ -1081,7 +1082,7 @@ XML-узлов в том же виде (словарь с ключами \code{:
 \begin{english}
   \begin{clojure}
 (->> xml-nodes (mapv :tag) (remove nil?) (run! print))
-;; :catalog :organization :product :product :organization ...
+;; :catalog :organization :product :product ...
   \end{clojure}
 \end{english}
 
@@ -1151,7 +1152,8 @@ XML-узлов в том же виде (словарь с ключами \code{:
        (map zip/up)
        (map (comp :attrs zip/node))))
 
-({:name "re-Store"} {:name "re-Store"})
+({:name "re-Store"}
+ {:name "re-Store"})
   \end{clojure}
 \end{english}
 
@@ -1225,11 +1227,13 @@ XML-узлов в том же виде (словарь с ключами \code{:
 \begin{english}
   \begin{json}
 [{"name": "re-Store",
-  "products": [{"type": "iphone", "name": "iPhone 11 Pro"},
-               {"type": "iphone", "name": "iPhone SE"}]},
+  "products":
+    [{"type": "iphone", "name": "iPhone 11 Pro"},
+     {"type": "iphone", "name": "iPhone SE"}]},
  {"name": "DNS",
-  "products": [{"type": "tablet", "name": "iPad 3"},
-               {"type": "notebook", "name": "Macbook Pro"}]}]
+  "products":
+    [{"type": "tablet", "name": "iPad 3"},
+     {"type": "notebook", "name": "Macbook Pro"}]}]
   \end{json}
 \end{english}
 
@@ -1238,15 +1242,17 @@ XML-узлов в том же виде (словарь с ключами \code{:
 \begin{english}
   \begin{json}
 [{"name": "re-Store",
-  "products": [{"type": "iphone", "name": "iPhone 11 Pro"},
-               {"type": "iphone", "name": "iPhone SE"}]},
+  "products":
+    [{"type": "iphone", "name": "iPhone 11 Pro"},
+     {"type": "iphone", "name": "iPhone SE"}]},
  {"name": "DNS",
-  "branches": [{"name": "Office 1",
-                "products": [{"type": "tablet", "name": "iPad 3"},
-                             {"type": "notebook", "name": "Macbook Pro"}]},
-               {"name": "Office 2",
-                "products": [{"type": "tablet", "name": "iPad 3"},
-                             {"type": "notebook", "name": "Macbook Pro"}]}]}]
+  "branches":
+    [{"name": "Office 1",
+      "products": [{"type": "tablet", "name": "iPad 3"},
+                   {"type": "notebook", "name": "Macbook Pro"}]},
+     {"name": "Office 2",
+      "products": [{"type": "tablet", "name": "iPad 3"},
+                   {"type": "notebook", "name": "Macbook Pro"}]}]}]
   \end{json}
 \end{english}
 

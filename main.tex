@@ -218,7 +218,6 @@
 
 \input{hyphenation}
 
-
 % add cover when set
 \ifx\COVER\NIL
 \else
@@ -261,12 +260,14 @@
 \cleardoublepage
 \tableofcontents
 
+\input{exit}
+
 \clearpage
 \input{about}
 
 \blank\include{ch1-zip}
-\blank\include{ch2-db}
-\blank\include{ch3-repl}
+%% \blank\include{ch2-db}
+%% \blank\include{ch3-repl}
 
 % works only in book class
 \ifprint
