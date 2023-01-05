@@ -1226,33 +1226,58 @@ XML-узлов в том же виде (словарь с ключами \code{:
 
 \begin{english}
   \begin{json}
-[{"name": "re-Store",
-  "products":
-    [{"type": "iphone", "name": "iPhone 11 Pro"},
-     {"type": "iphone", "name": "iPhone SE"}]},
- {"name": "DNS",
-  "products":
-    [{"type": "tablet", "name": "iPad 3"},
-     {"type": "notebook", "name": "Macbook Pro"}]}]
+[
+  {
+    "name": "re-Store",
+    "products": [
+       {"type": "iphone", "name": "iPhone 11 Pro"},
+       {"type": "iphone", "name": "iPhone SE"}
+    ]
+  },
+  {
+    "name": "DNS",
+    "products": [
+      {"type": "tablet", "name": "iPad 3"},
+      {"type": "notebook", "name": "Macbook Pro"}
+    ]
+  }
+]
   \end{json}
 \end{english}
 
+\noindent
 и с ними:
 
 \begin{english}
   \begin{json}
-[{"name": "re-Store",
-  "products":
-    [{"type": "iphone", "name": "iPhone 11 Pro"},
-     {"type": "iphone", "name": "iPhone SE"}]},
- {"name": "DNS",
-  "branches":
-    [{"name": "Office 1",
-      "products": [{"type": "tablet", "name": "iPad 3"},
-                   {"type": "notebook", "name": "Macbook Pro"}]},
-     {"name": "Office 2",
-      "products": [{"type": "tablet", "name": "iPad 3"},
-                   {"type": "notebook", "name": "Macbook Pro"}]}]}]
+[
+  {
+    "name": "re-Store",
+    "products": [
+       {"type": "iphone", "name": "iPhone 11 Pro"},
+       {"type": "iphone", "name": "iPhone SE"}
+    ]
+  },
+  {
+    "name": "DNS",
+    "branches": [
+      {
+        "name": "Office 1",
+        "products": [
+          {"type": "tablet", "name": "iPad 3"},
+          {"type": "notebook", "name": "Macbook Pro"}
+        ]
+      },
+      {
+        "name": "Office 2",
+        "products": [
+          {"type": "tablet", "name": "iPad 3"},
+          {"type": "notebook", "name": "Macbook Pro"}
+        ]
+      }
+    ]
+  }
+]
   \end{json}
 \end{english}
 
