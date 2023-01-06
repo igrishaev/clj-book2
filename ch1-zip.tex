@@ -38,7 +38,7 @@
 \def\huet{https://en.wikipedia.org/wiki/Gerard\_Huet}
 \def\huetzipper{https://www.st.cs.uni-saarland.de/edu/seminare/2005/advanced-fp/docs/huet-zipper.pdf}
 
-Термин <<зиппер>> ввел ученый \footurl{Жерар Юэ}{\huet}[G\'{e}rard Huet]
+Термин <<зиппер>> ввел ученый \footurl{Жерар Юэ}{\huet}[G\'{e}rard Huet][3mm]
 (G\'{e}rard Huet) в 1996 году. Юэ занимался деревьями и искал универсальный
 способ работы с ними. В знаменитой работе \footurl{<<Functional Pearl: The
   Zipper>>}{\huetzipper}[The Zipper] Юэ привел концепцию зиппера на языке
@@ -3066,7 +3066,6 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   [[:rub :usd]
    [:usd :eur]
    [:eur :rub]
-
    [:rub :lir]
    [:lir :eur]
    [:eur :din]
@@ -3074,12 +3073,31 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \end{clojure}
 \end{english}
 
-%% --------------
+Полный код функции \code{exchange2} приведен на следующем развороте
+\fig{fig:chart-xml-04}. Примеры ее работы с правилами, заданными в
+\code{rules2}:
 
-Зиппер не изменится, но теперь мы обходим его по-другому: не с помощью
-\code{zip/next}, а функцией \code{loc-layers}. На каждом шаге получим слои обмена. Наша
-задача~--- найти в очередном слое локации, чей узел равен конечной валюте. Если
-нашли хотя бы одну, задача решена. Останется вычислить до них путь.
+\begin{english}
+  \begin{clojure}
+(exchange2 rules2 :rub :eur)
+;; ([:rub :usd :eur]
+;;  [:rub :lir :eur])
+
+(exchange2 rules2 :rub :tug)
+;; ([:rub :usd :eur :din :tug]
+;;  [:rub :lir :eur :din :tug])
+
+(exchange2 rules2 :lir :din)
+;; ([:lir :eur :din])
+  \end{clojure}
+\end{english}
+
+Зиппер не изменился, но теперь мы обходим его по-другому: не с помощью
+\code{zip/next}, а функцией \code{loc-layers}. На каждом шаге получим слои
+обмена. Наша задача~--- найти в очередном слое локации, чей узел равен конечной
+валюте. Если нашли хотя бы одну, задача решена. Останется вычислить до них путь.
+
+\begin{figure}[ht!]
 
 \begin{english}
   \begin{clojure}
@@ -3111,26 +3129,16 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \end{clojure}
 \end{english}
 
+\caption{Полный код функции \code{exchange2}}
+\label{fig:chart-xml-04}
+
+\end{figure}
+
 Заметим, что теперь не нужно сравнивать длины цепочек: если локации относятся к
 одному уровню, число шагов до них одинаково. По условию задачи мы заинтересованы
 в самых коротких вариантах обмена. Если на третьем уровне нашлась одна цепочка,
 а на четвертом их три, последние нам не интересны~--- обход завершится на третьем
 слое.
-
-Примеры обмена с правилами, заданными в \code{rules2}:
-
-\begin{english}
-  \begin{clojure}
-(exchange2 rules2 :rub :eur)
-([:rub :usd :eur] [:rub :lir :eur])
-
-(exchange2 rules2 :rub :tug)
-([:rub :usd :eur :din :tug] [:rub :lir :eur :din :tug])
-
-(exchange2 rules2 :lir :din)
-([:lir :eur :din])
-  \end{clojure}
-\end{english}
 
 Решение все ещё не идеально. Если указать пару валют, для которых нет цепочки,
 получим бесконечный цикл. Чтобы пресечь его, ограничьте число слоев каким-то
@@ -3153,7 +3161,7 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \begin{english}
   \begin{clojure}
 (exchange2 rules2 :tug :yen)
-()
+;; ()
   \end{clojure}
 \end{english}
 
@@ -3186,7 +3194,7 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \def\hickory{https://github.com/davidsantiago/hickory}
 \def\jsoup{https://jsoup.org/}
 
-Библиотека \footurl{Hickory}{\hickory}[Hickory] предлагает парсер разметки
+Библиотека \footurl{Hickory}{\hickory}[Hickory][3mm] предлагает парсер разметки
 HTML. Разбор основан на Java-библиотеке \footurl{JSoup}{\jsoup}[JSoup], которая
 строит дерево элементов. Hickory содержит функцию, чтобы перестроить Java-дерево
 в Clojure-подобное и получить зиппер. Добавьте в проект зависимость:
