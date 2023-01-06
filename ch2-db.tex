@@ -97,42 +97,50 @@ CREATE TABLE profiles(
 
 \end{itemize}
 
-Следующий код на Java показывает, как подключиться к базе, выбрать записи из таблицы и вывести на экран. Задача сводится к созданию указанных классов и вызову их методов:
+Код на следующем развороте показывает, как выбрать записи из таблицы и вывести их на экран силами Java. Задача сводится к созданию указанных классов и вызову их методов \lis{fig:java-jdbc}. Из-за многословности Java пришлось уменьшить шрифт и сократить некоторые конструкции, например заменить \code{System.out.println} на \code{S.o.println}.
+
+\begin{figure}[ht!]
 
 \begin{english}
-  \begin{java}
+  \begin{minted}[fontsize=\small]{java}
 import java.sql.*;
 
 public class JDBCExample {
 
-    static final String DB_URL = "jdbc:postgresql://127.0.0.1/test";
-    static final String USER = "book";
-    static final String PASS = "book";
-    static final String QUERY = "SELECT * FROM users";
+  static String DB_URL = "jdbc:postgresql://127.0.0.1/test";
+  static String USER = "book";
+  static String PASS = "book";
+  static String QUERY = "SELECT * FROM users";
 
-    public static void main(String[] args) {
+  public static void main(String[] args) {
 
-        try {
+    try {
 
-            Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(QUERY);
+      Connection conn =
+        DriverManager.getConnection(DB_URL, USER, PASS);
+      Statement stmt = conn.createStatement();
+      ResultSet rs = stmt.executeQuery(QUERY);
 
-            while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id"));
-                System.out.println("First name: " + rs.getString("fname"));
-                System.out.println("Last name: " + rs.getString("lname"));
-                System.out.println("Email: " + rs.getString("email"));
-                System.out.println("Age: " + rs.getInt("age"));
-            }
+      while (rs.next()) {
+        S.o.println("ID: " + rs.getInt("id"));
+        S.o.println("First name: " + rs.getString("fname"));
+        S.o.println("Last name: " + rs.getString("lname"));
+        S.o.println("Email: " + rs.getString("email"));
+        S.o.println("Age: " + rs.getInt("age"));
+      }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    } catch (SQLException e) {
+      e.printStackTrace();
     }
+  }
 }
-  \end{java}
+  \end{minted}
 \end{english}
+
+\caption{Запрос и печать результата в Java}
+\label{fig:java-jdbc}
+
+\end{figure}
 
 В идеале при смене базы код остается прежним, а меняется только синтаксис SQL. И хотя это верно лишь отчасти, JDBC решает основную задачу~--- предлагает единый доступ к разным бекендам.
 
@@ -178,7 +186,7 @@ public class JDBCExample {
 
 Зависимость \code{[org.postgresql/postgresql "42.1.3"]} нужна для работы с PostgreSQL. Ее драйвер находится в репозитории Maven. Чтобы не распылять внимание на разные базы, остановим выбор на PostgreSQL до конца главы. В пользу PostgreSQL говорит зрелость и мощь проекта, его открытый код и бесплатный доступ. В России действует официальный вендор \footurl{PostgresPro}{\urlpgpro}[Postgres Pro]. Их силами созданы полезные расширения, переведена документация на русский язык.
 
-Тот факт, что мы используем именно PostgreSQL, JDBC поймет из поля \code{dbtype} со значением "postgresql". Он автоматически загрузит драйвер, так что импортировать его в Clojure не нужно.
+Тот факт, что мы используем именно PostgreSQL, JDBC поймет из поля \code{dbtype} со значением <<postgresql>>. Он автоматически загрузит драйвер, так что импортировать его в Clojure не нужно.
 
 Чтобы запрос выполнился, должен работать локальный сервер PostgreSQL. Наиболее быстрый способ запустить его с нужными настройками~--- вызывать одноименный Docker-образ. Следующая команда:
 
@@ -212,7 +220,8 @@ public class JDBCExample {
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db ["select * from users where id = ?" 1])
+(jdbc/query db
+            ["select * from users where id = ?" 1])
   \end{clojure}
 \end{english}
 
@@ -595,16 +604,18 @@ SELECT ... WHERE fname = 'Robert'; DROP TABLE users;--'
 
 Обратите внимание на двойной минус в конце. Он нужен для того, чтобы закомментировать последнюю одинарную кавычку. База данных отбросит ее и получит два запроса через точку с запятой. Если выполнить это выражение, сработает поиск по имени Robert, а затем таблица \code{users} будет удалена. Опробуйте трюк на локальной базе.
 
-%% ------------------
-
 \subsection{Атаки с UNION}
 
 Главная задача хакера не в том, чтобы удалить данные~--- их легко восстановить из резервной копии. Его цель~--- заполучить данные, к которым нет доступа. Рассмотрим тот же пример с поиском пользователя. На этот раз вместо \code{DROP TABLE} мы напишем другой вредоносный SQL, а именно объединение запроса с таким же, но без отбора. Для этого служит оператор \code{UNION}:
 
 \begin{english}
   \begin{clojure}
-(let [fname "Robert' UNION select * from users--"
-      query (str "select * from users where fname = '" fname "'")]
+(let [fname
+      "Robert' UNION select * from users--"
+      query
+      (str "select * from users where fname = '"
+           fname
+           "'")]
   (jdbc/query db query))
   \end{clojure}
 \end{english}
@@ -613,7 +624,8 @@ SELECT ... WHERE fname = 'Robert'; DROP TABLE users;--'
 
 \begin{english}
   \begin{sql}
-select * from users where fname = 'Robert' UNION select * from users--'
+select * from users where fname = 'Robert'
+UNION select * from users--'
   \end{sql}
 \end{english}
 
@@ -627,9 +639,12 @@ select * from users where fname = 'Robert' UNION select * from users--'
   \begin{clojure}
 (def book "Д'Артаньян и три мушкетёра")
 
-(def sql (format "insert into books (title) values ('%s')" book))
+(def sql
+  (format "insert into books (title) values ('%s')"
+          book))
 
-;; insert into books (title) values ('Д'Артаньян и три мушкетёра')
+;; insert into books (title) values
+;; ('Д'Артаньян и три мушкетёра')
   \end{clojure}
 %% \end{english}
 
@@ -640,12 +655,7 @@ select * from users where fname = 'Robert' UNION select * from users--'
 \begin{english}
   \begin{clojure}
 (jdbc/query db ["select * from users where id = ?" "1"])
-
-
-Execution error (PSQLException) at org.postgresql.core.v3.QueryExecutorImpl/receiveErrorResponse (QueryExecutorImpl.java:2476).
-ERROR: operator does not exist: integer = character varying
-  Hint: No operator matches the given name and argument types. You might need to add explicit type casts.
-  Position: 30
+;; ERROR: operator does not exist: integer = character
   \end{clojure}
 \end{english}
 
@@ -653,7 +663,8 @@ ERROR: operator does not exist: integer = character varying
 
 %% \begin{english}
   \begin{clojure}
-(jdbc/query db ["select * from users where fname = ?" "Д'Артаньян"])
+(jdbc/query db
+  ["select * from users where fname = ?" "Д'Артаньян"])
 
 ;; select * from users where fname = $1
 ;; parameters: $1 = 'Д''Артаньян'
@@ -668,16 +679,18 @@ ERROR: operator does not exist: integer = character varying
   \end{clojure}
 \end{english}
 
+\noindent
 не сработает из-за ошибки синтаксиса. А если вы хотите задать имена полей параметрами:
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db ["select ?, ?, ? from users" "id" "fname" "email"])
+(jdbc/query db
+  ["select ?, ?, ? from users" "id" "fname" "email"])
   \end{clojure}
 \end{english}
 
 \noindent
-, то вас ждет разочарование. Запрос вернет строки "id", "fname" и "email", а не значения одноименных полей. Чтобы строить запросы, где таблицы и поля зависят от условий, прибегают к специальным библиотекам. Позже мы рассмотрим наиболее популярные из них.
+, то вас ждет разочарование. Запрос вернет строки <<id>>, <<fname>> и <<email>>, а не значения одноименных полей. Чтобы строить запросы, где таблицы и поля зависят от условий, прибегают к специальным библиотекам. Позже мы рассмотрим наиболее популярные из них.
 
 \subsection{Подготовленные выражения}
 
@@ -687,7 +700,7 @@ ERROR: operator does not exist: integer = character varying
 
 \begin{english}
   \begin{sql}
-select * from users where id = 1
+SELECT * FROM users WHERE id = 1
   \end{sql}
 \end{english}
 
@@ -715,7 +728,8 @@ select * from users where id = 1
   (jdbc/get-connection db))
 
 (def prep-stmt
-  (jdbc/prepare-statement conn "select * from users where id = ?"))
+  (jdbc/prepare-statement conn
+    "SELECT * FROM users WHERE id = ?"))
   \end{clojure}
 \end{english}
 
@@ -732,9 +746,12 @@ select * from users where id = 1
 \begin{english}
   \begin{clojure}
 (def stmt-insert
-  (jdbc/prepare-statement conn "insert into users (fname, lname, age, email) values (?, ?, ?, ?)"))
+  (jdbc/prepare-statement conn
+    "INSERT INTO users (fname, lname, age, email)
+     VALUES (?, ?, ?, ?)"))
 
-(jdbc/execute! db [stmt-insert "John" "Smith" 20 "john@test.com"])
+(jdbc/execute! db
+  [stmt-insert "John" "Smith" 20 "john@test.com"])
 ;; (1)
   \end{clojure}
 \end{english}
@@ -753,10 +770,12 @@ select * from users where id = 1
   component/Lifecycle
 
   (start [this]
-    (let [conn (jdbc/get-connection db)
+    (let [conn
+          (jdbc/get-connection db)
 
           stmt-get-by-id
-          (jdbc/prepare-statement conn "select * from users where id = ?")]
+          (jdbc/prepare-statement conn
+            "SELECT * FROM users WHERE id = ?")]
 
       (assoc this
              :conn conn
@@ -854,9 +873,15 @@ IUserManager
 
 Методы \code{getInt} и \code{getString} выше говорят о том, что мы знаем структуру ответа заранее. Это не всегда так. Данные о полях можно получить из объекта \code{ResultSetMetaData}. Он возвращает состав полей, их имена и типы. С его помощью задают функцию, которая принимает очередной элемент \code{ResultSet} и переводит его в словарь.
 
-\def\urlrssrs{https://github.com/clojure/clojure/blob/clojure-1.10.1/src/clj/clojure/core.clj\#L5702}
+Модуль \code{clojure.core} предлагает функцию \code{resultset-seq}, чтобы привести \code{ResultSet} к ленивой цепочке словарей. С ней обход выборки становится более <<кложурным>>:
 
-Модуль \code{clojure.core} предлагает функцию \code{resultset-seq}, чтобы привести \code{ResultSet} к ленивой цепочке словарей. В свободное время изучите \footurl{ее код}{\urlrssrs}[result\-set-\-seq]: он занимает всего 13 строк.
+\begin{english}
+  \begin{clojure}
+(doseq [row (resultset-seq rs)]
+  (let [{:keys [id email]} row]
+    (println "id" id "email" email)))
+  \end{clojure}
+\end{english}
 
 По умолчанию \code{query} прогоняет ленивую выборку через \code{doall}. В результате все элементы \code{ResultSet} будут прочитаны. В зависимости от логики чтением можно управлять, например делать это отложено. При таком подходе требуется ручное закрытие объекта \code{ResultSet}. О ленивости и ее влиянии на результат мы скажем чуть позже.
 
@@ -905,6 +930,8 @@ IUserManager
 В папке проекта вы найдете файл \code{users.csv}. Проверьте содержимое в табличном редакторе. Напишите универсальную функцию для выгрузки любой таблицы. Она принимает имя таблицы, путь к CSV-файлу и, по желанию, набор полей на тот случай, если нужны только некоторые из них.
 
 Список векторов полезен не только для CSV, но и для матричных данных или работы со статистикой.
+
+%% -------------
 
 \subsection{Ключи}
 
