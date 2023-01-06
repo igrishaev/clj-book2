@@ -13,7 +13,7 @@
 \def\urlrelalg{https://en.wikipedia.org/wiki/Relational\_algebra}
 \def\urlnormform{https://en.wikipedia.org/wiki/Database\_normalization}
 
-Реляционные базы данных называют так из за модели \footurl{реляционной алгебры}{\urlrelalg}[Реляционная алгебра]. Это изящная математическая модель с набором операций, например выборкой, проекцией, декартовым произведением и другими. Из модели следуют строгие правила о том, как работает та или иная операция. Поэтому базы данных работают не спонтанно, а по четким алгебраическим правилам. Из этих правил следуют \footurl{нормальные формы}{\urlnormform}[Нормальные формы] (первая, вторая и третья), доказать которые можно аналитически, а не на глаз.
+Реляционные базы данных называют так из за модели \footurl{реляционной алгебры}{\urlrelalg}[Ре\-ля\-ци\-он\-ная ал\-геб\-ра]. Это изящная математическая модель с набором операций, например выборкой, проекцией, декартовым произведением и другими. Из модели следуют строгие правила о том, как работает та или иная операция. Поэтому базы данных работают не спонтанно, а по четким алгебраическим правилам. Из этих правил следуют \footurl{нормальные формы}{\urlnormform}[Нор\-маль\-ные фор\-мы] (первая, вторая и третья), доказать которые можно аналитически, а не на глаз.
 
 Мы будем учить реляционную алгебру с самых азов. Обратитесь к статье в Википедии или книгам, где она описана без привязки к конкретной БД.
 
@@ -42,7 +42,6 @@ CREATE TABLE users(
     id   serial primary key,
     name text not null
 );
-
 CREATE TABLE profiles(
     id      serial primary key,
     user_id integer not null references users(id),
@@ -55,7 +54,7 @@ CREATE TABLE profiles(
 
 Кроме целостности, внешний ключ поддерживает реакцию на удаление. По умолчанию нельзя удалить сущность, на которую кто-то ссылается. Однако можно задать правило, что связанная сущность тоже удаляется. Так, при удалении пользователя удалится и его профиль, ведь он не нужен в отрыве от пользователя. В другом случае ссылка на удаленную сущность станет NULL, если это разрешено в свойствах поля.
 
-Из университета мы знаем, что связи бывают разных типов: один к одному или многим, многие ко многим. Профиль, который ссылается на пользователя~--- это связь один к одному. Несколько заказов у пользователя~--- один ко многим. Тип связи легко задать ограничением на поле ссылки. Если в таблице профилей сделать поле \code{user\_id} уникальным, не получится создать два профиля одному пользователю. Связь "многие ко многим" строят через таблицу-мост со ссылками на другие таблицы. Чтобы сущности нельзя было соединить несколько раз, применяют составной первичный ключ из ссылок.
+Из университета мы знаем, что связи бывают разных типов: один к одному или многим, многие ко многим. Профиль, который ссылается на пользователя~--- это связь один к одному. Несколько заказов у пользователя~--- один ко многим. Тип связи легко задать ограничением на поле ссылки. Если в таблице профилей сделать поле \code{user\_id} уникальным, не получится создать два профиля одному пользователю. Связь <<многие ко многим>> строят через таблицу-мост со ссылками на другие таблицы. Чтобы сущности нельзя было соединить несколько раз, применяют составной первичный ключ из ссылок.
 
 \section{Запросы}
 
@@ -85,11 +84,18 @@ CREATE TABLE profiles(
 
 Перечислим основные сущности JDBC:
 
-- \code{DriverManager}~--- класс для управления драйвером конкретной БД. Получает соединение с базой, по которому в дальнейшем идет обмен данными.
+\begin{itemize}
 
-- \code{PreparedStatement}~--- подготовленное выражение. Так называется запрос, который прошел стадию подготовки в базе и теперь может быть вызван с разными параметрами.
+\item
+  \code{DriverManager}~--- класс для управления драйвером конкретной БД. Получает соединение с базой, по которому в дальнейшем идет обмен данными.
 
-- \code{ResultSet}~--- источник, из которого читают результат запроса. Обычно приходит из метода \code{executeQuery} подготовленного выражения.
+\item
+  \code{PreparedStatement}~--- подготовленное выражение. Так называется запрос, который прошел стадию подготовки в базе и теперь может быть вызван с разными параметрами.
+
+\item
+  \code{ResultSet}~--- источник, из которого читают результат запроса. Обычно приходит из метода \code{executeQuery} подготовленного выражения.
+
+\end{itemize}
 
 Следующий код на Java показывает, как подключиться к базе, выбрать записи из таблицы и вывести на экран. Задача сводится к созданию указанных классов и вызову их методов:
 
@@ -185,7 +191,7 @@ public class JDBCExample {
 \noindent
 запустит сервер на локальном порту 5432. Имя базы, пользователь и пароль определяются переменными окружения; в примере выше пароль к базе будет "pass". Запуск этого образа мы обсуждали в прошлой книге о Clojure, а именно в четвертой и седьмой главах. В случае трудностей изучите примеры оттуда.
 
-Если все настроено правильно и вы увидели результат \code{jdbc/query}, примите поздравления. Первый этап пройден, и вы готовы двигаться дальше.
+Если все настроено правильно и вы увидели результат \code{jdbc/qu\-e\-ry}, примите поздравления. Первый этап пройден, и вы готовы двигаться дальше.
 
 \section{Основы clojure.java.jdbc}
 
@@ -218,7 +224,8 @@ public class JDBCExample {
   \begin{clojure}
 (jdbc/get-by-id db :users 1)
 
-{:id 1, :fname "John", :lname "Smith", :email "test@test.com", :age 25}
+{:id 1 :fname "John" :lname "Smith"
+ :email "test@test.com" :age 25}
   \end{clojure}
 \end{english}
 
@@ -232,7 +239,7 @@ public class JDBCExample {
   \end{clojure}
 \end{english}
 
-Функция \code{find-by-keys} выполняет отбор по нескольким полям. Предположим, мы хотим выбрать пользователей с именем John и возрастом 25 лет. Для этого укажем в \code{find-by-keys} имя таблицы и словарь вида {поле => значение}:
+Функция \code{find-by-keys} выполняет отбор по нескольким полям. Предположим, мы хотим выбрать пользователей с именем John и возрастом 25 лет. Для этого укажем в \code{find-by-keys} имя таблицы и словарь вида \{поле \arr значение\}:
 
 \begin{english}
   \begin{clojure}
@@ -265,7 +272,9 @@ parameters: $1 = 'John', $2 = '25'
 \begin{english}
   \begin{clojure}
 (find-first db :users {:fname "John" :age 25})
-{:id 1, :fname "John", :lname "Smith", :email "test@test.com", :age 25}
+
+{:id 1 :fname "John" :lname "Smith"
+ :email "test@test.com" :age 25}
   \end{clojure}
 \end{english}
 
@@ -273,14 +282,15 @@ parameters: $1 = 'John', $2 = '25'
 
 \subsection{Вставка}
 
-Функция \code{insert!} добавляет запись в таблицу. Восклицательный знак на конце означает, что вызов меняет состояние. \code{Insert!} принимает таблицу, в которую происходит запись. Значения могут быть переданы в разном виде. Наиболее частый сценарий~--- словарь вида {поле => значение}, например:
+Функция \code{insert!} добавляет запись в таблицу. Восклицательный знак на конце означает, что вызов меняет состояние. \code{Insert!} принимает таблицу, в которую происходит запись. Значения могут быть переданы в разном виде. Наиболее частый сценарий~--- словарь вида \{поле \arr значение\}, например:
 
 \begin{english}
   \begin{clojure}
-(jdbc/insert! db :users {:fname "Ivan"
-                         :lname "Petrov"
-                         :email "ivan@test.com"
-                         :age 87})
+(jdbc/insert! db :users
+              {:fname "Ivan"
+               :lname "Petrov"
+               :email "ivan@test.com"
+               :age 87})
   \end{clojure}
 \end{english}
 
@@ -298,8 +308,11 @@ parameters: $1 = 'John', $2 = '25'
 
 \begin{english}
   \begin{sql}
-INSERT INTO users ( fname, lname, email, age ) VALUES ( $1, $2, $3, $4 )
-parameters: $1 = 'Andy', $2 = 'Stone', $3 = 'andy@test.com', $4 = '33'
+INSERT INTO users ( fname, lname, email, age )
+VALUES ( $1, $2, $3, $4 )
+parameters:
+  $1 = 'Andy', $2 = 'Stone',
+  $3 = 'andy@test.com', $4 = '33'
   \end{sql}
 \end{english}
 
@@ -348,7 +361,9 @@ parameters: $1 = '50', $2 = '7'
 
 \begin{english}
   \begin{clojure}
-(jdbc/update! db :users {:email "test@test.com"} ["id = ? OR id = ?" 1 3])
+(jdbc/update! db :users
+              {:email "test@test.com"}
+              ["id = ? OR id = ?" 1 3])
   \end{clojure}
 \end{english}
 
@@ -357,8 +372,10 @@ parameters: $1 = '50', $2 = '7'
 
 \begin{english}
   \begin{sql}
-UPDATE users SET email = $1 WHERE id = $2 OR id = $3
-parameters: $1 = 'test@test.com', $2 = '1', $3 = '3'
+UPDATE users SET email = $1
+WHERE id = $2 OR id = $3
+parameters:
+  $1 = 'test@test.com', $2 = '1', $3 = '3'
   \end{sql}
 \end{english}
 
@@ -368,7 +385,8 @@ SQL-вектор для \code{WHERE} обязательный: функцию н
 
 \begin{english}
   \begin{sql}
-ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT false;
+ALTER TABLE users
+ADD COLUMN is_active BOOLEAN DEFAULT false;
   \end{sql}
 \end{english}
 
@@ -376,7 +394,10 @@ ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT false;
 
 \begin{english}
   \begin{clojure}
-(jdbc/update! db :users {:is_active true} ["true"])
+(jdbc/update! db
+              :users
+              {:is_active true}
+              ["true"])
   \end{clojure}
 \end{english}
 
@@ -394,10 +415,11 @@ parameters: $1 = 't'
 \begin{english}
   \begin{clojure}
 (let [[num-updated]
-      (jdbc/update! db :users {:is_active true} ["true"])]
+      (jdbc/update! db :users
+                    {:is_active true} ["true"])]
   (log/infof "%s records updated" num-updated))
 
-;; 2021-07-05 09:47:19,581 INFO  my.module - 11 records updated
+;; ... 09:47:19 INFO  my.module - 11 records updated
   \end{clojure}
 \end{english}
 
@@ -430,7 +452,8 @@ parameters: $1 = '50'
 
 \begin{english}
   \begin{clojure}
-(jdbc/execute! db "create index users_fname on users(fname);")
+(jdbc/execute! db
+  "create index users_fname on users(fname);")
   \end{clojure}
 \end{english}
 
@@ -454,7 +477,8 @@ parameters: $1 = '50'
 
 \begin{english}
   \begin{clojure}
-(jdbc/execute! db "ALTER TABLE users DISABLE TRIGGER on_users_update")
+(jdbc/execute! db
+  "ALTER TABLE users DISABLE TRIGGER on_users_update")
   \end{clojure}
 \end{english}
 
@@ -490,7 +514,9 @@ parameters: $1 = '50'
 \begin{english}
   \begin{php}
 $user_id = 13;
-$query = sprintf("SELECT * FROM users WHERE id = %s", $user_id);
+$query = sprintf(
+  "SELECT * FROM users WHERE id = %s", $user_id
+);
 $result = mysql_query($query);
   \end{php}
 \end{english}
@@ -501,7 +527,8 @@ $result = mysql_query($query);
   \begin{clojure}
 (def user-id 13)
 
-(jdbc/query db (format "select * from users where id = %s" user-id))
+(jdbc/query db
+  (format "select * from users where id = %s" user-id))
   \end{clojure}
 \end{english}
 
@@ -513,7 +540,7 @@ http://site.com/users?user-id=13+OR+TRUE
   \end{text}
 \end{english}
 
-Хакер понимает, что перед 13 идет выражение \code{WHERE id = ...}. Идея в том, чтобы через оператор \code{OR} добавить условие, которое истинно всегда, например TRUE или 1=1. В результате даже если первое выражение ложно, второе будет истиной. Оператор OR сделает выбор в пользу второго, и запись попадет в выборку. В результате база вернет все записи таблицы без фильтра по \code{id}. Так вы раскроете чужие данные.
+Хакер понимает, что перед 13 идет выражение \code{WHERE id = ...}. Идея в том, чтобы через оператор \code{OR} добавить условие, которое истинно всегда, например TRUE или 1=1. Из-за этого, даже если первое выражение ложно, второе будет истиной. Оператор OR сделает выбор в пользу второго, и запись попадет в выборку. В результате база вернет все записи таблицы без фильтра по \code{id}. Так вы раскроете чужие данные.
 
 Изменим \code{user-id} на вредоносную строку и выполним запрос с форматированием. Получим все записи таблицы \code{users}.
 
@@ -534,11 +561,17 @@ http://site.com/users?user-id=13+OR+TRUE
 
 \begin{english}
   \begin{clojure}
-(let [fname "Robert"
-      query (str "select * from users where fname = '" fname "'")]
+(let [fname
+      (get params :name) ;; "Robert"
+
+      query
+      (str "SELECT * FROM users WHERE fname = '"
+           fname
+           "'")]
+
   (jdbc/query db query))
 
-;; select * from users where fname = 'Robert';
+;; SELECT * FROM users WHERE fname = 'Robert';
   \end{clojure}
 \end{english}
 
@@ -556,11 +589,13 @@ http://site.com/users?user-id=13+OR+TRUE
 
 \begin{english}
   \begin{sql}
-select * from users where fname = 'Robert'; DROP TABLE users;--'
+SELECT ... WHERE fname = 'Robert'; DROP TABLE users;--'
   \end{sql}
 \end{english}
 
-Обратите внимание на двойной минус в конце. Он нужен для того, чтобы закомментировать последнюю одинарную кавычку. База данных отбросит ее и получит два запроса через точку с запятой. Если выполнить это выражение, сработает поиск по имени Robert, а затем из таблицы \code{users} удалятся все записи. Опробуйте трюк на локальной базе.
+Обратите внимание на двойной минус в конце. Он нужен для того, чтобы закомментировать последнюю одинарную кавычку. База данных отбросит ее и получит два запроса через точку с запятой. Если выполнить это выражение, сработает поиск по имени Robert, а затем таблица \code{users} будет удалена. Опробуйте трюк на локальной базе.
+
+%% ------------------
 
 \subsection{Атаки с UNION}
 
@@ -1006,12 +1041,14 @@ This ResultSet is closed.
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db "select * from users"
+(jdbc/query db
+            "select * from users"
             {:as-arrays? true
              :keywordize? false
              :result-set-fn
              (fn [rows]
-               (with-open [writer (io/writer "users.csv")]
+               (with-open [writer
+                           (io/writer "users.csv")]
                  (csv/write-csv writer rows)))})
   \end{clojure}
 \end{english}
