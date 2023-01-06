@@ -2082,9 +2082,10 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \end{clojure}
 \end{english}
 
-Итоговый XML, где в наборах появился новый товар:
+Итоговый XML, где в наборах появился новый товар, приведен в листинге
+\ref{fig:chart-xml-03} справа.
 
-%% ----------------------
+\begin{figure}[ht!]
 
 \begin{english}
   \begin{xml}
@@ -2116,6 +2117,11 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 </catalog>
   \end{xml}
 \end{english}
+
+\caption{XML с новым товаром в наборах}
+\label{fig:chart-xml-03}
+
+\end{figure}
 
 \textbf{Третья задача}~--- упразднить все наборы. Возможно, руководство решило, что
 продавать товары в наборах невыгодно. Что ж, бывает. Для программиста это
@@ -2151,7 +2157,7 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \end{english}
 
 Функция \code{append-childs}~--- это обёртка над встроенной
-\code{zip/append-child}. Последняя присоединяет только один элемент, что
+\code{zip/ap\-pend-child}. Последняя присоединяет только один элемент, что
 неудобно. Чтобы присоединить их список, напишем свёртку:
 
 \begin{english}
@@ -2171,13 +2177,21 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 <?xml version="1.0" encoding="UTF-8"?>
 <catalog>
   <organization name="re-Store">
-    <product price="8.99" type="fiber">VIP Fiber Plus</product>
-    <product price="899.99" type="iphone">iPhone 11 Pro</product>
+    <product price="8.99" type="fiber">
+      VIP Fiber Plus
+    </product>
+    <product price="899.99" type="iphone">
+      iPhone 11 Pro
+    </product>
   </organization>
   <organization name="DNS">
     <branch name="Office 2">
-      <product price="9.99" type="fiber">Premium iFiber</product>
-      <product price="999.99" type="iphone">iPhone 11 Pro</product>
+      <product price="9.99" type="fiber">
+        Premium iFiber
+      </product>
+      <product price="999.99" type="iphone">
+        iPhone 11 Pro
+      </product>
     </branch>
   </organization>
 </catalog>
@@ -2249,15 +2263,13 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \end{figure}
 
 С шагом вниз мы провалимся в очередной вектор \code{[1 2 3]} и так далее. Ради
-интереса спустимся вниз и вправо пять раз, и всё равно окажемся в двойке:
+интереса спустимся вниз и вправо несколько раз, и всё равно окажемся в двойке:
 
 \begin{english}
   \begin{clojure}
 (def down-right (comp zip/right zip/down))
 
 (-> loc-2
-    down-right
-    down-right
     down-right
     down-right
     down-right
@@ -2277,7 +2289,7 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 нужда в зиппере отпадает~--- коллекцию можно обойти более простым
 способом. Интересен случай, когда потомки зависят от каких-то внешних факторов,
 например, приходят из сторонних источников. В терминах функционального
-программирования зиппер становится "грязным": поскольку мы не контролируем
+программирования зиппер становится <<грязным>>: поскольку мы не контролируем
 внешний источник, повторный обход может дать разный результат. Однако это не
 значит, что грязный зиппер не имеет права на жизнь. Рассматривайте его как
 абстракцию над источником, которая делает его удобней.
@@ -2324,11 +2336,10 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 
 \begin{english}
   \begin{clojure}
-(def fz
-  (file-zip "/Users/ivan"))
+(def fz (file-zip "/Users/ivan"))
 
 (-> fz zip/node)
-;; #object[java.io.File 0xe413375 "/Users/ivan"]
+;; #object[java.io.File ... "/Users/ivan"]
   \end{clojure}
 \end{english}
 
@@ -2338,7 +2349,7 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \begin{english}
   \begin{clojure}
 (-> fz zip/next zip/node)
-;; #object[java.io.File 0x23e1b67 "/Users/ivan/.eclipse"]
+;; #object[File "/Users/ivan/.eclipse"]
   \end{clojure}
 \end{english}
 
@@ -2347,7 +2358,7 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \begin{english}
   \begin{clojure}
 (-> fz zip/next zip/next zip/next zip/node)
-;; #object[java.io.File 0x138b3172 "/Users/ivan/.eclipse/org.eclipse.equinox.security/secure_storage"]
+;; #object[File "/Users/ivan/.eclipse/.../secure_storage"]
   \end{clojure}
 \end{english}
 
@@ -2361,9 +2372,10 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 
 (zip/path file-loc)
 
-[#object[java.io.File 0xe413375 "/Users/ivan"]
- #object[java.io.File 0x2067c8ff "/Users/ivan/.eclipse"]
- #object[java.io.File 0x69304325 "/Users/ivan/.eclipse/org.eclipse.equinox.security"]]
+[#object[File "/Users/ivan"]
+ #object[File "/Users/ivan/.eclipse"]
+ #object[File "/Users/ivan/.eclipse/
+                      org.eclipse.equinox.security"]]
   \end{clojure}
 \end{english}
 
@@ -2491,7 +2503,9 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \begin{clojure}
 (deftest test-simple
   (is (= [[:usd :rub]]
-         (exchanges [[:usd :rub]] :usd :rub))))
+         (exchanges [[:usd :rub]]
+                    :usd
+                    :rub))))
   \end{clojure}
 \end{english}
 
@@ -2500,7 +2514,9 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \begin{english}
   \begin{clojure}
 (deftest test-reverse-err
-  (is (nil? (exchanges [[:rub :usd]] :usd :rub))))
+  (is (nil? (exchanges [[:rub :usd]]
+                       :usd
+                       :rub))))
   \end{clojure}
 \end{english}
 
@@ -2509,7 +2525,10 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 \begin{english}
   \begin{clojure}
 (deftest test-no-solution
-  (is (nil? (exchanges [[:rub :usd] [:lir :eur]] :usd :eur))))
+  (is (nil? (exchanges [[:rub :usd]
+                        [:lir :eur]]
+                       :usd
+                       :eur))))
   \end{clojure}
 \end{english}
 
@@ -2534,31 +2553,32 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 
 \begin{english}
   \begin{clojure}
+(def long-pairs
+  [[:usd :eur]
+   [:eur :rub]
+   [:usd :lir]
+   [:lir :rub]
+   [:usd :yen]
+   [:yen :eur]])
+
 (deftest test-short-ways-only
   (is (= [[:usd :eur :rub]
           [:usd :lir :rub]]
-         (exchanges [[:usd :eur]
-                     [:eur :rub]
-                     [:usd :lir]
-                     [:lir :rub]
-                     [:usd :yen]
-                     [:yen :eur]] :usd :rub))))
+         (exchanges long-pairs :usd :rub))))
   \end{clojure}
 \end{english}
 
 В терминах олимпиадного программирования можно сказать, что задача содержит
 отдельные рёбра графа. Требуется проверить, можно ли составить из рёбер маршрут
 от вершины А к B. Поскольку эта глава о зипперах, мы не будем использовать
-термины "граф" и "рёбра". Мы не гарантируем, что решение будет оптимальным, и
+термины <<граф>> и <<рёбра>>. Мы не гарантируем, что решение будет оптимальным, и
 возможно, алгоритм на графах справится лучше. Однако надеемся, что пример ещё
 больше раскроет мощь зипперов.
 
 Как вы помните, зипперы удобны там, где встречается иерархия. На первый взгляд у
 валют нет иерархии, но ее легко построить. Представим, что на вершине дерева
 стоит валюта \code{from}, которую мы хотим разменять. Пусть это будет
-доллар. Очевидно, что потомки этой валюты~--- все те, что размениваются на
-доллар. Для этого выберем второй элемент из каждой пары, где первый элемент
-равен \code{from}:
+доллар.
 
 \begin{english}
   \begin{clojure}
@@ -2571,11 +2591,20 @@ XML~--- строки. Чтобы выполнить умножение, нужн
    [:lir :tug]])
 
 (def from :usd)
+  \end{clojure}
+\end{english}
 
+Очевидно, что потомки этой валюты~--- все те, что размениваются на
+доллар. Для этого выберем второй элемент из каждой пары, где первый элемент
+равен \code{from}:
+
+\begin{english}
+  \begin{clojure}
 (def usd-children
   (for [[v1 v2] rules
         :when (= v1 from)]
     v2))
+
 ;; (:rub :lir)
   \end{clojure}
 \end{english}
@@ -2638,7 +2667,7 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \begin{clojure}
 (def zip-val
   (zip/zipper keyword?      ;; is it a currency?
-              get-children  ;; what it can be exchanged to?
+              get-children  ;; exchanged to what?
               nil
               from))        ;; the origin currency
   \end{clojure}
@@ -2897,10 +2926,10 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \label{fig:chart-zip-21}
 \end{figure}
 
-Проблема в том, что модуль \code{clojure.zip} предлагает только один способ обхода~---
-в глубину с помощью \code{zip/next}. Другого алгоритма не предусмотрено. Мы напишем
-свою функцию, чтобы обойти зиппер "послойно". Говоря иначе, для дерева как на
-рисунке:
+Проблема в том, что модуль \code{clojure.zip} предлагает только один способ
+обхода~--- в глубину с помощью \code{zip/next}. Другого алгоритма не
+предусмотрено. Мы напишем свою функцию, чтобы обойти зиппер послойно. Говоря
+иначе, для дерева как на рисунке:
 
 \begin{figure}[H]
   \centering
@@ -2913,9 +2942,9 @@ XML~--- строки. Чтобы выполнить умножение, нужн
 
 \begin{english}
   \begin{clojure}
-[1]
-[2 3]
-[4 5 6 7]
+[a]
+[b c]
+[d e f g]
   \end{clojure}
 \end{english}
 
@@ -2965,7 +2994,7 @@ XML~--- строки. Чтобы выполнить умножение, нужн
   \end{clojure}
 \end{english}
 
-Во втором случае получили локации, в то время как \code{zip/children} просто
+Во втором случае получили локации, в то время как \code{zip/child\-ren} просто
 обращается к функции для нахождения потомков, которую передали в зиппер.
 
 Предположим, что для некоторой локации \code{loc-children} вернула список её
@@ -3044,6 +3073,8 @@ XML~--- строки. Чтобы выполнить умножение, нужн
    [:din :tug]])
   \end{clojure}
 \end{english}
+
+%% --------------
 
 Зиппер не изменится, но теперь мы обходим его по-другому: не с помощью
 \code{zip/next}, а функцией \code{loc-layers}. На каждом шаге получим слои обмена. Наша
