@@ -922,7 +922,9 @@ IUserManager
 ;; [clojure.java.io :as io]
 
 (with-open [writer (io/writer "users.csv")]
-  (->> (jdbc/query db "select * from users" {:as-arrays? true})
+  (->> (jdbc/query db
+                   "SELECT * FROM users"
+                   {:as-arrays? true})
        (csv/write-csv writer)))
   \end{clojure}
 \end{english}
@@ -930,8 +932,6 @@ IUserManager
 В папке проекта вы найдете файл \code{users.csv}. Проверьте содержимое в табличном редакторе. Напишите универсальную функцию для выгрузки любой таблицы. Она принимает имя таблицы, путь к CSV-файлу и, по желанию, набор полей на тот случай, если нужны только некоторые из них.
 
 Список векторов полезен не только для CSV, но и для матричных данных или работы со статистикой.
-
-%% -------------
 
 \subsection{Ключи}
 
@@ -941,7 +941,8 @@ IUserManager
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db "select * from users" {:keywordize? false})
+(jdbc/query db "select * from users"
+               {:keywordize? false})
 
 ({"id" 1
   "fname" "Ivan"
@@ -962,7 +963,7 @@ IUserManager
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db "select 1 as VAL")
+(jdbc/query db "SELECT 1 AS VAL")
 ;; ({:val 1})
   \end{clojure}
 \end{english}
@@ -973,7 +974,8 @@ IUserManager
 
 \begin{english}
   \begin{clojure}
-(first (jdbc/query db "select * from users" {:qualifier "user"}))
+(first (jdbc/query db "SELECT * FROM users"
+                      {:qualifier "user"}))
 
 {:user/id 2
  :user/fname "Ivan"
@@ -1055,9 +1057,10 @@ u.fname as \"user/fname\",
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db "select * from users" {:result-set-fn identity})
+(jdbc/query db "SELECT * FROM users"
+               {:result-set-fn identity})
 
-idError printing return value (PSQLException) at org.postgresql.jdbc.PgResultSet/checkClosed (PgResultSet.java:2758).
+Error printing return value (PSQLException) at ...
 This ResultSet is closed.
   \end{clojure}
 \end{english}
@@ -1068,15 +1071,14 @@ This ResultSet is closed.
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db
-            "select * from users"
-            {:as-arrays? true
-             :keywordize? false
-             :result-set-fn
-             (fn [rows]
-               (with-open [writer
-                           (io/writer "users.csv")]
-                 (csv/write-csv writer rows)))})
+(defn process-rows [rows]
+  (with-open [writer (io/writer "users.csv")]
+    (csv/write-csv writer rows)))
+
+(jdbc/query db "SELECT * FROM users"
+               {:as-arrays? true
+               :keywordize? false
+               :result-set-fn process-rows})
   \end{clojure}
 \end{english}
 
@@ -1100,6 +1102,8 @@ This ResultSet is closed.
 \end{english}
 
 Выше мы просто печатаем данные на экран. На практике мы бы отправили их в сеть, в файл или поток.
+
+%% >>>>>>>>>>>>
 
 \section{Транзакции}
 
