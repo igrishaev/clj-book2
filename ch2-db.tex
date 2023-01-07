@@ -1103,8 +1103,6 @@ This ResultSet is closed.
 
 Выше мы просто печатаем данные на экран. На практике мы бы отправили их в сеть, в файл или поток.
 
-%% >>>>>>>>>>>>
-
 \section{Транзакции}
 
 Чтобы изменения в базе были согласованы, нужны транзакции. Транзакция обещает, что в изменения не вмешается кто-то другой, и все они завершатся либо успехом, либо откатом к прежнему состоянию. Исключен третий нежелательный вариант, когда в базе остались частичные изменения.
@@ -1118,9 +1116,11 @@ This ResultSet is closed.
 \begin{english}
   \begin{sql}
 BEGIN;
-INSERT INTO users (fname, email) VALUES ('Ivan', 'ivan@test.com') RETURNING id;
+INSERT INTO users (fname, email)
+VALUES ('Ivan', 'ivan@test.com') RETURNING id;
 -- 59
-INSERT INTO profiles (user_id, avatar) VALUES (59, 'me.jpg');
+INSERT INTO profiles (user_id, avatar)
+VALUES (59, 'me.jpg');
 COMMIT;
   \end{sql}
 \end{english}
@@ -1157,11 +1157,14 @@ COMMIT
 
 \begin{english}
   \begin{clojure}
-(jdbc/insert! db :users {:fname "Ivan"} {:transaction? false})
-(jdbc/insert! db :users {:fname "Huan"} {:transaction? false})
+(jdbc/insert! db :users {:fname "Ivan"}
+              {:transaction? false})
+(jdbc/insert! db :users {:fname "Huan"}
+              {:transaction? false})
   \end{clojure}
 \end{english}
 
+\noindent
 , транзакций не будет совсем:
 
 \begin{english}
@@ -1252,7 +1255,9 @@ COMMIT
         (jdbc/insert! tx :users {:fname "Ivan"})
 
         [{profile-id :id}]
-        (jdbc/insert! tx :profiles {:user_id user-id :avatar "cat.jpg"})]
+        (jdbc/insert! tx :profiles
+                      {:user_id user-id
+                       :avatar "cat.jpg"})]
 
     {:user/id user-id
      :profile/id profile-id}))
@@ -1297,15 +1302,28 @@ COMMIT
 \def\urlpgproiso{https://postgrespro.ru/docs/postgrespro/13/transaction-iso}
 \def\urlpginside{https://dmkpress.com/catalog/computer/databases/978-5-93700-122-2/}
 
-В этой главе мы не рассматриваем изоляцию в деталях. Ее изучение требует примеров с таблицами и параллельными запросами. Эта тема не касается Clojure, потому что не зависит языка программирования. Для быстрого знакомства прочтите \footurl{статью в Википедии}{\urlisolevel}[Уровень изолированности транзакций]. Еще глубже материал изложен в документации PostgresPro, в том числе \footurl{на русском языке}{\urlpgproiso}[Postgres Pro]. Самое детальное описание вы найдете в книге Егора Рогова \footurl{<<PostgreSQL изнутри>>}{\urlpginside}[PostgreSQL изнутри]. Автор горячо рекомендует эту книгу к прочтению.
+В этой главе мы не рассматриваем изоляцию в деталях. Ее изучение требует примеров с таблицами и параллельными запросами. Эта тема не касается Clojure, потому что не зависит языка программирования. Для быстрого знакомства прочтите \footurl{статью в Википедии}{\urlisolevel}[Уровень изолированности транзакций]. Еще глубже материал изложен в документации PostgresPro, в том числе \footurl{на русском языке}{\urlpgproiso}[Postgres Pro][3mm]. Самое детальное описание вы найдете в книге Егора Рогова \footurl{<<PostgreSQL изнутри>>}{\urlpginside}[Post\-gre\-SQL изнутри]. Автор горячо рекомендует эту книгу к прочтению.
 
 Разберем, как задать уровень изоляции в Clojure. Макрос \code{with-db-transaction} принимает ключ \code{:isolation}. Его возможные значения~--- кейводы:
 
-- \code{:none}
-- \code{:read-committed}
-- \code{:read-uncommitted}
-- \code{:repeatable-read}
-- \code{:serializable}
+\begin{itemize}
+
+\item
+  \code{:none}
+
+\item
+  \code{:read-committed}
+
+\item
+  \code{:read-uncommitted}
+
+\item
+  \code{:repeatable-read}
+
+\item
+  \code{:serializable}
+
+\end{itemize}
 
 Внутри макроса они транслируются в константы Java. Пример с уровнем SERIALIZABLE, заданным явно:
 
@@ -1322,11 +1340,13 @@ COMMIT
 \begin{english}
   \begin{sql}
 SHOW TRANSACTION ISOLATION LEVEL
-SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
+SET SESSION CHARACTERISTICS
+  AS TRANSACTION ISOLATION LEVEL SERIALIZABLE
 BEGIN
 ...
 COMMIT
-SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
+SET SESSION CHARACTERISTICS
+  AS TRANSACTION ISOLATION LEVEL READ COMMITTED
   \end{sql}
 \end{english}
 
@@ -1348,11 +1368,24 @@ SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
 
 Если передать его в функцию \code{query}, произойдет следующее:
 
-- из словаря библиотека построит JDBC URL~--- длинную строку, похожую на адрес страницы в интернете. Для конфигурации выше результат будет примерно таким: "jdbc:postgresql://127.0.0.1:5432/test".
+\begin{itemize}
 
-- По URL получим открытое TCP-соединение. Через него функция \code{query} отправит и получит данные.
+\item
+  из словаря библиотека построит JDBC URL~--- длинную строку, похожую на адрес страницы в интернете. Для конфигурации выше результат будет примерно таким:
 
-- После выполнения \code{query} соединение закроется.
+\begin{english}
+  \begin{text}
+jdbc:postgresql://127.0.0.1:5432/test
+  \end{text}
+\end{english}
+
+\item
+  По URL получим открытое TCP-соединение. Через него функция \code{query} отправит и получит данные.
+
+\item
+  После выполнения \code{query} соединение закроется.
+
+\end{itemize}
 
 Аналогично устроены функции \code{update!}, \code{delete!} и другие. Все они сводятся к единой точке, где создается соединение, происходит обмен данных, затем оно закрывается.
 
@@ -1361,7 +1394,7 @@ SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
 \begin{english}
   \begin{clojure}
 (jdbc/with-db-connection [conn db]
-  (jdbc/query conn "select 1"))
+  (jdbc/query conn "SELECT 1"))
   \end{clojure}
 \end{english}
 
@@ -1375,7 +1408,7 @@ SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
 {:dbtype "postgresql"
  :dbname "test"
  ...
- :connection #object[org.postgresql.jdbc.PgConnection 0x46b37678 "org.postgresql.jdbc.PgConnection@46b37678"]}
+ :connection #object[o.p.jdbc.PgConnection ...]}
   \end{clojure}
 \end{english}
 
@@ -1435,10 +1468,10 @@ SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED
 У открытого соединения есть проблема: его легко потерять. Проведем эксперимент: когда компонент базы включен, перезапустите сервер базы данных. Компонент придет в негодность: при попытке выполнить запрос получим ошибку о том, что соединение закрыто.
 
 \begin{english}
-  \begin{clojure}
-Execution error (PSQLException) at org.postgresql.jdbc.PgConnection/checkClosed (PgConnection.java:766).
+  \begin{text}
+Execution error (PSQLException) at ...
 This connection has been closed.
-  \end{clojure}
+  \end{text}
 \end{english}
 
 Чтобы исправить компонент, придется перезапустить его~--- вручную вызвать функции \code{start} и \code{stop}, которые откроют новое соединение.
@@ -1546,10 +1579,10 @@ SQLite ведет себя как обычная реляционная база
 \begin{itemize}
 
 \item
-  Windows 10: \code{C:\textbackslash{}Users\textbackslash{}<user>\textbackslash{}AppData\textbackslash{}Local\textbackslash{}Google\textbackslash{}Chrome\textbackslash{}User Data\textbackslash{}Default}
+  Windows 10: \code{C:\textbackslash{}Users\textbackslash{}<user>\textbackslash{}AppData\textbackslash{}Local\textbackslash{}Google\textbackslash{}Chro\-me\-\textbackslash{}User Data\textbackslash{}Default}
 
 \item
-  MacOS: \code{/Users/<username>/Library/Application Support/Google/Chrome/Default}
+  MacOS: \code{/Users/<username>/Library/Application Support\\/Google/Chrome/Default}
 
 \item
  Linux: \code{/home/<username>/.config/google-chrome/default}
@@ -1563,7 +1596,7 @@ SQLite ведет себя как обычная реляционная база
 (def db
   {:classname "org.sqlite.JDBC"
    :subprotocol "sqlite"
-   :subname "/Users/ivan/Library/Application Support/Google/Chrome/Default/History"})
+   :subname "/Users/ivan/.../Chrome/Default/History"})
   \end{clojure}
 \end{english}
 
@@ -1573,7 +1606,8 @@ SQLite ведет себя как обычная реляционная база
 
 \begin{english}
   \begin{clojure}
-(->> (jdbc/query db "SELECT name FROM sqlite_master WHERE type = 'table'")
+(->> (jdbc/query db "SELECT name FROM sqlite_master
+                     WHERE type = 'table'")
      (mapv :name))
   \end{clojure}
 \end{english}
@@ -1589,15 +1623,9 @@ SQLite ведет себя как обычная реляционная база
  "visit_source"
  "keyword_search_terms"
  "downloads"
- "downloads_url_chains"
  "downloads_slices"
  "segments"
- "segment_usage"
- "typed_url_sync_metadata"
- "content_annotations"
- "context_annotations"
- "clusters"
- "clusters_and_visits"]
+ ...]
   \end{clojure}
 \end{english}
 
@@ -1605,7 +1633,9 @@ SQLite ведет себя как обычная реляционная база
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db "SELECT * FROM urls order by last_visit_time desc limit 10")
+(jdbc/query db
+  "SELECT * FROM urls
+   ORDER BY last_visit_time DESC LIMIT 10")
   \end{clojure}
 \end{english}
 
@@ -1648,8 +1678,8 @@ SQLite ведет себя как обычная реляционная база
 
 (jdbc/execute! db "create table users (id integer)")
 
-(jdbc/query db "select * from users")
-;; [SQLITE_ERROR] SQL error or missing database (no such table: users)
+(jdbc/query db "SELECT * FROM users")
+;; SQL error or missing database (no such table: users)
   \end{clojure}
 \end{english}
 
@@ -1681,6 +1711,8 @@ SQLite ведет себя как обычная реляционная база
 \end{english}
 
 Эта оптимизация справедлива и для файловой версии. Если ее не сделать, на каждый запрос драйвер открывает и закрывает файл, что замедлит программу.
+
+%% >>>>>>>>>>>
 
 \section{Сложные типы}
 
