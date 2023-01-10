@@ -2056,9 +2056,9 @@ PostgreSQL поддерживает два типа JSON: одноименный
   \end{clojure}
 \end{english}
 
-%% >>>>>>>>>>>>>>>>>
+Пока что не ясно, что следует за многоточием. Как мы выяснили, \code{PGobject} служит для разных типов. Проверим тип поля и для каждого варианта вызовем свой обработчик. Проще всего это сделать оператором \code{case} как в листинге \ref{fig:pg-obj-case} на следующей странице.
 
-Пока что не ясно, что следует за многоточием. Как мы выяснили, \code{PGobject} служит для разных типов. Проверим тип поля и для каждого варианта вызовем свой обработчик. Проще всего это сделать оператором \code{case}:
+\begin{figure}[ht!]
 
 \begin{english}
   \begin{clojure}
@@ -2081,6 +2081,11 @@ PostgreSQL поддерживает два типа JSON: одноименный
   \end{clojure}
 \end{english}
 
+\caption{Приведение типов оператором \code{case}}
+\label{fig:pg-obj-case}
+
+\end{figure}
+
 \def\urlcheshire{https://github.com/dakrone/cheshire}
 
 Обратите внимание, что реализации \code{json} и \code{jsonb} совпадают: в обоих случаях база вернет строку, которую парсим библиотекой \footurl{Chesire}{\urlcheshire}[Chesire]. Проверим теперь, что типы читаются верно:
@@ -2089,7 +2094,8 @@ PostgreSQL поддерживает два типа JSON: одноименный
   \begin{clojure}
 (first (jdbc/query db "SELECT * from items"))
 
-{:id 1, :title "Cap", :attrs {:size "XL", :color "red", :country "China"}}
+{:id 1 :title "Cap"
+ :attrs {:size "XL" :color "red" :country "China"}}
   \end{clojure}
 \end{english}
 
@@ -2161,7 +2167,7 @@ PostgreSQL поддерживает два типа JSON: одноименный
   \end{clojure}
 \end{english}
 
-Расширим \code{ISQLValue} этим протоколом, чтобы Clojure-коллекция становилась объектом \code{PGobject} с типом \code{jsonb}:
+Расширим \code{ISQLValue} этим протоколом, чтобы Clojure-кол\-лек\-ция становилась объектом \code{PGobject} с типом \code{jsonb}:
 
 \begin{english}
   \begin{clojure}
@@ -2191,10 +2197,13 @@ PostgreSQL поддерживает два типа JSON: одноименный
 
 \begin{english}
   \begin{clojure}
-(jdbc/execute! db ["INSERT INTO items VALUES (?, ?, ?)"
-               5
-               "The Catcher in the Rye"
-               {:year 1951 :genre "novel" :author "J. D. Salinger"}])
+(jdbc/execute!
+  db
+  ["INSERT INTO items VALUES (?, ?, ?)"
+  5
+  "The Catcher in the Rye"
+  {:year 1951 :genre "novel"
+   :author "J. D. Salinger"}])
   \end{clojure}
 \end{english}
 
@@ -2216,6 +2225,8 @@ alter table items add column tags jsonb;
   \end{clojure}
 \end{english}
 
+
+\noindent
 и прочитаем ее:
 
 \begin{english}
@@ -2224,7 +2235,8 @@ alter table items add column tags jsonb;
 
 {:id 5
  :title "The Catcher in the Rye"
- :attrs {:year 1951 :genre "novel" :author "J. D. Salinger"}
+ :attrs {:year 1951 :genre "novel"
+         :author "J. D. Salinger"}
  :tags ("book" "novel")}
   \end{clojure}
 \end{english}
@@ -2294,15 +2306,17 @@ alter table items add column tags jsonb;
 
 \begin{english}
   \begin{sql}
-select id from items where attrs is null
+SELECT id FROM items WHERE attrs IS NULL
   \end{sql}
 \end{english}
 
+\noindent
 , в результате не будет строк с полем \code{attrs}, равным \code{"null"}, потому что это значение \code{json(b)}, отличное от \code{NULL}. Другими словами, вы ввели новое пустое значение. С ним проверка выглядит сложнее:
 
 \begin{english}
   \begin{sql}
-select id from items where attrs is null or attrs = 'null';
+SELECT id FROM items
+WHERE attrs IS NULL OR attrs = 'null';
   \end{sql}
 \end{english}
 
@@ -2313,8 +2327,7 @@ select id from items where attrs is null or attrs = 'null';
 \begin{english}
   \begin{clojure}
 (->pg-object nil)
-
-#object[org.postgresql.util.PGobject 0x7c24e232 "null"]
+;; #object[o.p.u.PGobject "null"]
   \end{clojure}
 \end{english}
 
@@ -2341,8 +2354,7 @@ select id from items where attrs is null or attrs = 'null';
 \begin{english}
   \begin{clojure}
 (first (jdbc/query db "select '(1, 2)'::point"))
-
-{:point #object[org.postgresql.geometric.PGpoint 0x28ebf39e "(1.0,2.0)"]}
+;; {:point #object[o.p.g.PGpoint "(1.0,2.0)"]}
   \end{clojure}
 \end{english}
 
@@ -2397,9 +2409,11 @@ select id from items where attrs is null or attrs = 'null';
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db ["select ? as point" (new Point 1 2)])
-(jdbc/query db ["select ? as point" (map->Point {:x 1 :y 2})])
-(jdbc/query db ["select ? as point" #book.db.Point{:x 1 :y 2}])
+(def sql "select ? as point")
+
+(jdbc/query db [sql (new Point 1 2)])
+(jdbc/query db [sql (map->Point {:x 1 :y 2})])
+(jdbc/query db [sql #book.db.Point{:x 1 :y 2}])
   \end{clojure}
 \end{english}
 
@@ -2412,10 +2426,10 @@ select id from items where attrs is null or attrs = 'null';
 \begin{english}
   \begin{clojure}
 (let [events (get-events http-client)
-      sql "select * from users u
-join profiles p on p.user_id = u.id
-where u.is_active
-and p.created_at > ..."
+      sql "SELECT * FROM users u
+JOIN profiles p ON p.user_id = u.id
+WHERE u.is_active
+AND p.created_at > ..."
       result (jdbc/query db sql)]
   ...)
   \end{clojure}
@@ -2440,7 +2454,7 @@ SQL-выражения со временем растут. На старте п�
 \def\urlwikiorm{https://ru.wikipedia.org/wiki/ORM}
 \def\urlwiriar{https://ru.wikipedia.org/wiki/ActiveRecord}
 
-Сопоставление таблиц и объектов называется \footurl{ORM}{\urlwikiorm}[ORM] (Object–relational mapping). Встречается его разновидность \footurl{Active Record}{\urlwiriar} [Active Record] (сокращенно AR). Как правило, любой современный язык предлагает библиотеки для ORM или AR.
+Сопоставление таблиц и объектов называется \footurl{ORM}{\urlwikiorm}[ORM] (Ob\-ject–re\-la\-ti\-o\-nal map\-ping). Встречается его разновидность \footurl{Active Record}{\urlwiriar} [Active Record] (сокращенно AR). Как правило, любой современный язык предлагает библиотеки для ORM или AR.
 
 Попытки создать ORM были и в Clojure, но они не получили широкого распространения. Практика показывает, что в Clojure легко работать с базой на низкому ровне. Причина в том, что коллекции Clojure *уже* обладают важными свойствами: они неизменяемы и на них действуют сотни функций стандартной библиотеки. В Clojure список словарей достаточен для дальнейшей работы, и нет смысла приводить их к другим сущностям.
 
@@ -2483,6 +2497,8 @@ where id = :id;
 
 \def\urlhugsqlorg{https://www.hugsql.org/}
 \def\urlhugsqlgh{https://github.com/layerware/hugsql}
+
+%% >>>>>>>>>>>>>>>>
 
 Принцип <<SQL на шаблонах>> предлагает библиотека \footurl{HugSQL}{\urlhugsqlorg}[HugSQL]. Подключите ее в проект (понадобится свежая версия \code{tools.reader}):
 
