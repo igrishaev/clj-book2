@@ -3369,18 +3369,18 @@ JOIN posts p ON p.author_id = a.id;
 
 Результат:
 
-%% TODO: table
-
-\begin{english}
-  \begin{text}[fontsize=\footnotesize]
- id |    name     | id |            title            | author_id
-----+-------------+----+-----------------------------+-----------
-  1 | Ivan Petrov | 10 | Introduction to Python      |         1
-  1 | Ivan Petrov | 20 | Thoughts on LISP            |         1
-  2 | Ivan Rublev | 30 | Learning Clojure            |         2
-  2 | Ivan Rublev | 40 | Working on my pet project   |         2
-  \end{text}
-\end{english}
+\begin{table}[H]
+\resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l|}
+\hline
+id & name & id & title & author\_id \\
+\hline
+ 1  &  Ivan Petrov  &  10  &  Introduction to Python     & 1 \\
+ 1  &  Ivan Petrov  &  20  &  Thoughts on LISP           & 1 \\
+ 2  &  Ivan Rublev  &  30  &  Learning Clojure           & 2 \\
+ 2  &  Ivan Rublev  &  40  &  Working on my pet project  & 2 \\
+\hline
+\end{tabular}}
+\end{table}
 
 Видим, что родительская сущность (автор) повторяется столько раз, столько у нее дочерних записей (статей). Результат нельзя выводить в плоском виде, потому что пользователь ожидает другую структуру. Наверняка он хочет увидеть вложенный список:
 
@@ -3623,19 +3623,19 @@ SELECT * FROM authors WHERE id = ANY('{1,2,3,4,5}');
 
 \begin{english}
   \begin{clojure}
-(defn make-db-array [db-spec db-type values]
+(defn make-db-array
+  [db-spec db-type values]
   (let [conn (jdbc/get-connection db)]
     (.createArrayOf conn db-type
                     (object-array values))))
 
 (make-db-array db "integer" [1 2 3])
+
 ;; #object[o.p.j.PgArray "{\"1\",\"2\",\"3\"}"]
   \end{clojure}
 \end{english}
 
 \subsection{Ручная группировка}
-
-%% >>>>>>>>>>>>
 
 Выбрать смежные записи можно оператором \code{JOIN}. С ним мы получим данные одним запросом. Порой это выгодней обхода по слоям, который совершает серию запросов. Даже если выборка не обладает нужной структурой, ее обрабатывают в коде, в то время как база обслуживает других клиентов.
 
@@ -3651,16 +3651,18 @@ JOIN posts p ON p.author_id = a.id;
   \end{sql}
 \end{english}
 
-\begin{english}
-  \begin{text}
- id |    name     | id |            title            | author_id
-----+-------------+----+-----------------------------+-----------
-  1 | Ivan Petrov | 10 | Introduction to Python      |         1
-  1 | Ivan Petrov | 20 | Thoughts on LISP            |         1
-  2 | Ivan Rublev | 30 | Learning Clojure            |         2
-  2 | Ivan Rublev | 40 | Working on my pet project   |         2
-  \end{text}
-\end{english}
+\begin{table}[H]
+\resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l|}
+\hline
+id & name & id & title & author\_id \\
+\hline
+ 1  &  Ivan Petrov  &  10  &  Introduction to Python     & 1 \\
+ 1  &  Ivan Petrov  &  20  &  Thoughts on LISP           & 1 \\
+ 2  &  Ivan Rublev  &  30  &  Learning Clojure           & 2 \\
+ 2  &  Ivan Rublev  &  40  &  Working on my pet project  & 2 \\
+\hline
+\end{tabular}}
+\end{table}
 
 Первый шаг к группировке~--- задать полям уникальные имена. В выборке два поля \code{id}, и может возникнуть путаница где чей номер. Чтобы этого избежать, укажем псевдонимы с пространством имен. Из-за символа \code{/} их нужно заключить в двойные кавычки.
 
@@ -3679,7 +3681,7 @@ JOIN posts p ON p.author_id = a.id;
 
 Польза подобных имен в том, что мы получим словари с ключами \code{:author/id}, \code{:post/id} и другими, что удобно для работы в Clojure.
 
-Каждая запись содержит "слипшиеся" сущности~--- автора и публикацию~--- и наша задача разделить их. Простой способ это сделать~--- написать функции \code{get-author} и \code{get-post} с явной выборкой ключей:
+Каждая запись содержит <<слипшиеся>> сущности~--- автора и публикацию~--- и наша задача разделить их. Простой способ это сделать~--- написать функции \code{get-author} и \code{get-post} с явной выборкой ключей:
 
 \begin{english}
   \begin{clojure}
@@ -3687,7 +3689,8 @@ JOIN posts p ON p.author_id = a.id;
   (select-keys db-row [:author/id :author/name]))
 
 (defn get-post [db-row]
-  (select-keys db-row [:post/id :post/title :post/author-id]))
+  (select-keys db-row
+    [:post/id :post/title :post/author-id]))
   \end{clojure}
 \end{english}
 
@@ -3703,10 +3706,12 @@ JOIN posts p ON p.author_id = a.id;
    :post/author-id 1})
 
 (get-author row)
-;; #:author{:id 1, :name "Ivan Petrov"}
+;; #:author{:id 1 :name "Ivan Petrov"}
 
 (get-post row)
-;; #:post{:id 10, :title "Introduction to Python", :author-id 1}
+;; #:post{:id 10
+          :title "Introduction to Python"
+          :author-id 1}
   \end{clojure}
 \end{english}
 
@@ -3721,8 +3726,11 @@ JOIN posts p ON p.author_id = a.id;
          author-id (:author/id author)
          post-id   (:post/id post)]
      (-> result
-         (update-in [:authors author-id] merge author)
-         (update-in [:authors author-id :author/posts post-id] merge post))))
+         (update-in [:authors author-id]
+                    merge author)
+         (update-in [:authors author-id
+                     :author/posts post-id]
+                    merge post))))
  {}
  db-result)
   \end{clojure}
@@ -3733,14 +3741,24 @@ JOIN posts p ON p.author_id = a.id;
 \begin{english}
   \begin{clojure}
 {:authors
- {1 #:author{:id 1
-             :name "Ivan Petrov"
-             :posts {10 #:post{:id 10 :title "Introduction to Python" :author-id 1}
-                     20 #:post{:id 20 :title "Thoughts on LISP" :author-id 1}}}
-  2 #:author{:id 2
-             :name "Ivan Rublev"
-             :posts {30 #:post{:id 30 :title "Learning Clojure" :author-id 2}
-                     40 #:post{:id 40 :title "Working on my pet project" :author-id 2}}}}}
+ {1 {:author/id 1
+     :author/name "Ivan Petrov"
+     :author/posts
+       {10 {:post/id 10
+            :post/title "Introduction to Python"
+            :post/author-id 1}
+        20 {:post/id 20
+            :post/title "Thoughts on LISP"
+            :post/author-id 1}}}
+  2 {:author/id 2
+     :author/name "Ivan Rublev"
+     :author/posts
+       {30 {:post/id 30
+            :post/title "Learning Clojure"
+            :post/author-id 2}
+        40 {:post/id 40
+            :post/title "Working on my pet project"
+            :post/author-id 2}}}}}
   \end{clojure}
 \end{english}
 
@@ -3750,10 +3768,10 @@ JOIN posts p ON p.author_id = a.id;
 
 \begin{english}
   \begin{sql}
-create table comments (
-  id serial primary key,
-  text text not null,
-  post_id integer not null references posts(id)
+CREATE TABLE comments (
+  id SERIAL PRIMARY KEY,
+  text TEXT NOT NULL,
+  post_id INTEGER NOT NULL REFERENCES posts(id)
 );
 
 INSERT INTO comments (id, post_id, text) VALUES
@@ -3783,17 +3801,45 @@ LEFT JOIN comments c ON c.post_id = p.id;
 
 Повторов станет еще больше:
 
-\begin{english}
-  \begin{text}
- author/id | author/name | post/id |         post/title          | post/author-id | comment/id |         comment/text
------------+-------------+---------+-----------------------------+----------------+------------+------------------------------
-         1 | Ivan Petrov |      10 | Introduction to Python      |              1 |        100 | Thanks for sharing this!
-         1 | Ivan Petrov |      10 | Introduction to Python      |              1 |        200 | Nice reading, it was useful.
-         2 | Ivan Rublev |      30 | Learning Clojure            |              2 |        300 | TL;DR: you must learn lisp
-         1 | Ivan Petrov |      20 | Thoughts on LISP            |              1 |            |
-         2 | Ivan Rublev |      40 | Working on my pet project   |              2 |            |
-  \end{text}
-\end{english}
+\begin{table}[H]
+\resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l}
+\hline
+author/id & author/name & post/id &         post/title           & \ldots \\
+\hline
+         1 & Ivan Petrov &      10 & Introduction to Python      & \ldots \\
+         1 & Ivan Petrov &      10 & Introduction to Python      & \ldots \\
+         2 & Ivan Rublev &      30 & Learning Clojure            & \ldots \\
+         1 & Ivan Petrov &      20 & Thoughts on LISP            & \ldots \\
+         2 & Ivan Rublev &      40 & Working on my pet project   & \ldots \\
+\hline
+\end{tabular}}
+
+\vspace{3mm}
+
+\resizebox{\columnwidth}{!}{\begin{tabular}{l|l|l|l|}
+\hline
+\ldots         & post/author-id & comment/id &         comment/text \\
+\hline
+\ldots   &              1 &        100 & Thanks for sharing this!       \\
+\ldots   &              1 &        200 & Nice reading, it was useful.   \\
+\ldots   &              2 &        300 & TL;DR: you must learn lisp     \\
+\ldots   &              1 &            &                                \\
+\ldots   &              2 &            &                                \\
+\hline
+\end{tabular}}
+\end{table}
+
+%% \begin{english}
+%%   \begin{text}
+%%  author/id | author/name | post/id |         post/title          | post/author-id | comment/id |         comment/text
+%% -----------+-------------+---------+-----------------------------+----------------+------------+------------------------------
+%%          1 | Ivan Petrov |      10 | Introduction to Python      |              1 |        100 | Thanks for sharing this!
+%%          1 | Ivan Petrov |      10 | Introduction to Python      |              1 |        200 | Nice reading, it was useful.
+%%          2 | Ivan Rublev |      30 | Learning Clojure            |              2 |        300 | TL;DR: you must learn lisp
+%%          1 | Ivan Petrov |      20 | Thoughts on LISP            |              1 |            |
+%%          2 | Ivan Rublev |      40 | Working on my pet project   |              2 |            |
+%%   \end{text}
+%% \end{english}
 
 Доработаем прошлый код. Прежде всего, в функциях \code{get-author}, \code{get-post} и других нет смысла. Поля сущности определяют по пространству, например, все ключи с пространством \code{:author/} относятся к авторам. Напишем общую функцию \code{get-entity}, которая принимает пространство и запись базы данных.
 
@@ -3818,7 +3864,9 @@ LEFT JOIN comments c ON c.post_id = p.id;
 #:author{:id 1 :name "Ivan Petrov"}
 
 (get-entity "post" row)
-#:post{:id 10 :title "Introduction to Python" :author-id 1}
+#:post{:id 10
+       :title "Introduction to Python"
+       :author-id 1}
   \end{clojure}
 \end{english}
 
@@ -3826,7 +3874,8 @@ LEFT JOIN comments c ON c.post_id = p.id;
 
 \begin{english}
   \begin{clojure}
-(defn row->entities [db-row]
+(defn row->entities
+  [db-row]
   (reduce-kv
    (fn [result k v]
      (assoc-in result [(namespace k) k] v))
