@@ -2327,6 +2327,7 @@ WHERE attrs IS NULL OR attrs = 'null';
 \begin{english}
   \begin{clojure}
 (->pg-object nil)
+
 ;; #object[o.p.u.PGobject "null"]
   \end{clojure}
 \end{english}
@@ -2498,9 +2499,7 @@ where id = :id;
 \def\urlhugsqlorg{https://www.hugsql.org/}
 \def\urlhugsqlgh{https://github.com/layerware/hugsql}
 
-%% >>>>>>>>>>>>>>>>
-
-Принцип <<SQL на шаблонах>> предлагает библиотека \footurl{HugSQL}{\urlhugsqlorg}[HugSQL]. Подключите ее в проект (понадобится свежая версия \code{tools.reader}):
+SQL в шаблонах предлагает библиотека \footurl{HugSQL}{\urlhugsqlorg}[HugSQL]. Подключите ее в проект (понадобится свежая версия \code{tools.reader}):
 
 \begin{english}
   \begin{clojure}
@@ -2509,7 +2508,7 @@ where id = :id;
   \end{clojure}
 \end{english}
 
-Будем работать с пользователями. Создайте файл \code{resources/sql/queries.sql} с запросами:
+Будем работать с пользователями. Создайте файл \code{queries.sql} в папке \code{resources/sql} с запросами:
 
 \begin{english}
   \begin{sql}
@@ -2578,10 +2577,21 @@ values (:fname, :lname, :email, :age);
 
 Эти и другие флаги служат синтаксическим сахаром для параметра \code{:command}. Если вам трудно запомнить флаги, укажите их явно:
 
-- \code{:command :query}
-- \code{:command :insert}
-- \code{:command :execute}
-- \code{:command :returning-execute}
+\begin{itemize}
+
+\item
+  \code{:command :query}
+
+\item
+  \code{:command :insert}
+
+\item
+  \code{:command :execute}
+
+\item
+  \code{:command :returning-execute}
+
+\end{itemize}
 
 Чтобы создать несколько записей в транзакции, обернем функции в макрос \code{with-db-transaction} и укажем \code{tx} первым аргументом:
 
@@ -2629,7 +2639,7 @@ where id = :id;
 
 \subsection{Выражения}
 
-Еще одна важная функция HugSQL~--- это шаблонная система в запросах. С помощью особого синтаксиса в запрос можно добавить код на Clojure, который "склеивает" его части. Прием полезен, когда запрос меняется в зависимости от параметров.
+Еще одна важная функция HugSQL~--- это шаблонная система в запросах. С помощью особого синтаксиса в запрос можно добавить код на Clojure, который <<склеивает>> его части. Прием полезен, когда запрос меняется в зависимости от параметров.
 
 Предположим, мы пишем поиск пользователей. В отборе участвуют несколько полей: имя, город, год рождения, при этом обязательно только имя. В этом случае мы не можем составить запрос как в примере ниже:
 
@@ -2639,7 +2649,7 @@ where id = :id;
 SELECT * FROM users
 WHERE fname = :name
   AND city = :city
-  AND year_birth = :year-birth
+  AND year = :year
 LIMIT 10
   \end{sql}
 \end{english}
@@ -2664,7 +2674,7 @@ LIMIT 10
 select * from users
 where fname = :name
 --~ (when (:city params) "and city = :city")
---~ (when (:year-birth params) "and year_birth = :year-birth")
+--~ (when (:year params) "and year = :year")
 limit 10
   \end{sql}
 \end{english}
@@ -2679,6 +2689,7 @@ limit 10
   \end{clojure}
 \end{english}
 
+\noindent
 порождает следующий запрос:
 
 \begin{english}
@@ -2711,14 +2722,14 @@ SQL if false
   \begin{sql}
 -- :name get-user-by-id :? :1
 -- :doc Get a single user by ID
-select
+SELECT
 /*~ (if (:user-fields params) */
 :snip:user-fields
 /*~*/
 *
 /*~ ) ~*/
-from users
-where id = :id;
+FROM users
+WHERE id = :id;
   \end{sql}
 \end{english}
 
@@ -2727,26 +2738,29 @@ where id = :id;
 \begin{english}
   \begin{clojure}
 (get-user-by-id db {:id 1})
-;; {:id 1 :fname "Ivan"
-;; :lname "Petrov"
-;; :email "...",
-;; :age ...}
+
+{:id 1
+ :fname "Ivan"
+ :lname "Petrov"
+ :email "..."
+ :age ...}
 
 (get-user-by-id db {:id 1 :user-fields (user-fields)})
-;; {:id 1
-;;  :fname "Ivan"
-;;  :lname "Petrov"}
+
+{:id 1
+ :fname "Ivan"
+ :lname "Petrov"}
   \end{clojure}
 \end{english}
 
-Настоящие сложности возникают, когда управляют не отдельными полями, а таблицами. Предположим, в поиске пользователей появилось галочка "только с фотографией". Снимки хранятся в отдельной таблице \code{photos}, которая связана с пользователями внешним ключом. Чтобы выбрать пользователей по наличию фото, в запросе должно быть внутреннее соединение таблиц (\code{INNER JOIN}). При этом не всегда, а только если установлен параметр. Все вместе дает нам шаблон:
+Настоящие сложности возникают, когда управляют не отдельными полями, а таблицами. Предположим, в поиске пользователей появилось галочка <<только с фотографией>>. Снимки хранятся в отдельной таблице \code{photos}, которая связана с пользователями внешним ключом. Чтобы выбрать пользователей по наличию фото, в запросе должно быть внутреннее соединение таблиц (\code{INNER JOIN}). При этом не всегда, а только если установлен параметр. Все вместе дает нам шаблон:
 
 \begin{english}
   \begin{sql}
 -- :name find-users2 :?
-select * from users u
+SELECT * FROM users u
 /*~ (when (:with-photo? params) */
-join photos p on p.user_id = u.id
+JOIN photos p ON p.user_id = u.id
 /*~ ) ~*/
   \end{sql}
 \end{english}
@@ -2755,10 +2769,11 @@ join photos p on p.user_id = u.id
 
 \begin{english}
   \begin{clojure}
-(find-users2 db {:with-photo? true})
+(find-users2
+  db {:with-photo? true})
 
-;; select * from users u
-;; join photos p on p.user_id = u.id
+;; SELECT * FROM users u
+;; JOIN photos p ON p.user_id = u.id
   \end{clojure}
 \end{english}
 
@@ -2786,7 +2801,7 @@ id, fname, lname
   \end{clojure}
 \end{english}
 
-HugSQL предлагает многие другие возможности. Ознакомьтесь с ними \footurl{на странице}{\urlhugsqlgh}[layerware/hugsql] проекта.
+HugSQL предлагает многие другие возможности. Ознакомьтесь с ними \footurl{на странице}{\urlhugsqlgh}[HugSQL] проекта.
 
 \def\urlyesql{https://github.com/krisajenkins/yesql}
 
@@ -2873,7 +2888,8 @@ SELECT * FROM users WHERE id = 1
 
 (sql/format query)
 
-["INSERT INTO users (id, fname, email) VALUES (?, ?, ?)"
+["INSERT INTO users (id, fname, email)
+  VALUES (?, ?, ?)"
  99
  "Ivan"
  "test@test.com"]
@@ -2899,7 +2915,9 @@ SELECT * FROM users WHERE id = 1
 
 (sql/format query)
 
-["UPDATE users SET bonus_points = bonus_points + ? WHERE (id = ?)" 100 99]
+["UPDATE users
+  SET bonus_points = bonus_points + ?
+  WHERE (id = ?)" 100 99]
   \end{clojure}
 \end{english}
 
@@ -2926,8 +2944,11 @@ SELECT * FROM users WHERE id = 1
 
 \begin{english}
   \begin{clojure}
-(defn map-query [db-spec map-sql & [map-params]]
-  (jdbc/query db-spec (sql/format map-sql {:params map-params})))
+(defn map-query
+  [db-spec map-sql & [map-params]]
+  (jdbc/query db-spec
+              (sql/format map-sql
+                          {:params map-params})))
   \end{clojure}
 \end{english}
 
@@ -2957,7 +2978,8 @@ SELECT * FROM users WHERE id = 1
 \begin{english}
   \begin{clojure}
 (defn map-query [db-spec map-sql & [map-params]]
-  (let [sql-vec (sql/format map-sql {:params map-params})]
+  (let [sql-vec
+        (sql/format map-sql {:params map-params})]
     (log/infof "Query: %s" (first sql-vec))
     (jdbc/query db-spec sql-vec)))
   \end{clojure}
@@ -2968,7 +2990,7 @@ SELECT * FROM users WHERE id = 1
 \begin{english}
   \begin{clojure}
 (map-query db query {:id 1})
-;; 2021-08-06 10:29:25,702 INFO  book.db - Query: SELECT * FROM users WHERE id = ?
+;; ... Query: SELECT * FROM users WHERE id = ?
   \end{clojure}
 \end{english}
 
@@ -2986,7 +3008,8 @@ SELECT * FROM users WHERE id = 1
 
 \begin{english}
   \begin{clojure}
-(import 'com.github.vertical_blank.sqlformatter.SqlFormatter)
+(import
+  'com.github.vertical_blank.sqlformatter.SqlFormatter)
   \end{clojure}
 \end{english}
 
@@ -2995,8 +3018,11 @@ SELECT * FROM users WHERE id = 1
 \begin{english}
   \begin{clojure}
 (defn map-query [db-spec map-sql & [map-params]]
-  (let [sql-vec (sql/format map-sql {:params map-params})]
-    (log/infof "Query:\n%s" (SqlFormatter/format (first sql-vec)))
+  (let [sql-vec
+        (sql/format map-sql {:params map-params})
+        sql-text
+        (SqlFormatter/format (first sql-vec))]
+    (log/infof "Query:\n%s" sql-text)
     (jdbc/query db-spec sql-vec)))
   \end{clojure}
 \end{english}
@@ -3046,7 +3072,8 @@ CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ]
                   :on-table :users
                   :on-field :lname}})
 
-;; CREATE INDEX IF NOT EXISTS idx_user_lname ON users (id);
+;; CREATE INDEX IF NOT EXISTS idx_user_lname
+;; ON users (id);
   \end{clojure}
 \end{english}
 
@@ -3088,7 +3115,8 @@ CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ]
                             :on-table :users
                             :on-field :lname}})
 
-["CREATE INDEX IF NOT EXISTS idx_user_lname ON users ( lname )"]
+["CREATE INDEX IF NOT EXISTS idx_user_lname
+  ON users ( lname )"]
   \end{clojure}
 \end{english}
 
@@ -3102,6 +3130,7 @@ CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ]
   \end{clojure}
 \end{english}
 
+\noindent
 становилось:
 
 \begin{english}
@@ -3122,7 +3151,8 @@ HoneySql покрывает почти все операторы SQL, однак
   \begin{clojure}
 {:select [:*]
  :from [:users]
- :where [:>= :created_at [:raw "now() - interval '1 day'"]]}
+ :where [:>= :created_at
+             [:raw "now() - interval '1 day'"]]}
   \end{clojure}
 \end{english}
 
@@ -3147,7 +3177,7 @@ HoneySql покрывает почти все операторы SQL, однак
 
 В разделе про SQL-шаблоны мы выяснили, как повторно использовать части запросов. В HugSQL мы использовали сниппеты~--- именованные выражения. В HoneySQL это делается проще, потому что сводится к работе с неизменяемыми коллекциями.
 
-Вернемся к таблице пользователей. Приложение часто обращается к ним: читает всех пользователей, ищет по имени или городу, находит конкретного человека по номеру. У этих запросов общая часть: имя таблицы и список полей, которые получит клиент. Вынесем ее в переменную, на которую позже будем ссылаться. По-другому ее называют "тушкой" запроса:
+Вернемся к таблице пользователей. Приложение часто обращается к ним: читает всех пользователей, ищет по имени или городу, находит конкретного человека по номеру. У этих запросов общая часть: имя таблицы и список полей, которые получит клиент. Вынесем ее в переменную, на которую позже будем ссылаться. По-другому ее называют <<тушкой>> запроса:
 
 \begin{english}
   \begin{clojure}
@@ -3157,7 +3187,7 @@ HoneySql покрывает почти все операторы SQL, однак
   \end{clojure}
 \end{english}
 
-Если выполнить "тушку", получим всех пользователей. Чтобы задать отбор по имени и ограничить длину выборки, добавим эти критерии с помощью \code{assoc}:
+Если выполнить <<тушку>>, получим всех пользователей. Чтобы задать отбор по имени и ограничить длину выборки, добавим эти критерии с помощью \code{assoc}:
 
 \begin{english}
   \begin{clojure}
@@ -3178,15 +3208,11 @@ HoneySql покрывает почти все операторы SQL, однак
 (let [q-fname "Ivan"          ;; (get params :name)
       q-email "test@test.com" ;; (get params :email)
       q-age nil               ;; (get params :age)
-
-      query
-      (assoc user-base :where [:and [:= :fname q-fname]])]
-
+      query (assoc user-base
+                   :where [:and [:= :fname q-fname]])]
   (cond-> query
-
     q-age
     (update :where conj [:= :age q-age])
-
     q-email
     (update :where conj [:= :email q-email])))
   \end{clojure}
@@ -3204,24 +3230,22 @@ HoneySql покрывает почти все операторы SQL, однак
   \end{clojure}
 \end{english}
 
-Похоже работает условное соединение таблиц. Если задан флаг "с фотографией", добавим в запрос ключ \code{:join} с таблицей \code{photos}:
+Похоже работает условное соединение таблиц. Если задан флаг <<с фотографией>>, добавим в словарь поле \code{:join} с таблицей \code{photos}:
 
 \begin{english}
   \begin{clojure}
 (let [q-fname "Ivan"   ;; (get params :name)
       with-photo? true ;; (get params :with_photo)
-
-      query
-      (assoc user-base :where [:and [:= :fname q-fname]])]
-
+      query (assoc user-base
+                   :where [:and [:= :fname q-fname]])]
   (cond-> query
-
     with-photo?
-    (assoc :join [:photos [:= :users.id :photos.user_id]])))
+    (assoc :join
+           [:photos [:= :users.id :photos.user_id]])))
   \end{clojure}
 \end{english}
 
-Форма выше вернет запрос:
+Если передать результат в \code{sql/format}, получим запрос:
 
 \begin{english}
   \begin{sql}
@@ -3238,7 +3262,7 @@ WHERE (fname = 'Ivan')
 \def\urlsqlingvo{https://github.com/r0man/sqlingvo}
 \def\urltoucan{https://github.com/metabase/toucan}
 
-Коротко перечислим аналоги HoneySQL. Это \footurl{SQLingvo}{\urlsqlingvo}[SQLingvo], \footurl{Toucan}{\urltoucan}[Toucan], Korma и другие. Все они так или иначе выражают SQL с помощью данных, которые позже становятся строкой. Познакомившись HoneySQL, вы без труда освоите эти библиотеки, потому что в них принят тот же подход.
+Перечислим аналоги HoneySQL. Это \footurl{SQLingvo}{\urlsqlingvo}[SQLingvo], \footurl{Toucan}{\urltoucan}[Toucan], Korma и другие. Все они так или иначе выражают SQL с помощью данных, которые позже становятся строкой. Познакомившись HoneySQL, вы без труда освоите эти библиотеки, потому что в них принят тот же подход.
 
 \def\urlkorma{https://github.com/korma/Korma}
 
@@ -3257,6 +3281,8 @@ WHERE (fname = 'Ivan')
 Оба способа равнозначны, и нельзя с уверенностью сказать, что лучше. Чтобы определиться, испытайте то и другое на практике.
 
 \section{Структура и группировка}
+
+%% >>>>>>>>>>>>>>>
 
 Библиотеки, что мы рассмотрели выше, только составляют запрос, но не влияют на его обработку. Независимо от того, что вы предпочитаете~--- шаблоны или данные~--- вы столкнетесь с тем, что выполнить запрос еще не достаточно. Часто ответ базы нуждается в обработке из-за вложенных данных. Рассмотрим, что это за проблема и как ее решить.
 
