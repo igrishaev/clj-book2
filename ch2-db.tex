@@ -3191,9 +3191,10 @@ HoneySql покрывает почти все операторы SQL, однак
 
 \begin{english}
   \begin{clojure}
-(map-query db (assoc user-base
-                     :where [:= :fname "Ivan"]
-                     :limit 9))
+(map-query db
+           (assoc user-base
+                  :where [:= :fname "Ivan"]
+                  :limit 9))
   \end{clojure}
 \end{english}
 
@@ -3208,8 +3209,10 @@ HoneySql покрывает почти все операторы SQL, однак
 (let [q-fname "Ivan"          ;; (get params :name)
       q-email "test@test.com" ;; (get params :email)
       q-age nil               ;; (get params :age)
-      query (assoc user-base
-                   :where [:and [:= :fname q-fname]])]
+      query
+      (assoc user-base
+             :where [:and [:= :fname q-fname]])]
+
   (cond-> query
     q-age
     (update :where conj [:= :age q-age])
@@ -3236,8 +3239,10 @@ HoneySql покрывает почти все операторы SQL, однак
   \begin{clojure}
 (let [q-fname "Ivan"   ;; (get params :name)
       with-photo? true ;; (get params :with_photo)
-      query (assoc user-base
-                   :where [:and [:= :fname q-fname]])]
+      query
+      (assoc user-base
+             :where [:and [:= :fname q-fname]])]
+
   (cond-> query
     with-photo?
     (assoc :join
@@ -3282,8 +3287,6 @@ WHERE (fname = 'Ivan')
 
 \section{Структура и группировка}
 
-%% >>>>>>>>>>>>>>>
-
 Библиотеки, что мы рассмотрели выше, только составляют запрос, но не влияют на его обработку. Независимо от того, что вы предпочитаете~--- шаблоны или данные~--- вы столкнетесь с тем, что выполнить запрос еще не достаточно. Часто ответ базы нуждается в обработке из-за вложенных данных. Рассмотрим, что это за проблема и как ее решить.
 
 В сердце реляционных баз данных лежат отношения между таблицами. Почти все операции над таблицами возвращают таблицы. Прибегая к аналогии, можно сказать, что из прямоугольных блоков можно выложить только прямоугольные формы, но не треугольные или круглые. В общем случае база хранит плоские данные и не может построить из них дерево.
@@ -3325,15 +3328,15 @@ WHERE (fname = 'Ivan')
 
 \begin{english}
   \begin{sql}
-create table authors (
-  id serial primary key,
-  name text not null
+CREATE TABLE authors (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL
 );
 
-create table posts (
-  id serial primary key,
-  title text not null,
-  author_id integer references authors(id)
+CREATE TABLE posts (
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  author_id INTEGER REFERENCES authors(id)
 );
   \end{sql}
 \end{english}
@@ -3365,6 +3368,8 @@ JOIN posts p ON p.author_id = a.id;
 \end{english}
 
 Результат:
+
+%% >>>>>>>>>>>>>>>>>>
 
 \begin{english}
   \begin{text}
