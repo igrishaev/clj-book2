@@ -3369,10 +3369,10 @@ JOIN posts p ON p.author_id = a.id;
 
 Результат:
 
-%% >>>>>>>>>>>>>>>>>>
+%% TODO: table
 
 \begin{english}
-  \begin{text}
+  \begin{text}[fontsize=\footnotesize]
  id |    name     | id |            title            | author_id
 ----+-------------+----+-----------------------------+-----------
   1 | Ivan Petrov | 10 | Introduction to Python      |         1
@@ -3384,13 +3384,24 @@ JOIN posts p ON p.author_id = a.id;
 
 Видим, что родительская сущность (автор) повторяется столько раз, столько у нее дочерних записей (статей). Результат нельзя выводить в плоском виде, потому что пользователь ожидает другую структуру. Наверняка он хочет увидеть вложенный список:
 
-- Ivan Petrov
-  - Introduction to Python
-  - Thoughts on LISP
-
-- Ivan Rublev
-  - Learning Clojure
-  - Working on my pet project
+\begin{itemize}
+\item
+  Ivan Petrov
+  \begin{itemize}
+    \item
+      Introduction to Python
+    \item
+      Thoughts on LISP
+  \end{itemize}
+\item
+  Ivan Rublev
+  \begin{itemize}
+    \item
+      Learning Clojure
+    \item
+      Working on my pet project
+  \end{itemize}
+\end{itemize}
 
 Ситуация ухудшается, если у дочерних записей есть другие дочерние, например оценки или комментарии. Это приведет к еще большему дублированию родителей.
 
@@ -3439,7 +3450,8 @@ JOIN posts p ON p.author_id = a.id;
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db ["SELECT * FROM authors WHERE name = ?" "Ivan"])
+(jdbc/query db ["SELECT * FROM authors
+                 WHERE name = ?" "Ivan"])
 
 ;; ({:id 1 ...} {:id 2 ...})
   \end{clojure}
@@ -3451,11 +3463,13 @@ JOIN posts p ON p.author_id = a.id;
   \begin{clojure}
 (for [author authors]
   (let [{:keys [id]} author
-        posts (jdbc/find-by-keys db :posts {:author_id id})]
+        posts (jdbc/find-by-keys
+                db :posts {:author_id id})]
     (assoc author :posts posts)))
   \end{clojure}
 \end{english}
 
+\noindent
 , мы произведем столько запросов, сколько авторов. Это неэффективно: с ростом выборки число запросов будет расти линейно. Если запрос по имени вернул тысячу авторов, мы тысячу раз обратимся к базе.
 
 Другой способ в том, чтобы получить номера авторов и составить запрос вида:
@@ -3466,14 +3480,17 @@ JOIN posts p ON p.author_id = a.id;
   \end{sql}
 \end{english}
 
+\noindent
 , где знаков вопроса столько же, сколько авторов. Получится один запрос к базе. Если добавить индекс на поле \code{posts.author\_id}, это ускорит выборку.
 
 Заметим, что выражение \code{IN (...)} требует усилий в построении запроса. Это не один, а несколько параметров, разделенных запятой. Их позиция должна совпадать с позицией значения в векторе SQL. Если поиск по имени нашел десять авторов, вот как будет выглядеть вектор SQL с поиском статей:
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db ["SELECT * FROM posts WHERE author_id IN (?,?,?,?,?,?,?,?,?,?)"
-                1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+(jdbc/query db
+            ["SELECT * FROM posts WHERE author_id
+              IN (?,?,?,?,?,?,?,?,?,?)"
+             1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
   \end{clojure}
 \end{english}
 
@@ -3548,7 +3565,7 @@ JOIN posts p ON p.author_id = a.id;
   \end{clojure}
 \end{english}
 
-Оператор \code{IN} можно записать в виде условия \code{ANY} с массивом. Синтаксис читается как "поле \code{id} равно хотя бы одному элементу":
+Оператор \code{IN} можно записать в виде условия \code{ANY} с массивом. Синтаксис читается как <<поле \code{id} равно хотя бы одному элементу>>:
 
 \begin{english}
   \begin{clojure}
@@ -3570,7 +3587,8 @@ SELECT * FROM authors WHERE id = ANY('{1,2,3,4,5}');
 \begin{english}
   \begin{clojure}
 (def array
-  (.createArrayOf conn "INTEGER" (object-array [1 2 3 4 5])))
+  (.createArrayOf conn "INTEGER"
+                  (object-array [1 2 3 4 5])))
   \end{clojure}
 \end{english}
 
@@ -3580,7 +3598,7 @@ SELECT * FROM authors WHERE id = ANY('{1,2,3,4,5}');
   \begin{clojure}
 (extend-protocol jdbc/ISQLParameter
   java.sql.Array
-  (set-parameter [val ^java.sql.PreparedStatement stmt ix]
+  (set-parameter [val ^PreparedStatement stmt ix]
     (.setArray stmt ix val)))
   \end{clojure}
 \end{english}
@@ -3590,11 +3608,14 @@ SELECT * FROM authors WHERE id = ANY('{1,2,3,4,5}');
 \begin{english}
   \begin{clojure}
 (def array
-  (.createArrayOf conn "INTEGER" (object-array [1 2 3 4 5])))
+  (.createArrayOf conn "INTEGER"
+                  (object-array [1 2 3 4 5])))
 
-(jdbc/query db ["select * from authors where id = ANY(?)" array])
+(jdbc/query db ["select * from authors
+                 where id = ANY(?)" array])
 
-;; ({:id 1 :name "Ivan Petrov"} {:id 2 :name "Ivan Rublev"})
+({:id 1 :name "Ivan Petrov"}
+ {:id 2 :name "Ivan Rublev"})
   \end{clojure}
 \end{english}
 
@@ -3604,18 +3625,21 @@ SELECT * FROM authors WHERE id = ANY('{1,2,3,4,5}');
   \begin{clojure}
 (defn make-db-array [db-spec db-type values]
   (let [conn (jdbc/get-connection db)]
-    (.createArrayOf conn db-type (object-array values))))
-
+    (.createArrayOf conn db-type
+                    (object-array values))))
 
 (make-db-array db "integer" [1 2 3])
-
-;; #object[org.postgresql.jdbc.PgArray 0x7d1d3233 "{\"1\",\"2\",\"3\"}"]
+;; #object[o.p.j.PgArray "{\"1\",\"2\",\"3\"}"]
   \end{clojure}
 \end{english}
 
 \subsection{Ручная группировка}
 
-Выбрать смежные записи можно оператором \code{JOIN}. С ним мы получим данные одним запросом. Порой это выгодней обхода по слоям, который совершает серию запросов. Даже если выборка не обладает нужной структурой, ее обрабатывают в коде, в то время как база обслуживает других клиентов. С другой стороны, на больших таблицах оператор \code{JOIN} замедляется, особенно если условие связи не попадает в индекс. Производительность таких запросов зависит от окружения, оборудования и прочих факторов.
+%% >>>>>>>>>>>>
+
+Выбрать смежные записи можно оператором \code{JOIN}. С ним мы получим данные одним запросом. Порой это выгодней обхода по слоям, который совершает серию запросов. Даже если выборка не обладает нужной структурой, ее обрабатывают в коде, в то время как база обслуживает других клиентов.
+
+С другой стороны, на больших таблицах оператор \code{JOIN} замедляется, особенно если условие связи не попадает в индекс. Производительность таких запросов зависит от окружения, оборудования и прочих факторов.
 
 Пример запроса с \code{JOIN}, который вернет плоские данные. Обратите внимание на повторы в первых трех колонках (авторах):
 
