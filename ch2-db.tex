@@ -4459,17 +4459,31 @@ LEFT JOIN (
   \end{sql}
 \end{english}
 
-%% >>>>>>>>>>
+Результат:
 
-\begin{english}
-  \begin{text}
- id |     title      |                          attrs
-----+----------------+---------------------------------------------------------
-  1 | iPhone 99x     | {"phone.display.diag": 145, "phone.wifi.support": true}
-  2 | Galaxy 33.plus |
-  3 | G. Orwell 1984 | {"book.genre": "dystopia", "book.pages": 215}
-  \end{text}
-\end{english}
+\begin{table}[H]
+\begin{tabular}{|l|l|l|}
+\hline
+\code{id} & \code{title} & \code{attrs} \\
+\hline
+1 & iPhone 99x     & \code{\{"phone.display.diag": 145{},} \\
+  &                & \code{\phantom{ }"phone.wifi.support": true\}} \\
+2 & Galaxy 33.plus & \\
+3 & G. Orwell 1984 & \code{\{"book.genre": "dystopia"{},} \\
+  &                & \code{\phantom{ }"book.pages": 215\}} \\
+\hline
+\end{tabular}
+\end{table}
+
+%% \begin{english}
+%%   \begin{text}
+%%  id |     title      |                          attrs
+%% ----+----------------+---------------------------------------------------------
+%%   1 | iPhone 99x     | {"phone.display.diag": 145, "phone.wifi.support": true}
+%%   2 | Galaxy 33.plus |
+%%   3 | G. Orwell 1984 | {"book.genre": "dystopia", "book.pages": 215}
+%%   \end{text}
+%% \end{english}
 
 Товар, у которого нет характеристик, остался в выборке. Если передать итоговый запрос в \code{jdbc/query}, получим именно ту структуру данных Clojure, на которую рассчитывали.
 
@@ -4485,14 +4499,25 @@ select 2 as id, 'bar' as name;
   \end{sql}
 \end{english}
 
-\begin{english}
-  \begin{text}
- id | name
-----+------
-  1 | foo
-  2 | bar
-  \end{text}
-\end{english}
+\begin{table}[H]
+\begin{tabular}{|l|l|}
+\hline
+id & name \\
+\hline
+1 & foo \\
+2 & bar \\
+\hline
+\end{tabular}
+\end{table}
+
+%% \begin{english}
+%%   \begin{text}
+%%  id | name
+%% ----+------
+%%   1 | foo
+%%   2 | bar
+%%   \end{text}
+%% \end{english}
 
 Иногда в проекте бывает несколько похожих сущностей в разных таблицах. Например, договоры с юрлицами и населением; администраторы и пользователи; крупные и малые поставщики. Из-за разной структуры их нельзя объединить в один запрос. Но поскольку функция \code{row\_to\_json} приводит запись к json, можно объединить результаты любых записей.
 
@@ -4501,13 +4526,14 @@ select 2 as id, 'bar' as name;
 \begin{english}
   \begin{sql}
 CREATE TABLE admins (
-  id serial,
-  full_name text NOT NULL,
-  email text
+  id SERIAL,
+  full_name TEXT NOT NULL,
+  email TEXT
 );
   \end{sql}
 \end{english}
 
+\noindent
 и несколько записей:
 
 \begin{english}
@@ -4518,7 +4544,7 @@ VALUES ('Petr Smirnov', 'petr@test.com'),
   \end{sql}
 \end{english}
 
-Ниже~--- запрос, который выберет обе сущности. Обратите внимание на поля \code{id} и \code{type} в обеих частях. Первичный ключ (\code{id}) нужен настолько часто, что логично вынести его на верхний уровень запроса. Поле \code{type} содержит строку с типом сущности: "user" для пользователя и "admin" для администратора. По этому полю легко понять, что находится в \code{entity}.
+Ниже~--- запрос, который выберет обе сущности. Обратите внимание на поля \code{id} и \code{type} в обеих частях. Первичный ключ (\code{id}) нужен настолько часто, что логично вынести его на верхний уровень запроса. Поле \code{type} содержит строку с типом сущности: <<user>> для пользователя и <<admin>> для администратора. По этому полю легко понять, что находится в \code{entity}.
 
 \begin{english}
   \begin{sql}
@@ -4540,43 +4566,49 @@ FROM
 
 Результат в консоли \code{psql}:
 
-\begin{english}
-  \begin{text}
- id | type  |                                                                           entity
-----+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------
-  1 | user  | {"id":1,"fname":"Ivan","lname":"Petrov","email":"test@test.com","age":30,"city":null,"year_birth":null,"created_at":"2021-08-10T07:36:03.934029+00:00"}
-  3 | user  | {"id":3,"fname":"Huan","lname":null,"email":null,"age":null,"city":null,"year_birth":null,"created_at":"2021-08-10T07:36:03.934029+00:00"}
-  1 | admin | {"id":1,"full_name":"Petr Smirnov","email":"petr@test.com"}
-  2 | admin | {"id":2,"full_name":"Oleg Ivanov","email":"oleg@test.com"}
-  \end{text}
-\end{english}
+\begin{table}[H]
+%% \resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|l|l|}
+\hline
+id & type & entity \\
+\hline
+  1 & user  & \mintinline{json}{{"id":1,"fname":"Ivan", ...}} \\
+  3 & user  & \mintinline{json}{{"id":3,"fname":"Huan", ...}} \\
+  1 & admin & \mintinline{json}{{"id":1,"full_name":"Petr Smirnov", ...}} \\
+  2 & admin & \mintinline{json}{{"id":2,"full_name":"Oleg Ivanov", ...}} \\
+\hline
+\end{tabular}%}
+\end{table}
 
+
+%% \begin{english}
+%%   \begin{text}
+%%  id | type  |                                                                           entity
+%% ----+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------
+%%   1 | user  | {"id":1,"fname":"Ivan","lname":"Petrov","email":"test@test.com","age":30,"city":null,"year_birth":null,"created_at":"2021-08-10T07:36:03.934029+00:00"}
+%%   3 | user  | {"id":3,"fname":"Huan","lname":null,"email":null,"age":null,"city":null,"year_birth":null,"created_at":"2021-08-10T07:36:03.934029+00:00"}
+%%   1 | admin | {"id":1,"full_name":"Petr Smirnov","email":"petr@test.com"}
+%%   2 | admin | {"id":2,"full_name":"Oleg Ivanov","email":"oleg@test.com"}
+%%   \end{text}
+%% \end{english}
+
+\noindent
 и в Clojure:
 
 \begin{english}
   \begin{clojure}
 [{:id 1
   :type "user"
-  :entity
-  {:id 1
-   :fname "Ivan"
-   :lname "Petrov"
-   :email "test@test.com"
-   :age 30
-   :city nil
-   :year_birth nil
-   :created_at "2021-08-10T10:36:03.934029+03:00"}}
+  :entity {:id 1
+           :fname "Ivan"
+           :lname "Petrov"
+           ...}}
  {:id 3
   :type "user"
-  :entity
-  {:id 3
-   :fname "Huan"
-   :lname nil
-   :email nil
-   :age nil
-   :city nil
-   :year_birth nil
-   :created_at "2021-08-10T10:36:03.934029+03:00"}}
+  :entity {:id 3
+           :fname "Huan"
+           :lname nil
+           ...}}
  {:id 1
   :type "admin"
   :entity {:id 1
@@ -4619,12 +4651,12 @@ SELECT
 FROM
   admins a;
 
--- ERROR:  could not identify an equality operator for type json
--- LINE 4:   row_to_json(u) AS entity
+-- ERROR: could not identify an equality operator
+-- for type json. LINE 4: row_to_json(u) AS entity
   \end{sql}
 \end{english}
 
-Чтобы отсечь дубликаты, используйте \code{to\_jsonb} вместо \code{row\_to\_json}. Эта функция вернет результат с типом \code{jsonb}, который поддерживает сравнение. Как следствие, оператор \code{UNION ALL} не вызовет ошибку для поля этого типа.
+Чтобы отсечь дубликаты, используйте \code{to\_jsonb} вместо прежней \code{row\_to\_json}. Эта функция вернет результат с типом \code{jsonb}, который поддерживает сравнение. Как следствие, оператор \code{UNION ALL} не вызовет ошибку для поля этого типа.
 
 Группировка в базе может быть удачным решением, которое сэкономит время и код. Однако она зависит от объема данных и их структуры. Опробуйте выборку на больших данных (сотни тысяч записей) и оцените время и план исполнения. Если данных нет, сгенерируйте их спекой. В первой книге о Clojure мы рассмотрели, как это сделать модулем \code{gen}.
 
@@ -4636,7 +4668,7 @@ FROM
 
 Каждая миграция имеет уникальный идентификатор. Чаще всего это дата в формате ISO или время Unix. Идентификатор должен поддаваться сортировке, чтобы однозначно определить порядок миграций.
 
-Миграции похожи на дерево коммитов: с ними базу можно "накатить" или "откатить" до определенной версии. Подобно тому, как с помощью git мы переключаемся на нужную версию кода, базу данных переключают на нужное состояние. Для этого нужно знать, какая миграция текущая и в какую сторону двигаться.
+Миграции похожи на дерево коммитов: с ними базу можно <<накатить>> или <<откатить>> до определенной версии. Подобно тому, как с помощью git мы переключаемся на нужную версию кода, базу данных переключают на нужное состояние. Для этого нужно знать, какая миграция текущая и в какую сторону двигаться.
 
 Сведения о миграциях хранится в базе. Как правило, движок миграций создает таблицу \code{migrations} примерно такой структуры:
 
@@ -4649,6 +4681,8 @@ create table migrations (
 );
   \end{sql}
 \end{english}
+
+%% >>>>>>>>>>>>>
 
 Таблица запоминает, какие миграции и когда мы применили. При запуске миграций программа читает таблицу и сканирует файлы на диске. Файлы называют по принципу \code{<time/id>-<description>.<up/down>.sql}. Объясним значения в угловых скобках:
 
