@@ -102,7 +102,7 @@ CREATE TABLE profiles(
 \begin{figure}[ht!]
 
 \begin{english}
-  \begin{minted}[fontsize=\small]{java}
+  \begin{java}[fontsize=\small]
 import java.sql.*;
 
 public class JDBCExample {
@@ -134,7 +134,7 @@ public class JDBCExample {
     }
   }
 }
-  \end{minted}
+  \end{java}
 \end{english}
 
 \caption{Запрос и печать результата в Java}
@@ -3884,16 +3884,17 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   \end{clojure}
 \end{english}
 
-%% >>>>>>>>>>>>>>>>>
-
 Пример ее работы:
 
 \begin{english}
   \begin{clojure}
 (row->entities row)
 
-{"author" #:author{:id 1 :name "Ivan Petrov"}
- "post" #:post{:id 10 :title "Introduction to Python" :author-id 1}}
+{"author" #:author{:id 1
+                   :name "Ivan Petrov"}
+ "post" #:post{:id 10
+               :title "Introduction to Python"
+               :author-id 1}}
   \end{clojure}
 \end{english}
 
@@ -3903,7 +3904,8 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   \begin{clojure}
 (let [{:strs [author
               post
-              comment]} (row->entities row)]
+              comment]}
+      (row->entities row)]
   ...)
   \end{clojure}
 \end{english}
@@ -3945,34 +3947,49 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   \end{clojure}
 \end{english}
 
-Обратите внимание: вместо линейного оператора \code{->} мы используем условный \code{cond->}. С ним комментарий присоединяется к результату только если поле \code{comment-id} не пустое. Проверка необходима, потому что комментарий может быть пустым. Результат:
+Обратите внимание: вместо линейного оператора \code{->} мы используем условный \code{cond->}. С ним комментарий присоединяется к результату только если поле \code{comment-id} не пустое. Проверка необходима, потому что комментарий может быть пустым. Результат приведен на странице справа в листинге \ref{lis:nested-result}.
+
+\begin{figure}[ht!]
 
 \begin{english}
-  \begin{clojure}
+  \begin{clojure}[fontsize=\small]
 {:authors
- {1 #:author{:id 1
-             :name "Ivan Petrov"
-             :posts {10 #:post{:id 10
-                               :title "Introduction to Python"
-                               :author-id 1
-                               :comments {100 #:comment{:id 100
-                                                        :text "Thanks for sharing this!"
-                                                        :post-id 10}
-                                          200 #:comment{:id 200
-                                                        :text "Nice reading, it was useful."
-                                                        :post-id 10}}}
-                     20 #:post{:id 20 :title "Thoughts on LISP" :author-id 1}}}
-  2 #:author{:id 2
-             :name "Ivan Rublev"
-             :posts {30 #:post{:id 30
-                               :title "Learning Clojure"
-                               :author-id 2
-                               :comments {300 #:comment{:id 300
-                                                        :text "TL;DR: you must learn lisp"
-                                                        :post-id 30}}}
-                     40 #:post{:id 40 :title "Working on my pet project" :author-id 2}}}}}
+ {1 {:author/id 1
+     :author/name "Ivan Petrov"
+     :author/posts
+       {10 {:post/id 10
+            :post/title "Introduction to Python"
+            :post/author-id 1
+            :post/comments
+              {100 {:comment/id 100
+                    :comment/text "Thanks for sharing this!"
+                    :comment/post-id 10}
+               200 {:comment/id 200
+                    :comment/text "Nice reading, it was useful."
+                    :comment/post-id 10}}}
+        20 {:post/id 20
+            :post/title "Thoughts on LISP"
+            :post/author-id 1}}}
+  2 {:author/id 2
+     :author/name "Ivan Rublev"
+     :author/posts
+       {30 {:post/id 30
+            :post/title "Learning Clojure"
+            :post/author-id 2
+            :post/comments
+              {300 {:comment/id 300
+                    :comment/text "TL;DR: you must learn lisp"
+                    :comment/post-id 30}}}
+        40 {:post/id 40
+            :post/title "Working on my pet project"
+            :post/author-id 2}}}}}
   \end{clojure}
 \end{english}
+
+\caption{Группировка авторов, статей и комментариев}
+\label{lis:nested-result}
+
+\end{figure}
 
 Из примеров напрашивается общая функция группировки. Они принимает результат базы и описание сущностей: их поля и связи между родителем и потомком. Функция обходит выборку согласно структуре и наполняет словарь результата. С учетом всех тонкостей код будет велик, поэтому оставим эту задачу в качестве упражнения.
 
@@ -4020,7 +4037,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   \end{clojure}
 \end{english}
 
-Новый обход выборки отличается тем, что \code{reduce} принимает результат \code{enumerate}. Индекс каждой записи передается в \code{row->entities}:
+Новый обход выборки отличается тем, что \code{reduce} принимает результат \code{enumerate}. Индекс каждой записи передается в \code{row->\-entities}:
 
 \begin{english}
   \begin{clojure}
@@ -4037,7 +4054,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
 Приведем малую часть результата:
 
 \begin{english}
-  \begin{clojure}
+  \begin{clojure}[fontsize=\small]
 {:authors
  {1 {:author/id 1
      :db/index 3
@@ -4072,7 +4089,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   \end{clojure}
 \end{english}
 
-Вот как выглядит "ремаппинг" сущностей. Если текущая форма~--- элемент словаря, а ключ~--- один из тех, что нуждается в сортировке, то значение (вложенный словарь) приводится к вектору, элементы которого~--- значения вложенного словаря, упорядоченные по \code{:db/index}.
+Вот как выглядит <<ремаппинг>> сущностей. Если текущая форма~--- элемент словаря, а ключ~--- один из тех, что нуждается в сортировке, то значение (вложенный словарь) приводится к вектору, элементы которого~--- значения вложенного словаря, упорядоченные по \code{:db/index}.
 
 \begin{english}
   \begin{clojure}
@@ -4098,10 +4115,10 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   \end{clojure}
 \end{english}
 
-Результат:
+Результат с небольшими сокращениями:
 
 \begin{english}
-  \begin{clojure}
+  \begin{clojure}[fontsize=\small]
 [{:author/id 1
   :db/index 3
   :author/name "Ivan Petrov"
@@ -4109,20 +4126,16 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   [{:post/id 10
     :db/index 1
     :post/title "Introduction to Python"
-    :post/author-id 1
     :post/comments
     [{:comment/id 100
       :db/index 0
-      :comment/text "Thanks for sharing this!"
-      :comment/post-id 10}
+      :comment/text "Thanks for sharing this!"}
      {:comment/id 200
       :db/index 1
-      :comment/text "Nice reading, it was useful."
-      :comment/post-id 10}]}
+      :comment/text "Nice reading, it was useful."}]}
    {:post/id 20
     :db/index 3
-    :post/title "Thoughts on LISP"
-    :post/author-id 1}]}
+    :post/title "Thoughts on LISP"}]}
  {:author/id 2
   :db/index 4
   :author/name "Ivan Rublev"
@@ -4130,16 +4143,13 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   [{:post/id 30
     :db/index 2
     :post/title "Learning Clojure"
-    :post/author-id 2
     :post/comments
     [{:comment/id 300
       :db/index 2
-      :comment/text "TL;DR: you must learn lisp"
-      :comment/post-id 30}]}
+      :comment/text "TL;DR: you must learn lisp"}]}
    {:post/id 40
     :db/index 4
-    :post/title "Working on my pet project"
-    :post/author-id 2}]}]
+    :post/title "Working on my pet project"}]}]
   \end{clojure}
 \end{english}
 
@@ -4176,7 +4186,8 @@ SELECT
   p.id        as "post/id",
   p.title     as "post/title",
   p.author_id as "post/author-id",
-  json_agg(row_to_json(c)) FILTER (WHERE c IS NOT NULL) as "post/comments"
+  json_agg(row_to_json(c)) FILTER
+          (WHERE c IS NOT NULL) as "post/comments"
 FROM posts p
 LEFT JOIN comments c ON c.post_id = p.id
 GROUP BY p.id;
@@ -4185,16 +4196,45 @@ GROUP BY p.id;
 
 Результат:
 
-\begin{english}
-  \begin{text}
- post/id |         post/title          | post/author-id |                                                       post/comments
----------+-----------------------------+----------------+----------------------------------------------------------------------------------------------------------------------------
-      10 | Introduction to Python      |              1 | [{"id":100,"text":"Thanks for sharing this!","post_id":10}, {"id":200,"text":"Nice reading, it was useful.","post_id":10}]
-      20 | Thoughts on LISP            |              1 |
-      30 | Learning Clojure            |              2 | [{"id":300,"text":"TL;DR: you must learn lisp","post_id":30}]
-      40 | Working on my pet project   |              2 |
-  \end{text}
-\end{english}
+%% \begin{english}
+%%   \begin{text}
+%%  post/id |         post/title          | post/author-id |                                                       post/comments
+%% ---------+-----------------------------+----------------+----------------------------------------------------------------------------------------------------------------------------
+%%       10 | Introduction to Python      |              1 | [{"id":100,"text":"Thanks for sharing this!","post_id":10}, {"id":200,"text":"Nice reading, it was useful.","post_id":10}]
+%%       20 | Thoughts on LISP            |              1 |
+%%       30 | Learning Clojure            |              2 | [{"id":300,"text":"TL;DR: you must learn lisp","post_id":30}]
+%%       40 | Working on my pet project   |              2 |
+%%   \end{text}
+%% \end{english}
+
+
+\begin{table}[H]
+%% \resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|l|l|l}
+\hline
+ post/id & post/title                  & post/author-id & \ldots \\
+\hline
+      10 & Introduction to Python      &              1 & \ldots \\
+      20 & Thoughts on LISP            &              1 & \ldots \\
+      30 & Learning Clojure            &              2 & \ldots \\
+      40 & Working on my pet project   &              2 & \ldots \\
+\hline
+\end{tabular}%}
+\end{table}
+
+\begin{table}[H]
+%% \resizebox{\columnwidth}{!}{
+\begin{tabular}{l|l|}
+\hline
+\ldots & post/comments \\
+\hline
+\ldots & \code{[\{"id":100 \ldots\}, \{"id":200 \ldots\}]} \\
+\ldots & \\
+\ldots & \code{[\{"id":300 \ldots\}]} \\
+\ldots & \\
+\hline
+\end{tabular}%}
+\end{table}
 
 Статья, у которой нет комментариев, осталась в выборке. Поле \code{post/comments} носит тип json; внутри него массив объектов, где каждый объект представляет запись таблицы \code{comments}.
 
@@ -4214,7 +4254,8 @@ FROM
     p.id        as "post/id",
     p.title     as "post/title",
     p.author_id as "post/author-id",
-    json_agg(row_to_json(c)) FILTER (WHERE c IS NOT NULL) as "post/comments"
+    json_agg(row_to_json(c)) FILTER
+            (WHERE c IS NOT NULL) as "post/comments"
   FROM posts p
   LEFT JOIN comments c ON c.post_id = p.id
   GROUP BY p.id
@@ -4223,6 +4264,8 @@ WHERE a.id = posts."post/author-id"
 GROUP BY a.id;
   \end{sql}
 \end{english}
+
+%% >>>>>>>>>>>>>>>>>
 
 Если выполнить запрос, получим данные как в примере ниже. Они готовы к отправке клиенту; не требуется сортировка или дополнительный обход.
 
