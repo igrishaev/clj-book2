@@ -4228,9 +4228,9 @@ GROUP BY p.id;
 \hline
 \ldots & post/comments \\
 \hline
-\ldots & \code{[\{"id":100 \ldots\}, \{"id":200 \ldots\}]} \\
+\ldots & \mintinline{json}{[{"id": 100, ...}, {"id": 200, ...}]} \\
 \ldots & \\
-\ldots & \code{[\{"id":300 \ldots\}]} \\
+\ldots & \mintinline{json}{[{"id":300, ...}]} \\
 \ldots & \\
 \hline
 \end{tabular}%}
@@ -4265,35 +4265,41 @@ GROUP BY a.id;
   \end{sql}
 \end{english}
 
-%% >>>>>>>>>>>>>>>>>
-
 Если выполнить запрос, получим данные как в примере ниже. Они готовы к отправке клиенту; не требуется сортировка или дополнительный обход.
 
 \begin{english}
-  \begin{clojure}
-[#:author{:id 1
-          :name "Ivan Petrov"
-          :posts [#:post{:id 10
-                         :title "Introduction to Python"
-                         :author-id 1
-                         :comments [{:id 100 :text "Thanks for sharing this!" :post_id 10}
-                                    {:id 200
-                                     :text "Nice reading, it was useful."
-                                     :post_id 10}]}
-                  #:post{:id 20
-                         :title "Thoughts on LISP"
-                         :author-id 1
-                         :comments nil}]}
- #:author{:id 2
-          :name "Ivan Rublev"
-          :posts [#:post{:id 30
-                         :title "Learning Clojure"
-                         :author-id 2
-                         :comments [{:id 300 :text "TL;DR: you must learn lisp" :post_id 30}]}
-                  #:post{:id 40
-                         :title "Working on my pet project"
-                         :author-id 2
-                         :comments nil}]}]
+  \begin{clojure}[fontsize=\small]
+[{:author/id 1
+  :author/name "Ivan Petrov"
+  :author/posts
+    [{:post/id 10
+      :post/title "Introduction to Python"
+      :post/author-id 1
+      :post/comments
+        [{:id 100
+          :text "Thanks for sharing this!"
+          :post_id 10}
+         {:id 200
+          :text "Nice reading, it was useful."
+          :post_id 10}]}
+     {:post/id 20
+      :post/title "Thoughts on LISP"
+      :post/author-id 1
+      :post/comments nil}]}
+ {:author/id 2
+  :author/name "Ivan Rublev"
+  :author/posts
+    [{:post/id 30
+      :post/title "Learning Clojure"
+      :post/author-id 2
+      :post/comments
+        [{:id 300
+          :text "TL;DR: you must learn lisp"
+          :post_id 30}]}
+     {:post/id 40
+      :post/title "Working on my pet project"
+      :post/author-id 2
+      :post/comments nil}]}]
   \end{clojure}
 \end{english}
 
@@ -4301,20 +4307,27 @@ GROUP BY a.id;
 
 Рассмотрим другой пример группировки. Предположим, таблица хранит данные о товарах: артикул, название и так далее. У каждого товара могут быть десятки характеристик: жанр книги, размер талии или разъем питания. Чтобы бесконечно не добавлять столбцы к товарам, вынесем характеристики в отдельную таблицу с именем характеристики, значением и ссылкой на товар.
 
-Подготовим таблицы:
+Подготовим таблицы товаров:
 
 \begin{english}
   \begin{sql}
 CREATE TABLE goods (
-  id serial primary key,
-  title text not null
+  id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL
 );
+  \end{sql}
+\end{english}
 
+\noindent
+и атрибутов:
+
+\begin{english}
+  \begin{sql}
 CREATE TABLE good_attrs (
-  id serial primary key,
-  good_id integer not null references goods(id),
-  attr text not null,
-  val jsonb
+  id SERIAL PRIMARY KEY,
+  good_id INTEGER NOT NULL REFERENCES goods(id),
+  attr TEXT NOT NULL,
+  val JSONB
 );
   \end{sql}
 \end{english}
@@ -4324,21 +4337,39 @@ CREATE TABLE good_attrs (
 \begin{english}
   \begin{sql}
 INSERT INTO goods (id, title)
-VALUES (1, 'iPhone 99x'),
-       (2, 'Galaxy 33.plus'),
-       (3, 'G. Orwell 1984');
+VALUES
+  (1, 'iPhone 99x'),
+  (2, 'Galaxy 33.plus'),
+  (3, 'G. Orwell 1984');
 
 INSERT INTO good_attrs (good_id, attr, val)
-VALUES (1, 'phone.display.diag', '145'),
-       (1, 'phone.wifi.support', 'true'),
-       (3, 'book.pages', '215'),
-       (3, 'book.genre', '"dystopia"');
+VALUES
+  (1, 'phone.display.diag', '145'),
+  (1, 'phone.wifi.support', 'true'),
+  (3, 'book.pages', '215'),
+  (3, 'book.genre', '"dystopia"');
   \end{sql}
 \end{english}
 
-Обратите внимание, что значение характеристики носит тип \code{jsonb}. Это значит, нам доступно все богатство его типов. Например, можно указать размер одежды буквой (L, M); число портов натуральным числом (2, 3); поддержку протокола (истина или ложь); список ссылок на сторонние ресурсы (массив строк).
+Обратите внимание, что значение характеристики носит тип \code{jsonb}. Это значит, нам доступно все богатство его типов, например:
 
-Хотелось бы извлечь товары одним запросом, чтобы получить структуру:
+\begin{itemize}
+
+\item
+  размер одежды в виде строки (быквы L, M);
+
+\item
+  число портов натуральным числом (2, 3);
+
+\item
+  поддержка протокола (истина или ложь);
+
+\item
+  список ссылок на сторонние ресурсы (массив строк).
+
+\end{itemize}
+
+Хотелось бы извлечь товары одним запросом, чтобы получить структуру как в примере ниже:
 
 \begin{english}
   \begin{clojure}
@@ -4346,9 +4377,11 @@ VALUES (1, 'phone.display.diag', '145'),
   :title "iPhone 99x"
   :attrs {:phone.display.diag 145
           :phone.wifi.support true}}
+
  {:id 2
   :title "Galaxy 33.plus"
   :attrs nil}
+
  {:id 3
   :title "G. Orwell 1984"
   :attrs {:book.genre "dystopia"
@@ -4372,14 +4405,39 @@ FROM good_attrs ga
 
 Результат:
 
-\begin{english}
-  \begin{text}
- good_id |                          attrs
----------+---------------------------------------------------------
-       3 | {"book.genre": "dystopia", "book.pages": 215}
-       1 | {"phone.display.diag": 145, "phone.wifi.support": true}
-  \end{text}
-\end{english}
+\begin{table}[H]
+%% \resizebox{\columnwidth}{!}{
+\begin{tabular}{|l|l|}
+\hline
+\code{good\_id} & \code{attrs} \\
+\hline
+3 & \code{\{"book.genre": "dystopia"{},} \\
+  & \code{\phantom{ }"book.pages": 215\}} \\
+1 & \code{\{"phone.display.diag": 145{},} \\
+  & \code{\phantom{ }"phone.wifi.support": true\}} \\
+\hline
+\end{tabular}%}
+\end{table}
+
+%% \begin{table}[H]
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|}
+%% \hline
+%% \code{good\_id} & \code{attrs} \\
+%% \hline
+%% 3 & \mintinline{json}{{"book.genre": "dystopia", "book.pages": 215}} \\
+%% 1 & \mintinline{json}{{"phone.display.diag": 145, "phone.wifi.support": true}} \\
+%% \hline
+%% \end{tabular}}
+%% \end{table}
+
+%% \begin{english}
+%%   \begin{text}
+%%  good_id |                          attrs
+%% ---------+---------------------------------------------------------
+%%        3 | {"book.genre": "dystopia", "book.pages": 215}
+%%        1 | {"phone.display.diag": 145, "phone.wifi.support": true}
+%%   \end{text}
+%% \end{english}
 
 Поместим его в подзапрос и присоединим к товарам при помощи \code{LEFT JOIN}:
 
@@ -4400,6 +4458,8 @@ LEFT JOIN (
 ) a ON a.good_id = g.id;
   \end{sql}
 \end{english}
+
+%% >>>>>>>>>>
 
 \begin{english}
   \begin{text}
