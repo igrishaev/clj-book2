@@ -51,12 +51,11 @@ REPL отсчитывает свою историю от \footurl{первых �
 \begin{english}
   \begin{bash}
 > clj
-#or
 > clojure
   \end{bash}
 \end{english}
 
-**Третий** способ~--- выполнить архив jar. Старые версии Clojure (до 1.8 включительно) состоят из одного jar-файла, который запускается командой \code{java -jar}:
+\textbf{Третий} способ~--- выполнить архив jar. Старые версии Clojure (до 1.8 включительно) состоят из одного jar-файла, который запускается командой \code{java -jar}:
 
 \begin{english}
   \begin{bash}
@@ -78,7 +77,8 @@ REPL отсчитывает свою историю от \footurl{первых �
 
 \begin{english}
   \begin{bash}
-> java -cp clojure-1.11.1.jar:spec.alpha-0.3.218.jar clojure.main
+> java -cp clojure-1.11.1.jar:spec.alpha-0.3.218.jar \
+       clojure.main
   \end{bash}
 \end{english}
 
@@ -116,6 +116,7 @@ user=> (def amount 3)
   \end{clojure}
 \end{english}
 
+\noindent
 и сошлитесь на нее в выражении:
 
 \begin{english}
@@ -134,6 +135,7 @@ user=> (defn add [a b] (+ a b))
   \end{clojure}
 \end{english}
 
+\noindent
 и проверьте вызов:
 
 \begin{english}
@@ -182,8 +184,11 @@ user=> (str/split "one two three" #"\s+")
 
 \begin{english}
   \begin{clojure}
-user=> (str/replace "Two minutes, Turkish!", #"Two" "Five")
-"Five minutes, Turkish!"
+user=> (str/replace
+          "Two minutes, Turkish!",
+           #"Two" "Five")
+
+;; "Five minutes, Turkish!"
   \end{clojure}
 \end{english}
 
@@ -192,6 +197,7 @@ user=> (str/replace "Two minutes, Turkish!", #"Two" "Five")
 \begin{english}
   \begin{clojure}
 (require '[clojure.inspector :as insp])
+
 (insp/inspect-tree (System/getenv))
   \end{clojure}
 \end{english}
@@ -214,7 +220,7 @@ user=> (str/replace "Two minutes, Turkish!", #"Two" "Five")
 \begin{english}
   \begin{clojure}
 user=> (/ 1 0)
-Execution error (ArithmeticException) at user/eval554...
+Execution error (ArithmeticException) at ...
 Divide by zero
   \end{clojure}
 \end{english}
@@ -232,14 +238,11 @@ user=> *e
  :via
  [{:type java.lang.ArithmeticException
    :message "Divide by zero"
-   :at [clojure.lang.Numbers divide "Numbers.java" 188]}]
+   :at [c.l.Numbers divide "Numbers.java" 188]}]
  :trace
  [[clojure.lang.Numbers divide "Numbers.java" 188]
   [clojure.lang.Numbers divide "Numbers.java" 3901]
-  [user$eval8888 invokeStatic "form-init3207458389100610076.clj" 1]
-  [user$eval8888 invoke "form-init3207458389100610076.clj" 1]
   ...
-  [nrepl.middleware.session$session_exec$main_loop__1048 invoke "session.clj" 201]
   [clojure.lang.AFn run "AFn.java" 22]
   [java.lang.Thread run "Thread.java" 829]]}
   \end{clojure}
@@ -326,10 +329,9 @@ REPL предлагает макросы для интроинспеции. Вы
 -------------------------
 clojure.core/assoc
 ([map key val] [map key val & kvs])
-  assoc[iate]. When applied to a map, returns a new map of the
-    same (hashed/sorted) type, that contains the mapping of key(s) to
-    val(s). When applied to a vector, returns a new vector that
-    contains val at index. Note - index must be <= (count vector).
+  assoc[iate]. When applied to a map, returns a new map
+    of the same (hashed/sorted) type, that contains the
+    mapping of ...
   \end{text}
 \end{english}
 
@@ -338,7 +340,7 @@ clojure.core/assoc
 \begin{english}
   \begin{clojure}
 (source assoc)
-;;
+
 (def
  ^{:arglists '([map key val] [map key val & kvs])
    :doc "..."
@@ -360,7 +362,7 @@ REPL подходит не только для быстрых экспериме
 
 \def\urljokeapi{https://jokeapi.dev/}
 
-Предположим, мы пишем бота для Telegram, который публикует шутки для программистов. Понадобится сервис, который бы выступил в роли источника шуток. Быстрый поиск дает нам сервис \footurl{Joke API}{\urljokeapi}[Joke API] с удобным API по протоколу HTTP.
+Предположим, мы пишем бота для Telegram, который публикует шутки для программистов. Понадобится сервис, который бы выступил в роли источника шуток. Быстрый поиск дает нам сервис \footurl{Joke API}{\urljokeapi}[Joke API][-5mm] с удобным API по протоколу HTTP.
 
 Прежде чем писать бота, убедимся в работе сервиса. Для этого понадобятся HTTP-клиент и парсер JSON. Если вы запускаете REPL при помощи \code{lein}, создайте файл \code{project.clj} с содержимым:
 
@@ -446,7 +448,7 @@ REPL подходит не только для быстрых экспериме
   \end{clojure}
 \end{english}
 
-Из данных видно, что шутка состоит из двух частей: \code{setup} и \code{delivery} (термины можно перевести как "заход" и "разрешение"). Такая структура полезна, когда разрешение показывают не сразу, а после паузы или под тегом спойлера. Так у читателя будет шанс придумать свой вариант. В нашем случае мы просто объединим обе фразы:
+Из данных видно, что шутка состоит из двух частей: \code{setup} и \code{delivery} (термины можно перевести как <<заход>> и <<разрешение>>). Такая структура полезна, когда разрешение показывают не сразу, а после паузы или под тегом спойлера. Так у читателя будет шанс придумать свой вариант. В нашем случае мы просто объединим обе фразы:
 
 \begin{english}
   \begin{clojure}
@@ -455,7 +457,8 @@ REPL подходит не только для быстрых экспериме
                 delivery]} data]
     (format "%s %s" setup delivery)))
 
-".NET developers are picky when it comes to food. They only like chicken NuGet."
+;; .NET developers are picky when it comes to food.
+;; They only like chicken NuGet.
   \end{clojure}
 \end{english}
 
@@ -471,8 +474,8 @@ REPL подходит не только для быстрых экспериме
 
 ...
 
-"Why was the JavaScript developer sad?
-Because they didn't Node how to Express themself!"
+;; Why was the JavaScript developer sad?
+;; Because they didn't Node how to Express themself!
   \end{clojure}
 \end{english}
 
@@ -480,7 +483,9 @@ Because they didn't Node how to Express themself!"
 
 \begin{english}
   \begin{clojure}
-(defn get-joke [lang]
+(defn get-joke
+  "Fetch a random joke about a programming language."
+  [lang]
   (let [request
         {:url "https://v2.jokeapi.dev/joke/Programming"
          :method :get
@@ -505,30 +510,43 @@ Because they didn't Node how to Express themself!"
 \begin{english}
   \begin{clojure}
 (get-joke "python")
-"Why did the Python programmer not respond to the foreign mails he got?
-Because his interpreter was busy collecting garbage."
+
+;; Why did the Python programmer not respond
+;; to the foreign mails he got? Because his interpreter
+;; was busy collecting garbage."
 
 (get-joke "javascript")
-"How did you make your friend rage?
-I implemented a greek question mark in his JavaScript code."
+
+;; How did you make your friend rage?
+;; I implemented a greek question mark
+;; in his JavaScript code."
   \end{clojure}
 \end{english}
 
-На этом этапе еще рано завершать REPL: данные, что мы получили с сервера, пригодятся в тестах. Сохраним их json-файл. Для этого выполним:
+На этом этапе еще рано завершать REPL: данные, что мы получили с сервера, пригодятся в тестах. Сохраним их JSON-файл. Для этого выполним:
 
 \begin{english}
   \begin{clojure}
 (spit "joke-ok.json"
       (cheshire.core/generate-string
        data {:pretty true}))
-
-;; or
-
-(require '[clojure.java.io :as io])
-(cheshire.core/generate-stream
-  data (io/writer "joke-ok.json") {:pretty true})
   \end{clojure}
 \end{english}
+
+
+Другой способ записать данные в JSON:
+
+\begin{english}
+  \begin{clojure}
+(require '[clojure.java.io :as io])
+
+(cheshire.core/generate-stream
+  data
+  (io/writer "joke-ok.json")
+  {:pretty true})
+  \end{clojure}
+\end{english}
+
 
 Обратите внимание на параметр \code{:pretty}. С ним JSON будет красиво оформлен, то есть записан с отступами и переносами, а не в одну строку.
 
@@ -541,7 +559,7 @@ I implemented a greek question mark in his JavaScript code."
   \end{clojure}
 \end{english}
 
-Чтобы понять, почему так получилось, исследуем ответ сервера:
+Чтобы понять, почему так получилось, исследуем HTTP-ответ сервера :
 
 \begin{english}
   \begin{clojure}
@@ -563,9 +581,8 @@ I implemented a greek question mark in his JavaScript code."
  :internalError false
  :code 106
  :message "No matching joke found"
- :causedBy ["No jokes were found that match your provided filter(s)."]
- :additionalInfo
- "Error while finalizing joke filtering: No jokes were found that match your provided filter(s)."
+ :causedBy ["No jokes were found that match ..."]
+ :additionalInfo "No jokes were found ..."
  :timestamp 1651054623055}
   \end{clojure}
 \end{english}
@@ -623,13 +640,13 @@ I implemented a greek question mark in his JavaScript code."
   \end{clojure}
 \end{english}
 
-Это бесконечный цикл, где на каждом шаге происходит следующее:
+Это бесконечный цикл, где повторяются следующие четыре шага.
 
-**Чтение (Read)**
+\subsubsection{Чтение}
 
 Функция \code{read-line} читает строку из стандартного канала ввода (stdin). Если канал пуст, система ожидает ввода с клавиатуры. Пользователь набирает текст в терминале и жмет Enter. В переменной \code{input} окажется строка.
 
-Функция \code{read-string} читает объект Clojure из строки. Числа, строки и другие примитивы выражаются сами в себя. Например, из строки "1" получим единицу. Символы остаются невычисленными: строка \code{"(foo bar)"} вернет список с символами \code{foo} и \code{bar}. В переменной \code{expr} окажется объект Clojure: символ, строка, число или их коллекция.
+Функция \code{read-string} читает объект Clojure из строки. Числа, строки и другие примитивы выражаются сами в себя. Например, из строки <<1>> получим единицу. Символы остаются невычисленными: строка \code{"(foo bar)"} вернет список с символами \code{foo} и \code{bar}. В переменной \code{expr} окажется объект Clojure: символ, строка, число или их коллекция.
 
 \begin{english}
   \begin{clojure}
@@ -638,7 +655,7 @@ I implemented a greek question mark in his JavaScript code."
   \end{clojure}
 \end{english}
 
-**Вычисление (Eval)**
+\subsubsection{Вычисление (Eval)}
 
 Функция \code{eval} принимает выражение и вычисляет его. В отличии от других языков, в Clojure \code{eval} ожидает не строку, а форму, то есть примитив (число, символ, кейворд) или коллекцию. Примитивы вычисляются сами в себя:
 
@@ -691,7 +708,7 @@ Unable to resolve symbol: dunno in this context
   \end{clojure}
 \end{english}
 
-**Печать (Print)**
+\subsubsection{Печать (Print)}
 
 Следующий шаг~--- печать. Результат \code{eval} выводится на экран обычной функцией \code{println}:
 
@@ -701,7 +718,7 @@ Unable to resolve symbol: dunno in this context
   \end{clojure}
 \end{english}
 
-**Повтор (Loop)**
+\subsubsection{Повтор (Loop)}
 
 Оператор \code{loop} переносит нас к первому шагу~--- чтению с клавиатуры~--- и все повторяется.
 
@@ -709,7 +726,7 @@ Unable to resolve symbol: dunno in this context
 
 \begin{english}
   \begin{clojure}
-java -jar target/uberjar/repl-chapter-0.1.0-SNAPSHOT-standalone.jar
+java -jar target/uberjar/repl-chapter-standalone.jar
   \end{clojure}
 \end{english}
 
@@ -741,7 +758,7 @@ nil
 
 \subsection{Улучшения}
 
-Предлагаем читателю доработать наш самописный REPL~--- это будет отличная практика.
+Предлагаем читателю доработать наш самодельный REPL~--- это будет отличная практика.
 
 \subsubsection{Выход из цикла}
 
@@ -749,8 +766,12 @@ nil
 
 \begin{english}
   \begin{clojure}
-(let [input (read-line)
-      expr (read-string input)]
+(let [input
+      (read-line)
+
+      expr
+      (read-string input)]
+
   (when-not (= expr :repl/exit)
     ...))
   \end{clojure}
@@ -782,7 +803,7 @@ nil
   \end{clojure}
 \end{english}
 
-Скомпилируйте проект заново и запустите. На этот раз программа не "вывалится", а покажет сообщение и пригласит к дальнейшему вводу:
+Скомпилируйте проект заново и запустите. На этот раз программа не <<вывалится>>, а покажет сообщение и пригласит к дальнейшему вводу:
 
 \begin{english}
   \begin{clojure}
@@ -1017,6 +1038,8 @@ repl-test=> (+ 1 2)
   \end{clojure}
 \end{english}
 
+%% TODO: -r no break
+
 Обратите внимание на то, как вычисляется форма \code{expr}. С помощью оператора \code{case} мы проверяем: если поступил символ \code{-r}, вернем значение переменной \code{-r}. Ввод \code{-r} считается особенным, потому что вычисляется без \code{eval}.
 
 Чтобы сослаться на \code{-r} в выражении, например \code{(+ -r 3)}, идут на трюк. Форма \code{expr} погружается в макрос \code{let}, где символ \code{-r} связан со значением \code{-r}. Причина этих махинаций в том, что \code{eval} не учитывает локальные переменные, и без \code{let} мы получим ошибку, что символ \code{-r} неизвестен. Эту проблему мы подробно изучим в разделе про отладку, а пока что ограничимся минимально рабочим вариантом.
@@ -1106,8 +1129,15 @@ EOF while reading
 
 При анализе строки мы перебираем ее символы. Открывающие скобки попадают в стек. Как только мы встретили закрывающую скобку, происходит следующее:
 
-- убираем с вершины стека последнюю скобку;
-- убеждаемся, что она парная к найденной. Если это не так, бросаем исключение.
+\begin{itemize}
+
+\item
+  убираем с вершины стека последнюю скобку;
+
+\item
+  убеждаемся, что она парная к найденной. Если это не так, бросаем исключение.
+
+\end{itemize}
 
 Например, если в стеке содержатся элементы \code{(}, \code{[}, \code{\{} и мы встретили закрывающую фигурную скобку, все в порядке: она относится к элементу на вершине \code{\{}. Если же попалась квадратная закрывающая, это говорит об ошибке в синтаксисе.
 
@@ -1118,6 +1148,7 @@ EOF while reading
           ^
 ;; error
 "(..[..{..]......"
+          ^
   \end{text}
 \end{english}
 
@@ -1125,12 +1156,25 @@ EOF while reading
 
 Стек поддерживает команды:
 
-- \code{:count}, узнать число элементов;
-- \code{:empty?}, проверка на пустоту;
-- \code{:pop}, извлечь элемент с вершины;
-- \code{:push}, добавить элемент.
+\begin{itemize}
+
+\item
+  \code{:count}, узнать число элементов;
+
+\item
+  \code{:empty?}, проверка на пустоту;
+
+\item
+  \code{:pop}, извлечь элемент с вершины;
+
+\item
+  \code{:push}, добавить элемент.
+
+\end{itemize}
 
 От других команд \code{:push} отличается тем, что принимает аргумент~--- значение, которое добавляют. Поэтому \code{:push} описан во втором теле.
+
+%% >>>>>>>>>>>>
 
 \begin{english}
   \begin{clojure}
