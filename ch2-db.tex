@@ -4682,13 +4682,20 @@ create table migrations (
   \end{sql}
 \end{english}
 
-%% >>>>>>>>>>>>>
-
 Таблица запоминает, какие миграции и когда мы применили. При запуске миграций программа читает таблицу и сканирует файлы на диске. Файлы называют по принципу \code{<time/id>-<description>.<up/down>.sql}. Объясним значения в угловых скобках:
 
-- \code{<time/id>}~--- время или идентификатор, по которому сортируются миграции;
-- \code{<description>}~--- короткое описание миграции;
-- \code{<up/down>}~--- признак прямой или обратной миграции.
+\begin{itemize}
+
+\item
+  \code{<time/id>}~--- время или идентификатор, по которому сортируются миграции;
+
+\item
+  \code{<description>}~--- короткое описание миграции;
+
+\item
+  \code{<up/down>}~--- признак прямой или обратной миграции.
+
+\end{itemize}
 
 Примеры файлов:
 
@@ -4709,12 +4716,12 @@ create table migrations (
 (def migrations
   [{:id 20210830075251
     :description "Create users table"
-    :up "20210830075251-create-users-table.up.sql"
-    :down "20210830075251-create-users-table.down.sql"}
+    :up "...-create-users-table.up.sql"
+    :down "...-create-users-table.down.sql"}
    {:id 20210831064602
     :description "Create profiles table"
-    :up "20210831064602-create-profiles-table.up.sql"
-    :down "20210831064602-create-profiles-table.down.sql"}])
+    :up "...-create-profiles-table.up.sql"
+    :down "...-create-profiles-table.down.sql"}])
   \end{clojure}
 \end{english}
 
@@ -4728,20 +4735,23 @@ create table migrations (
      (sort-by :id)
      (map :up))
 
-;; ("20210831064602-create-profiles-table.up.sql"...)
+;; ("20210831064602-create-profiles-table.up.sql" ...)
   \end{clojure}
 \end{english}
 
-Каждуя миграция выполняется в транзакции. Если изменения прошли без ошибок, в таблицу \code{migrations} попадает номер миграции, которую только что выполнили. Даже если миграция "упала" где-то на полпути, не останется ее промежуточных следов.
+Каждуя миграция выполняется в транзакции. Если изменения прошли без ошибок, в таблицу \code{migrations} попадает номер миграции, которую только что выполнили. Даже если миграция <<упала>> где-то на полпути, не останется ее промежуточных следов.
 
 При движении в обратную сторону стратегия меняется. Если нужно вернуться к прошлой версии базы, указывают нужный идентификатор, и программа применяет down-файлы, чей идентификатор находится между указанным и текущим. При этом порядок миграций обратный: от новых к старым.
 
 \begin{english}
   \begin{clojure}
+(defn match-migration
+  [{:keys [id]}]
+  (and (>= id target_id)
+       (< id current-id)))
+
 (->> migrations
-     (filter (fn [{:keys [id]}]
-               (and (>= id target_id)
-                    (< id current-id))))
+     (filter match-migration)
      (sort-by :id)
      (reverse)
      (map :down))
@@ -4786,7 +4796,8 @@ touch 20210830075251-create-users-table.down.sql
 
 \begin{english}
   \begin{sql}
-CREATE TYPE user_status AS ENUM ('active', 'pending', 'blocked');
+CREATE TYPE user_status AS ENUM
+       ('active', 'pending', 'blocked');
 
 --;;
 
@@ -4853,11 +4864,22 @@ SELECT * FROM schema_migrations;
 
 В ней окажется запись с датой и именем миграции:
 
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{|l|l|l|}
+%% \hline
+%% id     &         applied         &      description \\
+%% \hline
+%% 20210830075251 & 2021-08-28 09:28:26.911 & create-users-table \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
+
 \begin{english}
-  \begin{text}
-         id     |         applied         |      description
-----------------+-------------------------+-----------------------
- 20210830075251 | 2021-08-28 09:28:26.911 | create-users-table
+  \begin{text}[fontsize=\small]
+         id     |       applied       |      description
+----------------+---------------------+-----------------------
+ 20210830075251 | 2021-08-28 09:28:26 | create-users-table
   \end{text}
 \end{english}
 
@@ -4913,7 +4935,7 @@ SELECT * FROM schema_migrations;
   \end{clojure}
 \end{english}
 
-Когда приложение "выкатывают" на тестовой машине, в базе должны быть минимальные данные для проверки. Обычно это пользователь с известным паролем, несколько товаров, покупок и так далее. Поместим их в миграцию, которая выполняется только на удаленной машине. Создайте каталог \code{env/staging/resources/migrations} и файл в нем:
+Когда приложение "выкатывают" на тестовой машине, в базе должны быть минимальные данные для проверки. Обычно это пользователь с известным паролем, несколько товаров, покупок и так далее. Поместим их в миграцию, которая выполняется только на удаленной машине. Создайте каталог \code{env/staging/resources/\-migrations} и файл в нем:
 
 \begin{english}
   \begin{sql}
@@ -4960,7 +4982,7 @@ VALUES
   \end{clojure}
 \end{english}
 
-Синтаксис \code{~<form>} внутри макроса \code{defproject} означет вычислить форму. При запуске \code{lein} на месте \code{~(System/getenv "ENV\_NAME")} окажется значение одноименной переменной. Чтобы запустить миграции, укажите переменные процессу \code{lein}:
+Синтаксис \code{\textasciitilde{}<form>} внутри макроса \code{defproject} означет вычислить форму. При запуске \code{lein} на месте \code{~(System/getenv "ENV\_NAME")} окажется значение одноименной переменной. Чтобы запустить миграции, укажите переменные процессу \code{lein}:
 
 \begin{english}
   \begin{bash}
@@ -5072,7 +5094,9 @@ SELECT * FROM requests;
 \begin{english}
   \begin{clojure}
 (defn migrate-up [{:keys [db]}]
-  (let [rows (jdbc/query db "select id, ip from requests where country_code is null")]
+  (let [query "SELECT id, ip FROM requests
+               WHERE country_code IS NULL"
+        rows (jdbc/query db query)]
     (doseq [{:keys [id ip]} rows]
       (let [{:keys [country_code]} (get-ip-info ip)]
         (jdbc/update! db :requests
@@ -5129,13 +5153,20 @@ SELECT * FROM requests;
 
 Библиотека \footurl{Next.JDBC}{\urlnextjdbc}[Next JDBC]~--- это следующий этап в адаптации JDBC для Clojure. Проект ставит следующие цели:
 
-- ускорить обработку выборки. Автор считает неоптимальным текущее проеобразование \code{ResultSet} в коллекцию Clojure. На больших результатах алгоритм действительно замедляется.
+\begin{itemize}
+
+\item
+  ускорить обработку выборки. Автор считает неоптимальным текущее проеобразование \code{ResultSet} в коллекцию Clojure. На больших результатах алгоритм действительно замедляется.
 
 \def\urldatafy{https://clojure.github.io/clojure/branch-master/clojure.datafy-api.html}
 
-- Обеспечить более тесную связь с Clojure за счет \footurl{протокола Datafy}{\urldatafy}[Datafy]. Протокол появился в Clojure 1.11 и служит посредником между сущностями Java и Clojure.
+\item
+  Обеспечить более тесную связь с Clojure за счет \footurl{протокола Datafy}{\urldatafy}[Datafy]. Протокол появился в Clojure 1.11 и служит посредником между сущностями Java и Clojure.
 
-- Предложить более простой и понятный API. Прежняя библиотека различает функции \code{query}, \code{execute!}, \code{db-do-commands} и другие; вдобавок она обязывает помнить об их особенностях. Next.JDBC планирует сократить разнообразие API.
+\item
+  Предложить более простой и понятный API. Прежняя библиотека различает функции \code{query}, \code{execute!}, \code{db-do-commands} и другие; вдобавок она обязывает помнить об их особенностях. Next.JDBC планирует сократить разнообразие API.
+
+\end{itemize}
 
 Коротко опробуем библиотеку. Подключим ее к проекту:
 
@@ -5154,7 +5185,7 @@ SELECT * FROM requests;
   \end{clojure}
 \end{english}
 
-В отличии от предшественника, Next.JDBC не следует правилу "все в одном файле". Смысловые части разнесены по отдельным модулям.
+В отличии от предшественника, Next.JDBC не следует правилу <<все в одном файле>>. Смысловые части разнесены по отдельным модулям.
 
 Роль источника данных играет объект \code{datasource}, который получают из JDBC-спеки. Однажды получив, его передают в функции первым аргументом.
 
@@ -5189,7 +5220,7 @@ SELECT * FROM requests;
         :lname "Petrov"
         :email "test@test.com"
         :age 30
-        :created_at #inst "2021-08-10T07:36:03.934029000-00:00"}
+        :created_at #inst "2021-08-10T07:36:03"}
   \end{clojure}
 \end{english}
 
@@ -5197,14 +5228,18 @@ SELECT * FROM requests;
 
 \begin{english}
   \begin{clojure}
-(first (jdbc/execute! ds ["SELECT * FROM users u, profiles p WHERE p.user_id = u.id"]))
+(first
+  (jdbc/execute! ds
+    ["SELECT *
+      FROM users u, profiles p
+      WHERE p.user_id = u.id"]))
 
 {:users/id 1
  :users/lname "Petrov"
  :users/fname "Ivan"
  :users/age 30
  :users/email "test@test.com"
- :users/created_at #inst "2021-08-10T07:36:03.934029000-00:00"
+ :users/created_at #inst "2021-08-10T07:36:03"
  :profiles/id 1
  :profiles/user_id 1
  :profiles/avatar "kitten.jpg"}
@@ -5227,7 +5262,7 @@ SELECT
 Важно понимать, что поиск таблицы для поля не бесплатен, а требует отдельного запроса в базу. Пример выше с пользователем и профилем порождает следующий запрос:
 
 \begin{english}
-  \begin{sql}
+  \begin{sql}[fontsize=\small]
 SELECT c.oid, a.attnum, a.attname, c.relname, n.nspname,
 a.attnotnull OR (t.typtype = 'd' AND t.typnotnull),
 pg_catalog.pg_get_expr(d.adbin, d.adrelid) LIKE '%nextval(%' FROM
@@ -5249,19 +5284,19 @@ vals.attnum)
 
 \begin{english}
   \begin{text}
-  oid  | attnum |  attname   | relname  | nspname | ?column? | ?column?
--------+--------+------------+----------+---------+----------+----------
- 32835 |      3 | avatar     | profiles | public  | f        |
- 32835 |      2 | user_id    | profiles | public  | t        |
- 32835 |      1 | id         | profiles | public  | t        | t
- 32824 |      9 | created_at | users    | public  | f        |
- 32824 |      8 | year_birth | users    | public  | f        |
- 32824 |      6 | city       | users    | public  | f        |
- 32824 |      5 | age        | users    | public  | f        |
- 32824 |      4 | email      | users    | public  | f        |
- 32824 |      3 | lname      | users    | public  | f        |
- 32824 |      2 | fname      | users    | public  | f        |
- 32824 |      1 | id         | users    | public  | t        | t
+  oid  | attnum |  attname   | relname  | nspname | ? | ?
+-------+--------+------------+----------+---------+---+---
+ 32835 |      3 | avatar     | profiles | public  | f |
+ 32835 |      2 | user_id    | profiles | public  | t |
+ 32835 |      1 | id         | profiles | public  | t | t
+ 32824 |      9 | created_at | users    | public  | f |
+ 32824 |      8 | year_birth | users    | public  | f |
+ 32824 |      6 | city       | users    | public  | f |
+ 32824 |      5 | age        | users    | public  | f |
+ 32824 |      4 | email      | users    | public  | f |
+ 32824 |      3 | lname      | users    | public  | f |
+ 32824 |      2 | fname      | users    | public  | f |
+ 32824 |      1 | id         | users    | public  | t | t
   \end{text}
 \end{english}
 
@@ -5276,7 +5311,7 @@ vals.attnum)
   \end{clojure}
 \end{english}
 
-Кроме функции \code{as-unqualified-maps}, вам доступны \code{as-arrays} для векторов и другие обработчики.
+Кроме функции \code{as-unqualified-maps}, вам доступны \code{as-arra\-ys} для векторов и другие обработчики.
 
 Вспомогательные функции \code{get-by-id}, \code{find-by-keys}, \code{update!}, \code{insert!} и аналоги перешли в модуль \code{next.jdbc.sql}. Они отличаются только тем, что принимают первым параметром \code{datasource}:
 
@@ -5297,7 +5332,10 @@ vals.attnum)
 (jdbc/with-transaction [tx ds]
   (let [{:items/keys [id]}
         (jdbc.sql/insert! tx :items {...})]
-    (jdbc.sql/insert! tx :sales {:item_id id :ratio 0.66})))
+    (jdbc.sql/insert!
+       tx
+       :sales
+       {:item_id id :ratio 0.66})))
   \end{clojure}
 \end{english}
 
@@ -5316,6 +5354,7 @@ vals.attnum)
   \end{clojure}
 \end{english}
 
+\noindent
 и расширим с ее помощью протокол:
 
 \begin{english}
@@ -5337,7 +5376,9 @@ vals.attnum)
 
 #:items{:id 1
         :title "Cap"
-        :attrs {:size "XL" :color "red" :country "China"}}
+        :attrs {:size "XL"
+                :color "red"
+                :country "China"}}
   \end{clojure}
 \end{english}
 
@@ -5352,13 +5393,14 @@ vals.attnum)
   \end{clojure}
 \end{english}
 
+\noindent
 и протокол:
 
 \begin{english}
   \begin{clojure}
 (extend-protocol jdbc.prepare/SettableParameter
   clojure.lang.IPersistentCollection
-  (set-parameter [v ^java.sql.PreparedStatement pr-st idx]
+  (set-parameter [v ^PreparedStatement pr-st idx]
     (.setObject pr-st idx (->pg-object v))))
   \end{clojure}
 \end{english}
@@ -5367,7 +5409,11 @@ vals.attnum)
 
 \begin{english}
   \begin{clojure}
-(jdbc.sql/insert! ds :items {:title "t-shirt" :attrs {:size "XXL" :brand "Abibas"}})
+(jdbc.sql/insert!
+  ds
+  :items
+  {:title "t-shirt"
+   :attrs {:size "XXL" :brand "Abibas"}})
 
 #:items{:id 1
         :title "t-shirt"
