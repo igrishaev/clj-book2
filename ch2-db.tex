@@ -102,7 +102,7 @@ CREATE TABLE profiles(
 \begin{figure}[ht!]
 
 \begin{english}
-  \begin{java}[fontsize=\small]
+  \begin{java*}{fontsize=\small}
 import java.sql.*;
 
 public class JDBCExample {
@@ -134,7 +134,7 @@ public class JDBCExample {
     }
   }
 }
-  \end{java}
+  \end{java*}
 \end{english}
 
 \caption{Запрос и печать результата в Java}
@@ -3952,7 +3952,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
 \begin{figure}[ht!]
 
 \begin{english}
-  \begin{clojure}[fontsize=\small]
+  \begin{clojure*}{fontsize=\small}
 {:authors
  {1 {:author/id 1
      :author/name "Ivan Petrov"
@@ -3983,7 +3983,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
         40 {:post/id 40
             :post/title "Working on my pet project"
             :post/author-id 2}}}}}
-  \end{clojure}
+  \end{clojure*}
 \end{english}
 
 \caption{Группировка авторов, статей и комментариев}
@@ -4054,7 +4054,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
 Приведем малую часть результата:
 
 \begin{english}
-  \begin{clojure}[fontsize=\small]
+  \begin{clojure*}{fontsize=\small}
 {:authors
  {1 {:author/id 1
      :db/index 3
@@ -4068,7 +4068,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
            200 {:comment/id 200
                 :db/index 1
                 :comment/post-id 10}}}}}}}
-  \end{clojure}
+  \end{clojure*}
 \end{english}
 
 Видим, что в каждой сущности появилось поле \code{:db/index}. Изменим дерево так, чтобы некоторые словари стали вектором, упорядоченным по этому полю. Проще всего это сделать модулем \code{clojure.walk}. Подготовим проверку на элемент словаря:
@@ -4118,7 +4118,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
 Результат с небольшими сокращениями:
 
 \begin{english}
-  \begin{clojure}[fontsize=\small]
+  \begin{clojure*}{fontsize=\small}
 [{:author/id 1
   :db/index 3
   :author/name "Ivan Petrov"
@@ -4150,7 +4150,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
    {:post/id 40
     :db/index 4
     :post/title "Working on my pet project"}]}]
-  \end{clojure}
+  \end{clojure*}
 \end{english}
 
 Эти данные устроят клиента, поскольку не нуждаются в обработке на стороне браузера. Разве что поле \code{:db/index} можно удалить: это технический артефакт, в котором больше нет смысла. Доработайте \code{remap-entities} так, чтобы после \code{(sort-by :db/index)} шла форма с удалением \code{:db/index}. Искушенные читатели могут объединить сортировку и удаление в трансдьюсер.
@@ -4268,7 +4268,7 @@ GROUP BY a.id;
 Если выполнить запрос, получим данные как в примере ниже. Они готовы к отправке клиенту; не требуется сортировка или дополнительный обход.
 
 \begin{english}
-  \begin{clojure}[fontsize=\small]
+  \begin{clojure*}{fontsize=\small}
 [{:author/id 1
   :author/name "Ivan Petrov"
   :author/posts
@@ -4300,7 +4300,7 @@ GROUP BY a.id;
       :post/title "Working on my pet project"
       :post/author-id 2
       :post/comments nil}]}]
-  \end{clojure}
+  \end{clojure*}
 \end{english}
 
 Библиотеки HugSQL и HoneySQL помогают строить подобные запросы по частям. В обоих случаях можно вынести внутреннюю часть (статьи и комментарии) в отдельную сущность и сослаться на нее. В HugSQL мы бы вынесли подзапрос в сниппет, а в HoneySQL поместили бы его в переменную. С таким подходом главный запрос выглядит чище и удобней для чтения.
@@ -4876,11 +4876,11 @@ SELECT * FROM schema_migrations;
 %% \end{table}
 
 \begin{english}
-  \begin{text}[fontsize=\small]
+  \begin{text*}{fontsize=\small}
          id     |       applied       |      description
 ----------------+---------------------+-----------------------
  20210830075251 | 2021-08-28 09:28:26 | create-users-table
-  \end{text}
+  \end{text*}
 \end{english}
 
 Повторный запуск миграций ничего не даст, потому что миграция \code{20210830075251} уже обработана, а новых не появилось. Чтобы откатить изменения, выполните команду \code{rollback}:
@@ -5262,7 +5262,7 @@ SELECT
 Важно понимать, что поиск таблицы для поля не бесплатен, а требует отдельного запроса в базу. Пример выше с пользователем и профилем порождает следующий запрос:
 
 \begin{english}
-  \begin{sql}[fontsize=\small]
+  \begin{sql*}{fontsize=\small}
 SELECT c.oid, a.attnum, a.attname, c.relname, n.nspname,
 a.attnotnull OR (t.typtype = 'd' AND t.typnotnull),
 pg_catalog.pg_get_expr(d.adbin, d.adrelid) LIKE '%nextval(%' FROM
@@ -5277,7 +5277,7 @@ SELECT 32824, 6 UNION ALL SELECT 32824, 8 UNION ALL SELECT 32824,
 9 UNION ALL SELECT 32835, 1 UNION ALL SELECT 32835, 2 UNION ALL
 SELECT 32835, 3) vals ON (c.oid = vals.oid AND a.attnum =
 vals.attnum)
-  \end{sql}
+  \end{sql*}
 \end{english}
 
 Который, в свою очередь, дает сведения о колонках и таблицах:
