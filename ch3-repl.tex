@@ -4122,47 +4122,39 @@ Help message...
 
 Плюс второго способа в том, что тег легко удалить командами \code{kill-line} или \code{kill-whole-line}, не затрагивая код.
 
-%% >>>>>>>>>>>>>>>
-
 Запустите функцию с любым аргументом, например \code{(get-joke "python")}. Буфер перейдет в режим отладки. Над функцией появится меню действий. Это команды \code{continue}, \code{next}, \code{locals} и другие, которые мы рассмотрим позже. После стрелки \code{=>} показан результат формы, на который вы остановились.
 
 \begin{english}
   \begin{text}
-continue next in out here eval inspect locals inject stacktrace trace quit
+continue next in out here eval inspect locals inject ...
+
 (defn get-joke [lang]
   (let [request
         {:url "https://v2.jokeapi.dev/joke/Programming"
          :method :get
          :query-params {:contains lang}
          :as :json}
-
-        response
-        (client/request request)
-
-        {:keys [body]}
-        response
-
-        {:keys [setup delivery]}
-        body]
+        ...]
     #break
     (format "%s %s" setup delivery)))
- => "why do python programmers wear glasses? Because they can't C#."
+
+ => "why do python programmers wear glasses? \
+     Because they can't C#."
   \end{text}
 \end{english}
 
 В режиме отладки Emacs прослушивает клавиши \code{c}, \code{n}, \code{l} и другие, связанные с отладкой. Например, \code{l} (locals) покажет локальные переменные. Нажмите ее, и появится буфер с содержимым:
 
 \begin{english}
-  \begin{text}
+  \begin{text*}{fontsize=\small}
 Class: clojure.lang.PersistentArrayMap
 Contents:
-  body = { :category "Programming", :delivery "Because they can't C#.", :type "twopart", :setup "why do python programmers wear glasses?", :lang "en", ... }
-  response = { :cached nil, :request-time 285, :repeatable? false, :protocol-version { :name "HTTP", :major 1, :minor 1 }, :streaming? true, ... }
-  request = { :url "https://v2.jokeapi.dev/joke/Programming", :method :get, :query-params { :contains "python" }, :as :json }
+  body = { :category "Programming", :delivery "...",  ... }
+  response = { :cached nil, :request-time 285,  ... }
+  request = { :method :get, :query-params ... }
   delivery = "Because they can't C#."
-  lang = "python"
   setup = "why do python programmers wear glasses?"
-  \end{text}
+  \end{text*}
 \end{english}
 
 Команда \code{p} (inspect) исследует значение под курсором. Если нажать \code{p}, откроется буфер:
@@ -4170,7 +4162,7 @@ Contents:
 \begin{english}
   \begin{text}
 Class: java.lang.String
-Value: "why do python programmers wear glasses? Because they can't C#."
+Value: "why do python programmers wear glasses? ..."
   \end{text}
 \end{english}
 
@@ -4180,20 +4172,14 @@ Value: "why do python programmers wear glasses? Because they can't C#."
   \begin{text}
 Class: clojure.lang.PersistentHashMap
 Contents:
-  :cached = nil
   :request-time = 285
   :repeatable? = false
-  :protocol-version = { :name "HTTP", :major 1, :minor 1 }
   :streaming? = true
-  :http-client = org.apache.http.impl.client.InternalHttpClient@284cd4fa
   :chunked? = false
-  :reason-phrase = "OK"
-  :headers = { "ratelimit-remaining" "118", "referrer-policy" "no-referrer, strict-origin-when-cross-origin", "access-control-allow-headers" "*", "Server" "cloudflare", "ratelimit-limit" "120", ... }
-  :orig-content-encoding = nil
+  :headers = { "Server" "cloudflare", ... }
   :status = 200
   :length = 401
-  :body = { :category "Programming", :delivery "Because they can't C#.", :type "twopart", :setup "why do python programmers wear glasses?", :lang "en", ... }
-  :trace-redirects = []
+  :body = { :category "Programming",  ... }
   \end{text}
 \end{english}
 
@@ -4211,7 +4197,7 @@ Contents:
   :id = 294
   :error = false
   :safe = true
-  :flags = { :nsfw false, :religious false, :political false, :racist false, :sexist false, ... }
+  :flags = { :nsfw false, :religious false, ... }
   \end{text}
 \end{english}
 
@@ -4230,9 +4216,9 @@ Expression to evaluate: (keys body)
 
 \begin{english}
   \begin{text}
-    debug.clj:  294  cider.nrepl.middleware.debug/debug-stacktrace
-    debug.clj:  368  cider.nrepl.middleware.debug/read-debug-command
-    debug.clj:  519  cider.nrepl.middleware.debug/break
+    debug.clj:  294  c.n.m.debug/debug-stacktrace
+    debug.clj:  368  c.n.m.debug/read-debug-command
+    debug.clj:  519  c.n.m.debug/break
          REPL:  128  sample/get-joke
          REPL:   78  sample/eval9967
 Compiler.java: 7131  clojure.lang.Compiler/eval
@@ -4252,7 +4238,7 @@ Compiler.java: 7131  clojure.lang.Compiler/eval
 
 Кроме \code{\#break}, Cider предлагает \code{\#dbg}~--- более мощный тег, который поддерживает навигацию по коду. Под навигацией имеют в виду команды next (переход к следующей форме), step in (шаг внутрь), step out (выход из текущей формы), продолжение до курсора и другие. Подход напоминает отладку в современных IDE.
 
-"Зарядите" функцию отладкой, поставив перед формой \code{(defn ...)} тег \code{\#dbg}. Чтобы не смещать код вправо, расположите его отдельной строке выше:
+<<Зарядите>> функцию отладкой, поставив перед формой \code{(defn ...)} тег \code{\#dbg}. Чтобы не смещать код вправо, расположите его отдельной строке выше:
 
 \begin{english}
   \begin{clojure}
@@ -4288,7 +4274,7 @@ Compiler.java: 7131  clojure.lang.Compiler/eval
 \begin{english}
   \begin{clojure}
 response
-(client/request request) => {:url "https:..." :method :get ...} ;; <
+(client/request request) => {:method :get, ...}
   \end{clojure}
 \end{english}
 
@@ -4296,8 +4282,11 @@ response
 
 \begin{english}
   \begin{clojure}
-(format "%s %s" setup| delivery) => "Why do programmers wear glasses?"
-(format "%s %s" setup delivery|) => "Because they need C#"
+(format "%s %s" setup| delivery) =>
+  "Why do programmers wear glasses?"
+
+(format "%s %s" setup delivery|) =>
+  "Because they need C#"
   \end{clojure}
 \end{english}
 
@@ -4317,7 +4306,7 @@ response
 
 #:cider.nrepl.middleware.util.instrument
 {:breakfunction
- #'cider.nrepl.middleware.debug/breakpoint-with-initial-debug-bindings}
+ #'c.n.m.d/breakpoint-with-initial-debug-bindings}
   \end{clojure}
 \end{english}
 
@@ -4325,7 +4314,7 @@ response
 
 \begin{english}
   \begin{clojure}
-(cider.nrepl.middleware.util.instrument/instrument-tagged-code
+(instrument-tagged-code
  (read-string "#break (+ 1 2)"))
   \end{clojure}
 \end{english}
@@ -4334,10 +4323,8 @@ response
 
 \begin{english}
   \begin{clojure}
-(#'cider.nrepl.middleware.debug/breakpoint-with-initial-debug-bindings
- (+ 1 2)
- {:coor []}
- (+ 1 2))
+(#'c.n.m.d/breakpoint-with-initial-debug-bindings
+ (+ 1 2) {:coor []} (+ 1 2))
   \end{clojure}
 \end{english}
 
@@ -4350,7 +4337,8 @@ response
 \begin{english}
   \begin{clojure}
 (require
- '[cider.nrepl.middleware.util.instrument :refer [instrument-tagged-code]])
+ '[cider.nrepl.middleware.util.instrument
+    :refer [instrument-tagged-code]])
 
 (instrument-tagged-code
  (read-string "#dbg (defn add [a b] (+ a b))"))
@@ -4369,13 +4357,9 @@ response
     (#'c.n.m.d/breakpoint-if-interesting
      (+
       (#'c.n.m.d/breakpoint-if-interesting
-       a
-       {:coor [3 1]}
-       a)
+       a {:coor [3 1]} a)
       (#'c.n.m.d/breakpoint-if-interesting
-       b
-       {:coor [3 2]}
-       b))
+       b {:coor [3 2]} b))
      {:coor [3]}
      (+ a b)))))
  {:coor []}
@@ -4485,13 +4469,23 @@ Cider запоминает, какие функции оснащены отла�
 
 \def\urldockerhubclj{https://hub.docker.com/\_/clojure}
 
-1. Скачать образ с нужной версией Java, lein, deps.edn и прочими утилитами. \footurl{Репозиторий Clojure}{\urldockerhubclj}[Docker Hub Clojure] на Docker Hub предлагает более сотни образов с различными SDK, утилитами и их версиями.
+\begin{itemize}
 
-2. При запуске образа смонтировать в него папку проекта и указать ее как рабочую (work dir).
+\item
+  Скачать образ с нужной версией Java, lein, deps.edn и прочими утилитами. \footurl{Репозиторий Clojure}{\urldockerhubclj}[Docker Hub Clojure] на Docker Hub предлагает более сотни образов с различными SDK, утилитами и их версиями.
 
-3. Сопоставить локальный порт nREPL с портом в Docker. В настройках nREPL явно указать порт.
+\item
+  При запуске образа смонтировать в него папку проекта и указать ее как рабочую (work dir).
 
-4. Запустить образ и подключиться к локальному порту из Emacs.
+\item
+  Сопоставить локальный порт nREPL с портом в Docker. В настройках nREPL явно указать порт.
+
+\item
+  Запустить образ и подключиться к локальному порту из Emacs.
+
+\end{itemize}
+
+%% >>>>>>>>>>>
 
 Пройдя эти шаги, вы получите работающий nREPL, при этом в системе не останется следов установки Java и прочего.
 
