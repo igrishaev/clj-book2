@@ -1038,11 +1038,9 @@ repl-test=> (+ 1 2)
   \end{clojure}
 \end{english}
 
-%% TODO: -r no break
-
 Обратите внимание на то, как вычисляется форма \code{expr}. С помощью оператора \code{case} мы проверяем: если поступил символ \code{-r}, вернем значение переменной \code{-r}. Ввод \code{-r} считается особенным, потому что вычисляется без \code{eval}.
 
-Чтобы сослаться на \code{-r} в выражении, например \code{(+ -r 3)}, идут на трюк. Форма \code{expr} погружается в макрос \code{let}, где символ \code{-r} связан со значением \code{-r}. Причина этих махинаций в том, что \code{eval} не учитывает локальные переменные, и без \code{let} мы получим ошибку, что символ \code{-r} неизвестен. Эту проблему мы подробно изучим в разделе про отладку, а пока что ограничимся минимально рабочим вариантом.
+Чтобы сослаться на \code{-r} в выражении, например \code{(+ -r 3)}, идут на трюк. Форма \code{expr} погружается в макрос \code{let}, где символ \mbox{\code{-r}} связан со значением \code{-r}. Причина этих махинаций в том, что \code{eval} не учитывает локальные переменные, и без \code{let} мы получим ошибку, что символ \code{-r} неизвестен. Эту проблему мы подробно изучим в разделе про отладку, а пока что ограничимся минимально рабочим вариантом.
 
 Запустите REPL и проверьте, что в \code{-r} остается результат, при этом на него можно сослаться в выражении:
 
@@ -5331,13 +5329,14 @@ cljs.user=>
 
 Разберемся, как связаны между собой браузер и REPL. Откройте консоль разработчика и перейдите на закладку Network. Видно, что браузер посылает POST-запрос на порт 9000. Эту технику называют long polling, (долгий опрос), потому что запрос длится до тех пор, пока вы не введете что-то в REPL и нажмете Enter.
 
-%% >>>>>>>>>>>>>>>>
+Как только REPL получил выражение на Clojure, он компилирует его в ClojureScript и отправляет браузеру. Для ввода \code{(+ 1 2)} браузер получит код, приведенный на странице справа. На первый взгляд он смотрится жутко: в коде лишние скобки и машинные имена, потому что его произвела программа. Разберемся, что здесь происходит.
 
-Как только REPL получил выражение на Clojure, он компилирует его в ClojureScript и отправляет браузеру. Для ввода \code{(+ 1 2)} браузер получит следующий код:
+\begin{figure}[ht!]
 
 \begin{english}
   \begin{json}
-{"repl":"main", "form":"(function () {
+{"repl": "main",
+ "form": "(function () {
   try {
     return cljs.core.pr_str.call(null, (function () {
       var ret__6698__auto__ = ((1) + (2));
@@ -5355,9 +5354,12 @@ cljs.user=>
   \end{json}
 \end{english}
 
-На первый взгляд он смотрится жутко: в коде лишние скобки и машинные имена, потому что его произвела программа. Разберемся, что здесь происходит.
+\caption{Код на ClojureScript в виде JSON}
+\label{fig:repl-cljs}
 
-Выражение \code{(+ 1 2)} стало \code{((1) + (2))}. Оно выполняется в анонимной функции без параметров. Форма \code{cljs.core.pr\_str.call} означает функцию \code{pr-str} в Clojure, которая приводит объект к строке.
+\end{figure}
+
+Выражение \code{(+ 1 2)} стало \code{((1) + (2))}; оно обернуто в анонимную функцию без параметров. Вызов \code{cljs.core.pr\_str.call} означает функцию \code{pr-str} в Clojure, которая приводит объект к строке.
 
 Переменные \code{\_STAR\_} с номером на конце~--- это \code{*1}, \code{*2} и \code{*3} для хранения последних результатов. Код обернут в \code{try/catch}. В случае ошибки переменной \code{*e} (после компиляции~--- \code{\_STAR\_e}) назначается последнее исключение.
 
@@ -5395,14 +5397,14 @@ Piggieback служит мостом между nREPL и JavaScript. В техн
 
 \begin{figure}[H]
   \centering
-  \includesvg{charts/repl05.svg}
+  \resizebox{\columnwidth}{!}{\includesvg{charts/repl05.svg}}
   \label{fig:chart-repl-05}
 \end{figure}
 
 Чтобы подключиться к ClojureScript из редактора, задайте в файле \code{deps.edn} профиль \code{:nrepl/piggieback}. Профиль добавляет в стек middleware звено \code{wrap-cljs-repl}:
 
 \begin{english}
-  \begin{clojure}
+  \begin{clojure*}{fontsize=\small}
 {:aliases
  {:nrepl/piggieback
   {:extra-deps
@@ -5412,10 +5414,12 @@ Piggieback служит мостом между nREPL и JavaScript. В техн
    :main-opts
    ["-m" "nrepl.cmdline"
     "--bind" "localhost"
-    "--middleware" "[cider.piggieback/wrap-cljs-repl,cider.nrepl/cider-middleware]"]}}
+    "--middleware"
+      "[cider.piggieback/wrap-cljs-repl,
+        cider.nrepl/cider-middleware]"]}}
  :deps
  {org.clojure/clojurescript {:mvn/version "1.10.758"}}}
-  \end{clojure}
+  \end{clojure*}
 \end{english}
 
 Запустите проект командой:
@@ -5428,7 +5432,7 @@ clj -M:nrepl/piggieback
 
 На первый взгляд не произойдет ничего особенного: запустится обычный сеанс nREPL. Перейдите в Emacs и подключитесь командой \code{cider-connect-cljs} (клавиши \code{C-c M-c}). Обратите внимание, что это новая команда, которой мы еще не пользовались. Если все настроено без ошибок, Emacs запросит тип REPL: браузер, node.js, shadow-clj и другие, которых мы не касались в этой главе.
 
-Выберите пункт "node" или "browser". В зависимости от типа запустится процесс node.js или браузер. Выполните код командами \code{cider-eval-...} или в буфере \code{*cider-repl*}~--- он будет вычислен в окружении JavaScript, а не JVM. Проверьте объекты, доступные только в конкретной среде (\code{js/window} или \code{js/process}).
+Выберите пункт <<node>> или <<browser>>. В зависимости от типа запустится процесс node.js или браузер. Выполните код командами \code{cider-eval-...} или в буфере \code{*cider-repl*}~--- он будет вычислен в окружении JavaScript, а не JVM. Проверьте объекты, доступные только в конкретной среде (\code{js/window} или \code{js/process}).
 
 Вам по-прежнему доступен переход к определению (\code{cider-find-var}), загрузка буфера (\code{cider-load-buffer}), запуск тестов и многое то, что мы рассмотрели выше. Исключением станет отладка и профилирование: эти техники не работают в ClojureScript, поскольку полагаются на низкоуровневые детали.
 
@@ -5444,7 +5448,7 @@ Re-Natal устанавливает сеанс REPL с процессом Node. 
 
 \def\urlrnyayt{https://www.youtube.com/watch?v=WOMnm8mrWFE}
 
-Разработка на React Native противоречива: в ней есть как преимущества, так и недостатки. Предлагаем посмотреть доклад Андрея Мелихова \footurl{<<Как я полюбил и возненавидел React Native>>}{\urlrnyayt}[youtube.com]. Автор взвешенно объясняет, почему Яндекс инвестировал усилия в React Native, но в итоге отказался от него. Впрочем, вы не обязаны следовать IT-гигантам. Если нужно простое приложение под обе платформы и вы знаете Clojure, рассмотрите Re-Natal: возможно, он сэкономит время.
+Разработка на React Native противоречива: в ней есть как преимущества, так и недостатки. Предлагаем посмотреть доклад Андрея Мелихова \footurl{<<Как я полюбил и возненавидел React Native>>}{\urlrnyayt}[React Native]. Автор взвешенно объясняет, почему Яндекс инвестировал усилия в React Native, но в итоге отказался от него. Впрочем, вы не обязаны следовать IT-гигантам. Если нужно простое приложение под обе платформы и вы знаете Clojure, рассмотрите Re-Natal: возможно, он сэкономит время.
 
 \def\urlkrell{https://github.com/vouch-opensource/krell}
 
@@ -5497,17 +5501,18 @@ REBL берет начало от базы данных Datomic, точнее е
 Приведем минимальный \code{deps.edn} для запуска REBL. Основную его часть занимают зависимости JavaFx:
 
 \begin{english}
-  \begin{clojure}
+  \begin{clojure*}{fontsize=\small}
 {:aliases
  {:rebl
-  {:extra-deps {com.cognitect/rebl          {:mvn/version "0.9.245"}
-                org.openjfx/javafx-fxml     {:mvn/version "15-ea+6"}
-                org.openjfx/javafx-controls {:mvn/version "15-ea+6"}
-                org.openjfx/javafx-swing    {:mvn/version "15-ea+6"}
-                org.openjfx/javafx-base     {:mvn/version "15-ea+6"}
-                org.openjfx/javafx-web      {:mvn/version "15-ea+6"}}
+  {:extra-deps
+    {com.cognitect/rebl          {:mvn/version "0.9.245"}
+     org.openjfx/javafx-fxml     {:mvn/version "15-ea+6"}
+     org.openjfx/javafx-controls {:mvn/version "15-ea+6"}
+     org.openjfx/javafx-swing    {:mvn/version "15-ea+6"}
+     org.openjfx/javafx-base     {:mvn/version "15-ea+6"}
+     org.openjfx/javafx-web      {:mvn/version "15-ea+6"}}
    :main-opts ["-m" "cognitect.rebl"]}}}
-  \end{clojure}
+  \end{clojure*}
 \end{english}
 
 Выполните \code{clj -M:rebl} и дождитесь загрузки артефактов. Появится окно, разбитое на несколько частей: ввод кода, просмотр результата и другие. Область ввода напоминает простой редактор: в ней работает подсветка синтаксиса и балансировка скобок.

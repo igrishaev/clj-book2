@@ -792,6 +792,7 @@ SELECT * FROM users WHERE id = 1
 \begin{english}
   \begin{clojure}
 (defprotocol IUserManager
+
   (get-by-id [this id]))
   \end{clojure}
 \end{english}
@@ -803,7 +804,9 @@ SELECT * FROM users WHERE id = 1
 IUserManager
 
 (get-by-id [this id]
-  (first (jdbc/query conn [stmt-get-by-id id])))
+  (first
+    (jdbc/query conn
+       [stmt-get-by-id id])))
   \end{clojure}
 \end{english}
 
@@ -816,8 +819,8 @@ IUserManager
       map->UserManager
       component/start))
 
-(get-by-id user-mgr 1)
-(get-by-id user-mgr 2)
+(get-by-id user-mgr 1) ;; {:id 1, ...}
+(get-by-id user-mgr 2) ;; {:id 2, ...}
   \end{clojure}
 \end{english}
 
@@ -825,17 +828,24 @@ IUserManager
 
 \section{Результат запроса}
 
-Рассмотрим, что предлагает библиотека для работы с ответом. По умолчанию функция \code{query} возвращает последовательность словарей. Структура каждого словаря одинакова: его ключи~--- поля выборки, приведенные к типу \code{Keyword}, а значения~--- то, что пришло для этого поля из базы. Пример с пользователями:
+Рассмотрим, что предлагает библиотека для работы с ответом. По умолчанию функция \code{query} возвращает последовательность словарей. Структура каждого словаря одинакова: его ключи~--- поля выборки, приведенные к типу \code{Keyword}, а значения~--- то, что пришло для этого поля из базы. Запрос пользователей:
 
 \begin{english}
   \begin{clojure}
 (jdbc/query db "select * from users")
+  \end{clojure}
+\end{english}
 
+Результат:
+
+\begin{english}
+  \begin{clojure}
 ({:id 1
   :fname "Ivan"
   :lname "Petrov"
   :email "test@test.com"
   :age 42}
+
  {:id 2
   :fname "John"
   :lname "Smith"
@@ -846,7 +856,7 @@ IUserManager
 
 Функция \code{jdbc/query} оборачивает результат \code{ResultSet} в функцию \code{jdbc/result-set-seq}. Последняя приводит его к ленивой коллекции "кложурных" значений. Поскольку список словарей~--- наиболее удобная структура, именно этот способ задан по умолчанию. В особых случаях поведение \code{query} меняют так, чтобы получить данные в другом виде. Но прежде чем мы узнаем, как это сделать, вспомним, как устроен объект \code{ResultSet}.
 
-Этот класс напоминает источник данных со внутренним указателем. По умолчанию указатель находится *до* первого элемента. У \code{ResultSet} несколько методов, чтобы сдвигать его, но самый простой называется \code{.next()}. Результат метода означает, удался ли сдвиг или нет (получим ложь, если достигли конца). Обход \code{ResultSet} сводится к шаблону:
+Этот класс напоминает источник данных со внутренним указателем. По умолчанию указатель находится \emph{до} первого элемента. У \code{ResultSet} несколько методов, чтобы сдвигать его, но самый простой называется \code{.next()}. Результат метода означает, удался ли сдвиг или нет (получим ложь, если достигли конца). Обход \code{ResultSet} сводится к шаблону:
 
 \begin{english}
   \begin{clojure}
@@ -1979,8 +1989,6 @@ INSERT INTO items VALUES
   \end{sql}
 \end{english}
 
-%% TODO: double arrow
-
 Чтобы выбрать товары красного цвета, добавьте условие в запрос как в примере ниже. Оператор \code{->>} означает извлечь поле \code{color} из объекта в виде текста.
 
 \begin{english}
@@ -2141,7 +2149,7 @@ PostgreSQL поддерживает два типа JSON: одноименный
 
 \subsection{Запись JSON}
 
-Теперь когда мы читаем JSON из базы, позаботимся о записи. Для этого расширим протокол \code{jdbc/ISQLValue} так, чтобы любая коллекция Clojure становилась объектом \code{PGobject}. Но сперва уточним, что имеем в виду под термином "любая коллекция".
+Теперь когда мы читаем JSON из базы, позаботимся о записи. Для этого расширим протокол \code{jdbc/ISQLValue} так, чтобы любая коллекция Clojure становилась объектом \code{PGobject}. Но сперва уточним, что имеем в виду под термином <<любая коллекция>>.
 
 Протоколы в Clojure устроены на базе интерфейсов и иерархии классов. Если мы хотим, чтобы вектор и словарь отзывались на какое-то действие, нужно найти общий интерфейс и расширить его протоколом. Чтобы увидеть интерфейсы, которые реализует коллекция, выполните выражение:
 
@@ -2152,6 +2160,7 @@ PostgreSQL поддерживает два типа JSON: одноименный
 #{clojure.lang.IMeta
   java.lang.Runnable
   java.io.Serializable
+  clojure.lang.ILookup
   ...
   clojure.lang.IPersistentCollection}
   \end{clojure}
@@ -3369,18 +3378,29 @@ JOIN posts p ON p.author_id = a.id;
 
 Результат:
 
-\begin{table}[H]
-\resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l|}
-\hline
-id & name & id & title & author\_id \\
-\hline
- 1  &  Ivan Petrov  &  10  &  Introduction to Python     & 1 \\
- 1  &  Ivan Petrov  &  20  &  Thoughts on LISP           & 1 \\
- 2  &  Ivan Rublev  &  30  &  Learning Clojure           & 2 \\
- 2  &  Ivan Rublev  &  40  &  Working on my pet project  & 2 \\
-\hline
-\end{tabular}}
-\end{table}
+\begin{english}
+  \begin{text*}{fontsize=\small}
+id |    name     | id |            title          | author_id
+---+-------------+----+---------------------------+----------
+ 1 | Ivan Petrov | 10 | Introduction to Python    |         1
+ 1 | Ivan Petrov | 20 | Thoughts on LISP          |         1
+ 2 | Ivan Rublev | 30 | Learning Clojure          |         2
+ 2 | Ivan Rublev | 40 | Working on my pet project |         2
+  \end{text*}
+\end{english}
+
+%% \begin{table}[H]
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l|}
+%% \hline
+%% id & name & id & title & author\_id \\
+%% \hline
+%%  1  &  Ivan Petrov  &  10  &  Introduction to Python     & 1 \\
+%%  1  &  Ivan Petrov  &  20  &  Thoughts on LISP           & 1 \\
+%%  2  &  Ivan Rublev  &  30  &  Learning Clojure           & 2 \\
+%%  2  &  Ivan Rublev  &  40  &  Working on my pet project  & 2 \\
+%% \hline
+%% \end{tabular}}
+%% \end{table}
 
 Видим, что родительская сущность (автор) повторяется столько раз, столько у нее дочерних записей (статей). Результат нельзя выводить в плоском виде, потому что пользователь ожидает другую структуру. Наверняка он хочет увидеть вложенный список:
 
@@ -3651,18 +3671,29 @@ JOIN posts p ON p.author_id = a.id;
   \end{sql}
 \end{english}
 
-\begin{table}[H]
-\resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l|}
-\hline
-id & name & id & title & author\_id \\
-\hline
- 1  &  Ivan Petrov  &  10  &  Introduction to Python     & 1 \\
- 1  &  Ivan Petrov  &  20  &  Thoughts on LISP           & 1 \\
- 2  &  Ivan Rublev  &  30  &  Learning Clojure           & 2 \\
- 2  &  Ivan Rublev  &  40  &  Working on my pet project  & 2 \\
-\hline
-\end{tabular}}
-\end{table}
+\begin{english}
+  \begin{text*}{fontsize=\small}
+id |    name     | id |            title          | author_id
+---+-------------+----+---------------------------+----------
+ 1 | Ivan Petrov | 10 | Introduction to Python    |         1
+ 1 | Ivan Petrov | 20 | Thoughts on LISP          |         1
+ 2 | Ivan Rublev | 30 | Learning Clojure          |         2
+ 2 | Ivan Rublev | 40 | Working on my pet project |         2
+  \end{text*}
+\end{english}
+
+%% \begin{table}[H]
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l|}
+%% \hline
+%% id & name & id & title & author\_id \\
+%% \hline
+%%  1  &  Ivan Petrov  &  10  &  Introduction to Python     & 1 \\
+%%  1  &  Ivan Petrov  &  20  &  Thoughts on LISP           & 1 \\
+%%  2  &  Ivan Rublev  &  30  &  Learning Clojure           & 2 \\
+%%  2  &  Ivan Rublev  &  40  &  Working on my pet project  & 2 \\
+%% \hline
+%% \end{tabular}}
+%% \end{table}
 
 Первый шаг к группировке~--- задать полям уникальные имена. В выборке два поля \code{id}, и может возникнуть путаница где чей номер. Чтобы этого избежать, укажем псевдонимы с пространством имен. Из-за символа \code{/} их нужно заключить в двойные кавычки.
 
@@ -3710,8 +3741,8 @@ JOIN posts p ON p.author_id = a.id;
 
 (get-post row)
 ;; #:post{:id 10
-          :title "Introduction to Python"
-          :author-id 1}
+;;          :title "Introduction to Python"
+;;          :author-id 1}
   \end{clojure}
 \end{english}
 
@@ -3731,15 +3762,14 @@ JOIN posts p ON p.author_id = a.id;
          (update-in [:authors author-id
                      :author/posts post-id]
                     merge post))))
- {}
- db-result)
+ {} db-result)
   \end{clojure}
 \end{english}
 
 Распечатаем результат. Видим, что статьи сгруппированы по авторам:
 
 \begin{english}
-  \begin{clojure}
+  \begin{clojure*}{fontsize=\small}
 {:authors
  {1 {:author/id 1
      :author/name "Ivan Petrov"
@@ -3759,7 +3789,7 @@ JOIN posts p ON p.author_id = a.id;
         40 {:post/id 40
             :post/title "Working on my pet project"
             :post/author-id 2}}}}}
-  \end{clojure}
+  \end{clojure*}
 \end{english}
 
 Можно отдать эти данные клиенту в виде JSON. Заметим, мы выполнили только один обход функцией \code{reduce}, что немаловажно. Если алгоритм требует два и более обходов выборки, с ее ростом код замедлится.
@@ -3801,45 +3831,53 @@ LEFT JOIN comments c ON c.post_id = p.id;
 
 Повторов станет еще больше:
 
-\begin{table}[H]
-\resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l}
-\hline
-author/id & author/name & post/id &         post/title           & \ldots \\
-\hline
-         1 & Ivan Petrov &      10 & Introduction to Python      & \ldots \\
-         1 & Ivan Petrov &      10 & Introduction to Python      & \ldots \\
-         2 & Ivan Rublev &      30 & Learning Clojure            & \ldots \\
-         1 & Ivan Petrov &      20 & Thoughts on LISP            & \ldots \\
-         2 & Ivan Rublev &      40 & Working on my pet project   & \ldots \\
-\hline
-\end{tabular}}
+%% \begin{table}[H]
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l}
+%% \hline
+%% author/id & author/name & post/id &         post/title           & \ldots \\
+%% \hline
+%%          1 & Ivan Petrov &      10 & Introduction to Python      & \ldots \\
+%%          1 & Ivan Petrov &      10 & Introduction to Python      & \ldots \\
+%%          2 & Ivan Rublev &      30 & Learning Clojure            & \ldots \\
+%%          1 & Ivan Petrov &      20 & Thoughts on LISP            & \ldots \\
+%%          2 & Ivan Rublev &      40 & Working on my pet project   & \ldots \\
+%% \hline
+%% \end{tabular}}
 
-\vspace{3mm}
+%% \vspace{3mm}
 
-\resizebox{\columnwidth}{!}{\begin{tabular}{l|l|l|l|}
-\hline
-\ldots         & post/author-id & comment/id &         comment/text \\
-\hline
-\ldots   &              1 &        100 & Thanks for sharing this!       \\
-\ldots   &              1 &        200 & Nice reading, it was useful.   \\
-\ldots   &              2 &        300 & TL;DR: you must learn lisp     \\
-\ldots   &              1 &            &                                \\
-\ldots   &              2 &            &                                \\
-\hline
-\end{tabular}}
-\end{table}
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{l|l|l|l|}
+%% \hline
+%% \ldots         & post/author-id & comment/id &         comment/text \\
+%% \hline
+%% \ldots   &              1 &        100 & Thanks for sharing this!       \\
+%% \ldots   &              1 &        200 & Nice reading, it was useful.   \\
+%% \ldots   &              2 &        300 & TL;DR: you must learn lisp     \\
+%% \ldots   &              1 &            &                                \\
+%% \ldots   &              2 &            &                                \\
+%% \hline
+%% \end{tabular}}
+%% \end{table}
 
-%% \begin{english}
-%%   \begin{text}
-%%  author/id | author/name | post/id |         post/title          | post/author-id | comment/id |         comment/text
-%% -----------+-------------+---------+-----------------------------+----------------+------------+------------------------------
-%%          1 | Ivan Petrov |      10 | Introduction to Python      |              1 |        100 | Thanks for sharing this!
-%%          1 | Ivan Petrov |      10 | Introduction to Python      |              1 |        200 | Nice reading, it was useful.
-%%          2 | Ivan Rublev |      30 | Learning Clojure            |              2 |        300 | TL;DR: you must learn lisp
-%%          1 | Ivan Petrov |      20 | Thoughts on LISP            |              1 |            |
-%%          2 | Ivan Rublev |      40 | Working on my pet project   |              2 |            |
-%%   \end{text}
-%% \end{english}
+\begin{english}
+  \begin{text*}{fontsize=\small}
+ author/id | author/name | post/id |         post/title         | ..
+-----------+-------------+---------+----------------------------+---
+         1 | Ivan Petrov |      10 | Introduction to Python     | ..
+         1 | Ivan Petrov |      10 | Introduction to Python     | ..
+         2 | Ivan Rublev |      30 | Learning Clojure           | ..
+         1 | Ivan Petrov |      20 | Thoughts on LISP           | ..
+         2 | Ivan Rublev |      40 | Working on my pet project  | ..
+
+.. | post/author-id | comment/id |         comment/text         |
+---+----------------+------------+------------------------------+
+.. |              1 |        100 | Thanks for sharing this!     |
+.. |              1 |        200 | Nice reading, it was useful. |
+.. |              2 |        300 | TL;DR: you must learn lisp   |
+.. |              1 |            |                              |
+.. |              2 |            |                              |
+  \end{text*}
+\end{english}
 
 Доработаем прошлый код. Прежде всего, в функциях \code{get-author}, \code{get-post} и других нет смысла. Поля сущности определяют по пространству, например, все ключи с пространством \code{:author/} относятся к авторам. Напишем общую функцию \code{get-entity}, которая принимает пространство и запись базы данных.
 
@@ -3874,8 +3912,7 @@ author/id & author/name & post/id &         post/title           & \ldots \\
 
 \begin{english}
   \begin{clojure}
-(defn row->entities
-  [db-row]
+(defn row->entities [db-row]
   (reduce-kv
    (fn [result k v]
      (assoc-in result [(namespace k) k] v))
@@ -3916,7 +3953,6 @@ author/id & author/name & post/id &         post/title           & \ldots \\
   \begin{clojure}
 (reduce
  (fn [result row]
-
    (let [{:strs [author post comment]}
          (row->entities row)
 
@@ -4196,6 +4232,30 @@ GROUP BY p.id;
 
 Результат:
 
+
+
+\begin{english}
+  \begin{text*}{fontsize=\small}
+ post/id |         post/title          | post/author-id | ..
+---------+-----------------------------+----------------+---
+      10 | Introduction to Python      |              1 | ..
+      20 | Thoughts on LISP            |              1 | ..
+      30 | Learning Clojure            |              2 | ..
+      40 | Working on my pet project   |              2 | ..
+  \end{text*}
+\end{english}
+
+\begin{english}
+  \begin{text*}{fontsize=\small}
+.. |                    post/comments                   |
+-- +----------------------------------------------------+
+.. | [{"id":100, ...}, {"id":200, ...}]                 |
+.. |                                                    |
+.. | [{"id":300, ...}]                                  |
+.. |                                                    |
+  \end{text*}
+\end{english}
+
 %% \begin{english}
 %%   \begin{text}
 %%  post/id |         post/title          | post/author-id |                                                       post/comments
@@ -4208,33 +4268,33 @@ GROUP BY p.id;
 %% \end{english}
 
 
-\begin{table}[H]
-%% \resizebox{\columnwidth}{!}{
-\begin{tabular}{|l|l|l|l}
-\hline
- post/id & post/title                  & post/author-id & \ldots \\
-\hline
-      10 & Introduction to Python      &              1 & \ldots \\
-      20 & Thoughts on LISP            &              1 & \ldots \\
-      30 & Learning Clojure            &              2 & \ldots \\
-      40 & Working on my pet project   &              2 & \ldots \\
-\hline
-\end{tabular}%}
-\end{table}
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{|l|l|l|l}
+%% \hline
+%%  post/id & post/title                  & post/author-id & \ldots \\
+%% \hline
+%%       10 & Introduction to Python      &              1 & \ldots \\
+%%       20 & Thoughts on LISP            &              1 & \ldots \\
+%%       30 & Learning Clojure            &              2 & \ldots \\
+%%       40 & Working on my pet project   &              2 & \ldots \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
 
-\begin{table}[H]
-%% \resizebox{\columnwidth}{!}{
-\begin{tabular}{l|l|}
-\hline
-\ldots & post/comments \\
-\hline
-\ldots & \mintinline{json}{[{"id": 100, ...}, {"id": 200, ...}]} \\
-\ldots & \\
-\ldots & \mintinline{json}{[{"id":300, ...}]} \\
-\ldots & \\
-\hline
-\end{tabular}%}
-\end{table}
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{l|l|}
+%% \hline
+%% \ldots & post/comments \\
+%% \hline
+%% \ldots & \mintinline{json}{[{"id": 100, ...}, {"id": 200, ...}]} \\
+%% \ldots & \\
+%% \ldots & \mintinline{json}{[{"id":300, ...}]} \\
+%% \ldots & \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
 
 Статья, у которой нет комментариев, осталась в выборке. Поле \code{post/comments} носит тип json; внутри него массив объектов, где каждый объект представляет запись таблицы \code{comments}.
 
@@ -4405,39 +4465,28 @@ FROM good_attrs ga
 
 Результат:
 
-\begin{table}[H]
-%% \resizebox{\columnwidth}{!}{
-\begin{tabular}{|l|l|}
-\hline
-\code{good\_id} & \code{attrs} \\
-\hline
-3 & \code{\{"book.genre": "dystopia"{},} \\
-  & \code{\phantom{ }"book.pages": 215\}} \\
-1 & \code{\{"phone.display.diag": 145{},} \\
-  & \code{\phantom{ }"phone.wifi.support": true\}} \\
-\hline
-\end{tabular}%}
-\end{table}
-
 %% \begin{table}[H]
-%% \resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|}
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{|l|l|}
 %% \hline
 %% \code{good\_id} & \code{attrs} \\
 %% \hline
-%% 3 & \mintinline{json}{{"book.genre": "dystopia", "book.pages": 215}} \\
-%% 1 & \mintinline{json}{{"phone.display.diag": 145, "phone.wifi.support": true}} \\
+%% 3 & \code{\{"book.genre": "dystopia"{},} \\
+%%   & \code{\phantom{ }"book.pages": 215\}} \\
+%% 1 & \code{\{"phone.display.diag": 145{},} \\
+%%   & \code{\phantom{ }"phone.wifi.support": true\}} \\
 %% \hline
-%% \end{tabular}}
+%% \end{tabular}%}
 %% \end{table}
 
-%% \begin{english}
-%%   \begin{text}
-%%  good_id |                          attrs
-%% ---------+---------------------------------------------------------
-%%        3 | {"book.genre": "dystopia", "book.pages": 215}
-%%        1 | {"phone.display.diag": 145, "phone.wifi.support": true}
-%%   \end{text}
-%% \end{english}
+\begin{english}
+  \begin{text*}{fontsize=\small}
+id |                          attrs
+---+---------------------------------------------------------
+ 3 | {"book.genre": "dystopia", "book.pages": 215}
+ 1 | {"phone.display.diag": 145, "phone.wifi.support": true}
+  \end{text*}
+\end{english}
 
 Поместим его в подзапрос и присоединим к товарам при помощи \code{LEFT JOIN}:
 
@@ -4461,19 +4510,19 @@ LEFT JOIN (
 
 Результат:
 
-\begin{table}[H]
-\begin{tabular}{|l|l|l|}
-\hline
-\code{id} & \code{title} & \code{attrs} \\
-\hline
-1 & iPhone 99x     & \code{\{"phone.display.diag": 145{},} \\
-  &                & \code{\phantom{ }"phone.wifi.support": true\}} \\
-2 & Galaxy 33.plus & \\
-3 & G. Orwell 1984 & \code{\{"book.genre": "dystopia"{},} \\
-  &                & \code{\phantom{ }"book.pages": 215\}} \\
-\hline
-\end{tabular}
-\end{table}
+%% \begin{table}[H]
+%% \begin{tabular}{|l|l|l|}
+%% \hline
+%% \code{id} & \code{title} & \code{attrs} \\
+%% \hline
+%% 1 & iPhone 99x     & \code{\{"phone.display.diag": 145{},} \\
+%%   &                & \code{\phantom{ }"phone.wifi.support": true\}} \\
+%% 2 & Galaxy 33.plus & \\
+%% 3 & G. Orwell 1984 & \code{\{"book.genre": "dystopia"{},} \\
+%%   &                & \code{\phantom{ }"book.pages": 215\}} \\
+%% \hline
+%% \end{tabular}
+%% \end{table}
 
 %% \begin{english}
 %%   \begin{text}
@@ -4499,25 +4548,25 @@ select 2 as id, 'bar' as name;
   \end{sql}
 \end{english}
 
-\begin{table}[H]
-\begin{tabular}{|l|l|}
-\hline
-id & name \\
-\hline
-1 & foo \\
-2 & bar \\
-\hline
-\end{tabular}
-\end{table}
+%% \begin{table}[H]
+%% \begin{tabular}{|l|l|}
+%% \hline
+%% id & name \\
+%% \hline
+%% 1 & foo \\
+%% 2 & bar \\
+%% \hline
+%% \end{tabular}
+%% \end{table}
 
-%% \begin{english}
-%%   \begin{text}
-%%  id | name
-%% ----+------
-%%   1 | foo
-%%   2 | bar
-%%   \end{text}
-%% \end{english}
+\begin{english}
+  \begin{text}
+ id | name
+----+------
+  1 | foo
+  2 | bar
+  \end{text}
+\end{english}
 
 Иногда в проекте бывает несколько похожих сущностей в разных таблицах. Например, договоры с юрлицами и населением; администраторы и пользователи; крупные и малые поставщики. Из-за разной структуры их нельзя объединить в один запрос. Но поскольку функция \code{row\_to\_json} приводит запись к json, можно объединить результаты любых записей.
 
@@ -4566,31 +4615,31 @@ FROM
 
 Результат в консоли \code{psql}:
 
-\begin{table}[H]
-%% \resizebox{\columnwidth}{!}{
-\begin{tabular}{|l|l|l|}
-\hline
-id & type & entity \\
-\hline
-  1 & user  & \mintinline{json}{{"id":1,"fname":"Ivan", ...}} \\
-  3 & user  & \mintinline{json}{{"id":3,"fname":"Huan", ...}} \\
-  1 & admin & \mintinline{json}{{"id":1,"full_name":"Petr Smirnov", ...}} \\
-  2 & admin & \mintinline{json}{{"id":2,"full_name":"Oleg Ivanov", ...}} \\
-\hline
-\end{tabular}%}
-\end{table}
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{|l|l|l|}
+%% \hline
+%% id & type & entity \\
+%% \hline
+%%   1 & user  & \mintinline{json}{{"id":1,"fname":"Ivan", ...}} \\
+%%   3 & user  & \mintinline{json}{{"id":3,"fname":"Huan", ...}} \\
+%%   1 & admin & \mintinline{json}{{"id":1,"full_name":"Petr Smirnov", ...}} \\
+%%   2 & admin & \mintinline{json}{{"id":2,"full_name":"Oleg Ivanov", ...}} \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
 
 
-%% \begin{english}
-%%   \begin{text}
-%%  id | type  |                                                                           entity
-%% ----+-------+------------------------------------------------------------------------------------------------------------------------------------------------------------
-%%   1 | user  | {"id":1,"fname":"Ivan","lname":"Petrov","email":"test@test.com","age":30,"city":null,"year_birth":null,"created_at":"2021-08-10T07:36:03.934029+00:00"}
-%%   3 | user  | {"id":3,"fname":"Huan","lname":null,"email":null,"age":null,"city":null,"year_birth":null,"created_at":"2021-08-10T07:36:03.934029+00:00"}
-%%   1 | admin | {"id":1,"full_name":"Petr Smirnov","email":"petr@test.com"}
-%%   2 | admin | {"id":2,"full_name":"Oleg Ivanov","email":"oleg@test.com"}
-%%   \end{text}
-%% \end{english}
+\begin{english}
+  \begin{text}
+id | type  |                 entity
+---+-------+-----------------------------------------
+ 1 | user  | {"id":1,"fname":"Ivan", ...}
+ 3 | user  | {"id":3,"fname":"Huan", ...}
+ 1 | admin | {"id":1,"full_name":"Petr Smirnov", ...}
+ 2 | admin | {"id":2,"full_name":"Oleg Ivanov", ...}
+  \end{text}
+\end{english}
 
 \noindent
 и в Clojure:
@@ -4905,15 +4954,7 @@ SELECT * FROM schema_migrations;
 
 \subsection{Миграции с профилями}
 
-При запуске миграций в \code{lein} доступны все опции этого инструмента, в том числе профили. С их помощью легко нацелить Migratus на другую базу или папку с файлами. Например, по умолчанию команда
-
-\begin{english}
-  \begin{bash}
-> lein migratus migrate
-  \end{bash}
-\end{english}
-
-работает с локальной базой, но с профилем \code{staging} подключается к удаленной тестовой машине:
+При запуске миграций в \code{lein} доступны все опции этого инструмента, в том числе профили. С их помощью легко нацелить Migratus на другую базу или папку с файлами. Например, по умолчанию команда \code{lein migratus migrate} работает с локальной базой, но с профилем \code{staging} подключается к удаленной тестовой машине:
 
 \begin{english}
   \begin{bash}
@@ -4935,7 +4976,7 @@ SELECT * FROM schema_migrations;
   \end{clojure}
 \end{english}
 
-Когда приложение "выкатывают" на тестовой машине, в базе должны быть минимальные данные для проверки. Обычно это пользователь с известным паролем, несколько товаров, покупок и так далее. Поместим их в миграцию, которая выполняется только на удаленной машине. Создайте каталог \code{env/staging/resources/\-migrations} и файл в нем:
+Когда приложение развертывают на тестовой машине, в базе должны быть минимальные данные для проверки. Обычно это пользователь с известным паролем, несколько товаров, покупок и так далее. Поместим их в миграцию, которая выполняется только на удаленной машине. Создайте каталог \code{env/staging/resources/\-migrations} и файл в нем:
 
 \begin{english}
   \begin{sql}
@@ -5237,8 +5278,6 @@ SELECT * FROM requests;
 {:users/id 1
  :users/lname "Petrov"
  :users/fname "Ivan"
- :users/age 30
- :users/email "test@test.com"
  :users/created_at #inst "2021-08-10T07:36:03"
  :profiles/id 1
  :profiles/user_id 1
