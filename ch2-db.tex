@@ -1531,12 +1531,10 @@ This connection has been closed.
      :host "127.0.0.1"
      :user "book"
      :password "book"}
-
     {'com.stuartsierra.component/start
      (fn [this]
        (assoc this :connection
               (jdbc/get-connection this)))
-
      'com.stuartsierra.component/stop
      (fn [{:as this :keys [connection]}]
        (when connection
@@ -1588,14 +1586,27 @@ SQLite ведет себя как обычная реляционная база
 
 \begin{itemize}
 
-\item
-  Windows 10: \code{C:\textbackslash{}Users\textbackslash{}<user>\textbackslash{}AppData\textbackslash{}Local\textbackslash{}Google\textbackslash{}Chro\-me\-\textbackslash{}User Data\textbackslash{}Default}
+\item{Windows 10:
+\begin{english}
+  \begin{text*}{breaklines}
+C:\Users\<username>\AppData\Local\Google\Chrome\User Data\Default
+  \end{text*}
+\end{english}}
 
-\item
-  MacOS: \code{/Users/<username>/Library/Application Support\\/Google/Chrome/Default}
 
-\item
- Linux: \code{/home/<username>/.config/google-chrome/default}
+\item{Mac OS:
+\begin{english}
+  \begin{text*}{breaklines, breakafter=/}
+/Users/<username>/Library/Application Support/Google/Chrome/Default
+  \end{text*}
+\end{english}}
+
+\item{Linux:
+\begin{english}
+  \begin{text*}{breaklines, breakafter=/}
+/home/<username>/.config/google-chrome/default
+  \end{text*}
+\end{english}}
 
 \end{itemize}
 
@@ -2447,7 +2458,7 @@ AND p.created_at > ..."
 
 Большие запросы в коде смотрятся чужеродно. При чтении приходится переключать контекст, чтобы понять, что происходит в запросе. Ситуация ухудшается с копированием: часто необходим такой же запрос, но с небольшими правками. Это усложнит поддержку, ведь однажды критерии выборки могут измениться для всех запросов.
 
-Предположим, в какой-то момент в таблице появился флаг отложенного удаления. Пользователь закрыл учетную запись, и нужно удалить ее из системы. Теперь при выборке пользователя нужно добавить условие "не удален":
+Предположим, в какой-то момент в таблице появился флаг отложенного удаления. Пользователь закрыл учетную запись, и нужно удалить ее из системы. Теперь при выборке пользователя нужно добавить условие <<не удален>>:
 
 \begin{english}
   \begin{clojure}
