@@ -4906,7 +4906,7 @@ DROP TYPE user_status;
   \end{clojure}
 \end{english}
 
-Ключ \code{:migration-dir} указывает папку относительно ресурсов, в которой хранятся миграции. В нашем случае это \code{resources/migrations}. В поле \code{:db} находится знакомая вам JDBC-спека. Выполните в терминале:
+Ключ \code{:migration-dir} указывает папку относительно ресурсов, в которой хранятся миграции. В нашем случае это \code{re\-so\-ur\-ces/mig\-ra\-ti\-ons}. В поле \code{:db} находится знакомая вам JDBC-спека. Выполните в терминале:
 
 \begin{english}
   \begin{bash}
@@ -5216,7 +5216,7 @@ SELECT * FROM requests;
   Обеспечить более тесную связь с Clojure за счет \footurl{протокола Datafy}{\urldatafy}[Datafy]. Протокол появился в Clojure 1.11 и служит посредником между сущностями Java и Clojure.
 
 \item
-  Предложить более простой и понятный API. Прежняя библиотека различает функции \code{query}, \code{execute!}, \code{db-do-commands} и другие; вдобавок она обязывает помнить об их особенностях. Next.JDBC планирует сократить разнообразие API.
+  Предложить более понятный API. Прежняя библиотека различает функции \code{query}, \code{execute!}, \code{db-do-com\-mands} и другие; вдобавок она обязывает помнить об их особенностях. Next.JDBC планирует сократить разнообразие API.
 
 \end{itemize}
 
@@ -5471,9 +5471,9 @@ vals.attnum)
   \end{clojure}
 \end{english}
 
-\def\urljdbcnextmig{https://github.com/seancorfield/next-jdbc/blob/develop/doc/migration-from-clojure-java-jdbc.md}
+\def\urljdbcnextmig{https://github.com/seancorfield/next-jdbc/tree/develop/doc}
 
-Как видно, интерфейс Next.JDBC в целом похож на предшественника. Функции ведут себя так же, но дают больше контроля за происходящим. Если у вас долгий опыт работы с \code{clojure.java.jdbc}, перейти на Next.JDBC будет несложно. Тонкости перехода описаны в \footurl{Wiki-документации}{\urljdbcnextmig}[Wiki] проекта. Там же вы узнаете о других возможностях JDBC.next.
+Как видно, интерфейс Next.JDBC в целом похож на предшественника. Функции ведут себя так же, но дают больше контроля за происходящим. Если у вас долгий опыт работы с \code{clojure.java.jdbc}, перейти на Next.JDBC будет несложно. Тонкости перехода описаны в \footurl{документации}{\urljdbcnextmig}[Next JDBC docs] проекта. Там же вы узнаете о других возможностях JDBC.next.
 
 \section{Заключение}
 
