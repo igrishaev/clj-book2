@@ -53,7 +53,7 @@
 \ifprint
 \NewDocumentCommand{\footurl}{ m m O{} o }{%
 #1%
-\footnote{\StrSubstitute{#2}{https://}{}}%
+\footnote{\raggedright\StrSubstitute{#2}{https://}{}}%
 \marginpar{%
 \IfNoValueTF{#4}{}{\vspace{#4}}%
 \vspace{-5.5mm}%
