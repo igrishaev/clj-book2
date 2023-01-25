@@ -29,8 +29,8 @@ build: \
 ## Build an index file with Clojure.
 make-index:
 	echo 'make-index'
-	# cd makeindex && \
-	# clojure -m makeindex.core ${PWD}/${JOB}.idx ${PWD}/${JOB}.ind
+	cd makeindex && \
+	clojure -m makeindex.core ${PWD}/${JOB}.idx ${PWD}/${JOB}.ind
 
 
 # Drop unused files.
