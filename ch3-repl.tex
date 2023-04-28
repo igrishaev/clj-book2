@@ -3388,7 +3388,7 @@ M-x package-install <RET> wrap-region <RET>
 
 Вернемся к функции \code{get-joke} для получения шуток. Функция обращается к сервису JokeAPI.dev при помощи библиотеки \code{clj-http}. Давайте шагнем вглубь \code{clj-http}, чтобы отследить, какие данные уходят в сеть.
 
-Наведите курсор на символ \code{client/request} и выполните \code{M-.} (команда \code{M-x cider-find-var}). Откроется модуль \code{clj-http.client} из jar-файла в директории \code{~/.m2/repository/clj-http/clj-http/3.12.0}. Вы окажетесь на строке 1134, где объявлена переменная \code{request}:
+Наведите курсор на символ \code{client/request} и выполните \code{M-.} (команда \code{M-x cider-find-var}). Откроется модуль \code{clj-http.client} из jar-файла в директории \code{\tilde{}/.m2/repository/clj-http/clj-http/3.12.0}. Вы окажетесь на строке 1134, где объявлена переменная \code{request}:
 
 \begin{english}
   \begin{clojure}
