@@ -15,3 +15,5 @@ continue next in out here eval inspect locals inject ...
 (format "%s %s" setup delivery|) =>
 
 Комментария заслуживает вызов
+
+центральный объект Node.js
