@@ -17,3 +17,5 @@ continue next in out here eval inspect locals inject ...
 Комментария заслуживает вызов
 
 центральный объект Node.js
+
+Как только REPL получил его
