@@ -19,3 +19,7 @@ continue next in out here eval inspect locals inject ...
 центральный объект Node.js
 
 Как только REPL получил его
+
+На первый взгляд не произойдет ничего особенного
+
+nREPL расширяют при помощи
