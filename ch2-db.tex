@@ -101,7 +101,7 @@ CREATE TABLE profiles(
 
 \end{itemize}
 
-Код на следующем развороте показывает, как выбрать записи из таблицы и напечатать их силами Java \lis{fig:java-jdbc}. Из-за многословности Java мы уменьшили шрифт и сократили некоторые конструкции, например заменили \code{System.out.println} на \code{S.o.println}.
+На следующей странице приведен код на Java, который выбирает записи из таблицы с помощью этих классов \lis{fig:java-jdbc}. Из-за многословности Java мы уменьшили шрифт и сократили некоторые конструкции, например заменили \code{System.out.println} на \code{S.o.println}.
 
 \begin{figure}[ht!]
 
@@ -117,14 +117,11 @@ public class JDBCExample {
   static String QUERY = "SELECT * FROM users";
 
   public static void main(String[] args) {
-
     try {
-
       Connection conn =
         DriverManager.getConnection(DB_URL, USER, PASS);
       Statement stmt = conn.createStatement();
       ResultSet rs = stmt.executeQuery(QUERY);
-
       while (rs.next()) {
         S.o.println("ID: " + rs.getInt("id"));
         S.o.println("First name: " + rs.getString("fname"));
@@ -132,7 +129,6 @@ public class JDBCExample {
         S.o.println("Email: " + rs.getString("email"));
         S.o.println("Age: " + rs.getInt("age"));
       }
-
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -196,14 +192,16 @@ public class JDBCExample {
 
 \begin{english}
   \begin{bash}
-> docker run --rm -it -e POSTGRES_PASSWORD=pass postgres
+> docker run --rm -it \
+    -e POSTGRES_PASSWORD=pass \
+    postgres
   \end{bash}
 \end{english}
 
 \def\urlcljbook{https://grishaev.me/clojure-in-prod/}
 
 \noindent
-запустит сервер на локальном порту 5432. Имя базы, пользователь и пароль определяются переменными окружения; в примере выше пароль к базе будет <<pass>>. Запуск образа мы обсуждали в \footurl{прошлой книге о Clojure}{\urlcljbook}[Clojure на производстве], а именно в четвертой и седьмой главах. В случае трудностей изучите примеры оттуда.
+запустит сервер на локальном порту 5432. Имя базы, пользователь и пароль определяются переменными окружения; в примере выше пароль к базе будет <<pass>>. Запуск образа мы обсуждали в \footurl{прошлой книге о Clojure}{\urlcljbook}[\RNum{1} том], а именно в четвертой и седьмой главах. В случае трудностей изучите примеры оттуда.
 
 Если все настроено правильно и вы увидели результат запроса, примите поздравления. Первый этап пройден, и вы готовы двигаться дальше.
 
@@ -239,8 +237,11 @@ public class JDBCExample {
   \begin{clojure}
 (jdbc/get-by-id db :users 1)
 
-{:id 1 :fname "John" :lname "Smith"
- :email "test@test.com" :age 25}
+{:id 1
+ :fname "John"
+ :lname "Smith"
+ :email "test@test.com"
+ :age 25}
   \end{clojure}
 \end{english}
 
@@ -254,7 +255,7 @@ public class JDBCExample {
   \end{clojure}
 \end{english}
 
-Функция \code{find-by-keys} выполняет отбор по нескольким полям. Предположим, мы хотим выбрать пользователей с именем John и возрастом 25 лет. Для этого укажем в \code{find-by-keys} имя таблицы и словарь вида \{поле \arr значение\}:
+Функция \code{find-by-keys} выполняет отбор по нескольким полям. Предположим, мы хотим выбрать пользователей с именем John и возрастом 25 лет. Для этого укажем в \code{find-by-keys} имя таблицы и словарь поле \arr значение:
 
 \begin{english}
   \begin{clojure}
@@ -297,7 +298,7 @@ parameters: $1 = 'John', $2 = '25'
 
 \subsection{Вставка}
 
-Функция \code{insert!} добавляет запись в таблицу. Восклицательный знак на конце означает, что вызов влечет побочный эффект. \code{Insert!} принимает таблицу, в которую происходит запись. Значения могут быть переданы в разном виде. Наиболее частый сценарий~--- словарь вида \{поле \arr значение\}, например:
+Функция \code{insert!} добавляет запись в таблицу. Восклицательный знак на конце означает, что вызов влечет побочный эффект. \code{Insert!} принимает таблицу, в которую происходит запись. Значения могут быть переданы в разном виде. Наиболее частый сценарий~--- словарь поле \arr значение, например:
 
 \begin{english}
   \begin{clojure}
@@ -515,9 +516,11 @@ parameters: $1 = '50'
 
 \begin{english}
   \begin{clojure}
-(jdbc/query db "select * from users where id = 13")
+(jdbc/query db
+            "select * from users where id = 13")
 
-(jdbc/query db ["select * from users where id = ?" 13])
+(jdbc/query db
+            ["select * from users where id = ?" 13])
   \end{clojure}
 \end{english}
 
@@ -525,14 +528,16 @@ parameters: $1 = '50'
 
 \subsection{SQL-инъекции}
 
-Инъекцией называют случай, когда в запрос попадает вредоносный текст. Это возможно при ручной подстановке параметров. Пик инъекций пришелся на середину нулевых годов в эпоху расцвета PHP. Язык резко сократил порог входа в веб-разработку, и ей занялись в том числе те, кто не имел представлений о безопасности. В PHP типичный запрос выглядит так (пример взят из реального проекта):
+Инъекцией называют случай, когда в запрос попадает вредоносный текст. Это возможно при ручной подстановке параметров. Пик инъекций пришелся на середину нулевых годов в эпоху расцвета PHP. Язык резко сократил порог входа в веб-разработку, и ей занялись в том числе те, кто не имел представлений о безопасности. В PHP типичный запрос выглядит так (взято из реального проекта):
 
 \begin{english}
   \begin{php}
 $user_id = 13;
+
 $query = sprintf(
   "SELECT * FROM users WHERE id = %s", $user_id
 );
+
 $result = mysql_query($query);
   \end{php}
 \end{english}
@@ -562,7 +567,8 @@ http://site.com/users?user-id=13+OR+TRUE
 
 \begin{english}
   \begin{clojure}
-(def user-id "13 OR TRUE")
+(def user-id
+  "13 OR TRUE")
 
 (jdbc/query db
   (format "select * from users where id = %s" user-id))
@@ -595,7 +601,13 @@ http://site.com/users?user-id=13+OR+TRUE
 
 \begin{english}
   \begin{clojure}
-(let [fname "Robert'; DROP TABLE users;--"]
+(let [fname
+      "Robert'; DROP TABLE users;--"
+
+      query
+      (str "SELECT * FROM users WHERE fname = '"
+           fname
+           "'")]
   ...)
   \end{clojure}
 \end{english}
@@ -619,10 +631,12 @@ SELECT ... WHERE fname = 'Robert'; DROP TABLE users;--'
   \begin{clojure}
 (let [fname
       "Robert' UNION select * from users--"
+
       query
       (str "SELECT * FROM users WHERE fname = '"
            fname
            "'")]
+
   (jdbc/query db query))
   \end{clojure}
 \end{english}
@@ -639,9 +653,13 @@ SELECT * FROM users--'
 
 Этот запрос вернет всех пользователей независимо от того, сколько их нашлось в первой части. Конечно, для подобных атак нужно знать структуру таблицы. Но даже структуру можно получить SQL-инъекцией, добавив \code{UNION} с таблицами \code{information\_schema.tables}, \code{pg\_user} и другими. Таблицы из схемы \code{information\_schema} хранят метаданные о других таблицах: их имена, состав и типы колонок. Если хакер доберется до них через инъекции, он узнает о базе все.
 
+\iflarge\vspace{3mm}\fi
+
 \subsection{Кавычки}
 
-Даже если переменная приходит от надежного источника, вы не застрахованы от проблем с кавычками. Предположим, библиотекарь вносит в программу книгу <<Д’Артаньян и три мушкетёра>>. На клавиатуре нет знака апострофа, поэтому после буквы Д сотрудник поставит верхнюю одинарную кавычку. В большинстве баз данных она служит для строковых литералов. При форматировании такой строки вы получите ошибку синтаксиса:
+Даже если переменная приходит от надежного источника, вы не застрахованы от проблем с кавычками.
+
+Предположим, библиотекарь добавляет в программу книгу <<Д’Артаньян и три мушкетёра>>. На клавиатуре нет знака апострофа, поэтому после буквы Д сотрудник поставит верхнюю одинарную кавычку. В большинстве баз данных она служит для строковых литералов. При форматировании такой строки вы получите ошибку синтаксиса:
 
 %% \begin{english}
   \begin{clojure}
@@ -663,6 +681,7 @@ SELECT * FROM users--'
 \begin{english}
   \begin{clojure}
 (jdbc/query db ["select * from users where id = ?" "1"])
+
 ;; ERROR: operator does not exist: integer = character
   \end{clojure}
 \end{english}
