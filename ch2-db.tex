@@ -1607,7 +1607,7 @@ C:\Users\<username>\AppData\Local\Google\Chrome\User Data\Default
   \end{text*}
 \end{english}}
 
-\iflarge\pagebreak[4]\fi
+\pagebreaklarge
 
 \item{Mac OS:
 \begin{english}
@@ -2760,7 +2760,7 @@ limit 10
 
 Синтаксис \code{-{}-{}\~} предваряет выражение на Clojure. Оно должно вернуть строку SQL или \code{nil}. Внутри доступна переменная \code{params}~--- словарь параметров, которые передали в запрос. Выше мы проверяем: если заданы поля с городом или возрастом, добавить к \code{WHERE} отбор по ним (строки 4 и 5).
 
-\iflarge\pagebreak[4]\fi
+\pagebreaklarge
 
 Выражение:
 
@@ -2977,7 +2977,7 @@ SELECT * FROM users WHERE id = 1
   \end{clojure}
 \end{english}
 
-\iflarge\pagebreak[4]\fi
+\pagebreaklarge
 
 Передайте результат в \code{jdbc/execute!}, чтобы добавить запись:
 
@@ -3139,10 +3139,12 @@ HoneySQL легко расширить оператором, которого н
 
 \begin{english}
   \begin{sql}
-CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ]
+CREATE [ UNIQUE ]
+    INDEX [ CONCURRENTLY ]
     [ [ IF NOT EXISTS ] name ]
     ON [ ONLY ] table
-    [ USING method ] ...
+    [ USING method ]
+    ...
   \end{sql}
 \end{english}
 
@@ -3151,10 +3153,11 @@ CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ]
 \begin{english}
   \begin{clojure}
 (sql/format
-  {:create-index {:if-not-exists? true
-                  :name "idx_user_lname"
-                  :on-table :users
-                  :on-field :lname}})
+  {:create-index
+    {:if-not-exists? true
+     :name "idx_user_lname"
+     :on-table :users
+     :on-field :lname}})
 
 ;; CREATE INDEX IF NOT EXISTS idx_user_lname
 ;; ON users (id);
@@ -3194,10 +3197,11 @@ CREATE [ UNIQUE ] INDEX [ CONCURRENTLY ]
 
 \begin{english}
   \begin{clojure}
-(sql/format {:create-index {:if-not-exists? true
-                            :name "idx_user_lname"
-                            :on-table :users
-                            :on-field :lname}})
+(sql/format {:create-index
+              {:if-not-exists? true
+               :name "idx_user_lname"
+               :on-table :users
+               :on-field :lname}})
 
 ["CREATE INDEX IF NOT EXISTS idx_user_lname
   ON users ( lname )"]
@@ -3261,7 +3265,7 @@ HoneySql покрывает почти все операторы SQL, однак
 
 Как мы выяснили, некоторые части запроса можно использовать повторно. Это может быть набор полей или условий. HugSQL предлагает сниппеты~--- именованные участки кода, которые передают в параметрах. В HoneySQL это делается проще: поскольку речь идет о неизменяемых коллекциях, все решается силами Clojure.
 
-Рассмотрим таблицу пользователей. Приложение часто обращается к ним: читает всех пользователей, ищет по имени или городу, находит конкретного человека по электронной почте. У этих запросов общая часть: имя таблицы и список полей, которые получит клиент. Вынесем ее в переменную, на которую позже будем ссылаться. По-другому ее называют <<тушкой>> запроса:
+Рассмотрим таблицу пользователей. Приложение часто обращается к ним: читает всех пользователей, ищет по имени или городу, находит конкретного человека по электронной почте. У~этих запросов общая часть: имя таблицы и список полей, которые получит клиент. Вынесем ее в переменную, на которую позже будем ссылаться. По-другому ее называют <<тушкой>> запроса:
 
 \begin{english}
   \begin{clojure}
@@ -3353,7 +3357,7 @@ WHERE (fname = 'Ivan')
 \def\urlsqlingvo{https://github.com/r0man/sqlingvo}
 \def\urltoucan{https://github.com/metabase/toucan}
 
-Перечислим аналоги HoneySQL. Это \footurl{SQLingvo}{\urlsqlingvo}[SQLingvo], \footurl{Toucan}{\urltoucan}[Toucan], Korma и другие. Все они так или иначе строят SQL с помощью данных, которые позже становятся строкой. Изучив с HoneySQL, вы без труда освоите эти библиотеки, потому что они исповедуют тот же подход.
+Перечислим аналоги HoneySQL. Это \footurl{SQLingvo}{\urlsqlingvo}[SQLingvo][5mm], \footurl{Toucan}{\urltoucan}[Toucan], Korma и другие. Все они так или иначе строят SQL с помощью данных, которые позже становятся строкой. Изучив с HoneySQL, вы без труда освоите эти библиотеки, потому что они исповедуют тот же подход.
 
 \def\urlkorma{https://github.com/korma/Korma}
 
@@ -3449,9 +3453,12 @@ INSERT INTO posts (id, author_id, title) VALUES
   \begin{sql}
 SELECT *
 FROM authors a
-JOIN posts p ON p.author_id = a.id;
+JOIN posts p
+  ON p.author_id = a.id;
   \end{sql}
 \end{english}
+
+\pagebreaklarge
 
 Результат:
 
@@ -3594,7 +3601,7 @@ id |    name     | id |            title          | author_id
 
 \def\urlfetchrelated{https://docs.djangoproject.com/en/4.1/ref/models/querysets/\#prefetch-related}
 
-В современных ORM такая выборка называется fetch related, извлечь связанные записи. Например, в Django ORM у объекта \code{QuerySet} есть одноименный метод \footurl{\code{prefetch\_related}}{\urlfetchrelated}[Prefetch related]. С его помощью данные извлекают послойно: сперва сущности первого порядка, затем те, что ссылаются на них, затем потомки потомков и так далее. Можно управлять вложенностью и другими параметрами.
+В современных ORM такая выборка называется fetch related, извлечь связанные записи. Например, в Django ORM у объекта \code{QuerySet} есть одноименный метод \footurl{\code{prefetch\_related}}{\urlfetchrelated}[Prefetch related][-5mm]. С его помощью данные извлекают послойно: сперва сущности первого порядка, затем те, что ссылаются на них, затем потомки потомков и так далее. Можно управлять вложенностью и другими параметрами.
 
 Напишем функцию на Clojure, которая выбирает <<слой>> сущностей. Она ожидает подключение к базе, таблицу, имя внешнего ключа и список их значений.
 
@@ -3629,9 +3636,18 @@ id |    name     | id |            title          | author_id
 
 \begin{english}
   \begin{clojure}
-(defn by-chunks [coll n]
+(defn by-chunks
+  [coll n]
   (partition n n [] coll))
+  \end{clojure}
+\end{english}
 
+\pagebreaklarge
+
+С ней чтение выборки выглядит так:
+
+\begin{english}
+  \begin{clojure}
 (reduce
  (fn [result ids-chunk]
    (let [rows (fetch-related ... ids-chunk)]
