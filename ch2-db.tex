@@ -3680,9 +3680,9 @@ id |    name     | id |            title          | author_id
 Оператор \code{IN} можно записать в виде условия \code{ANY} с массивом. Синтаксис читается как <<поле \code{id} равно хотя бы одному элементу>>:
 
 \begin{english}
-  \begin{clojure}
+  \begin{sql}
 SELECT * FROM authors WHERE id = ANY('{1,2,3,4,5}');
-  \end{clojure}
+  \end{sql}
 \end{english}
 
 Следующий код показывает, как передать массив в запрос. Это делается сложнее, чем в случае обычного значения. Для начала получим соединение с базой:
@@ -3735,12 +3735,17 @@ SELECT * FROM authors WHERE id = ANY('{1,2,3,4,5}');
 
 \begin{english}
   \begin{clojure}
-(defn make-db-array
-  [db-spec db-type values]
+(defn make-db-array [db-spec db-type values]
   (let [conn (jdbc/get-connection db)]
     (.createArrayOf conn db-type
                     (object-array values))))
+  \end{clojure}
+\end{english}
 
+Проверка функции:
+
+\begin{english}
+  \begin{clojure}
 (make-db-array db "integer" [1 2 3])
 
 ;; #object[o.p.j.PgArray "{\"1\",\"2\",\"3\"}"]
@@ -3859,29 +3864,23 @@ JOIN posts p ON p.author_id = a.id;
   \end{clojure}
 \end{english}
 
-Распечатаем результат. Видим, что статьи сгруппированы по авторам:
+Распечатаем результат. Видим, что статьи сгруппированы по авторам (для экономии места опустим имена авторов и названия статей):
 
 \begin{english}
   \begin{clojure*}{fontsize=\small}
 {:authors
  {1 {:author/id 1
-     :author/name "Ivan Petrov"
      :author/posts
-       {10 {:post/id 10
-            :post/title "Introduction to Python"
-            :post/author-id 1}
-        20 {:post/id 20
-            :post/title "Thoughts on LISP"
-            :post/author-id 1}}}
+     {10 {:post/id 10
+          :post/author-id 1}
+      20 {:post/id 20
+          :post/author-id 1}}}
   2 {:author/id 2
-     :author/name "Ivan Rublev"
      :author/posts
-       {30 {:post/id 30
-            :post/title "Learning Clojure"
-            :post/author-id 2}
-        40 {:post/id 40
-            :post/title "Working on my pet project"
-            :post/author-id 2}}}}}
+     {30 {:post/id 30
+          :post/author-id 2}
+      40 {:post/id 40
+          :post/author-id 2}}}}}
   \end{clojure*}
 \end{english}
 
@@ -3897,7 +3896,9 @@ CREATE TABLE comments (
   post_id INTEGER NOT NULL REFERENCES posts(id)
 );
 
-INSERT INTO comments (id, post_id, text) VALUES
+INSERT INTO
+  comments (id, post_id, text)
+VALUES
   (100, 10, 'Thanks for sharing this!'),
   (200, 10, 'Nice reading, it was useful.'),
   (300, 30, 'TL;DR: you must learn lisp');
@@ -3952,31 +3953,65 @@ LEFT JOIN comments c ON c.post_id = p.id;
 %% \end{tabular}}
 %% \end{table}
 
+\iflarge
+
 \begin{english}
   \begin{text*}{fontsize=\small}
- author/id | author/name | post/id |         post/title         | ..
------------+-------------+---------+----------------------------+---
-         1 | Ivan Petrov |      10 | Introduction to Python     | ..
-         1 | Ivan Petrov |      10 | Introduction to Python     | ..
-         2 | Ivan Rublev |      30 | Learning Clojure           | ..
-         1 | Ivan Petrov |      20 | Thoughts on LISP           | ..
-         2 | Ivan Rublev |      40 | Working on my pet project  | ..
-
-.. | post/author-id | comment/id |         comment/text         |
----+----------------+------------+------------------------------+
-.. |              1 |        100 | Thanks for sharing this!     |
-.. |              1 |        200 | Nice reading, it was useful. |
-.. |              2 |        300 | TL;DR: you must learn lisp   |
-.. |              1 |            |                              |
-.. |              2 |            |                              |
+author/id | author/name | post/id |         post/title         .
+----------|-------------|---------|-----------------------------
+        1 | Ivan Petrov |      10 | Introduction to Python     .
+        1 | Ivan Petrov |      10 | Introduction to Python     .
+        2 | Ivan Rublev |      30 | Learning Clojure           .
+        1 | Ivan Petrov |      20 | Thoughts on LISP           .
+        2 | Ivan Rublev |      40 | Working on my pet project  .
   \end{text*}
 \end{english}
+
+\pagebreak[4]
+
+\begin{english}
+  \begin{text*}{fontsize=\small}
+. post/author-id | comment/id |         comment/text
+-----------------|------------|------------------------------
+.              1 |        100 | Thanks for sharing this!
+.              1 |        200 | Nice reading, it was useful.
+.              2 |        300 | TL;DR: you must learn lisp
+.              1 |            |
+.              2 |            |
+  \end{text*}
+\end{english}
+
+
+\else
+
+\begin{english}
+  \begin{text*}{fontsize=\small}
+author/id | author/name | post/id |         post/title         .
+----------|-------------|---------|-----------------------------
+        1 | Ivan Petrov |      10 | Introduction to Python     .
+        1 | Ivan Petrov |      10 | Introduction to Python     .
+        2 | Ivan Rublev |      30 | Learning Clojure           .
+        1 | Ivan Petrov |      20 | Thoughts on LISP           .
+        2 | Ivan Rublev |      40 | Working on my pet project  .
+
+. post/author-id | comment/id |         comment/text
+. ---------------|------------|------------------------------
+.              1 |        100 | Thanks for sharing this!
+.              1 |        200 | Nice reading, it was useful.
+.              2 |        300 | TL;DR: you must learn lisp
+.              1 |            |
+.              2 |            |
+  \end{text*}
+\end{english}
+
+\fi
 
 Доработаем прошлый код. Прежде всего, в функциях \code{get-author}, \code{get-post} и других нет смысла. Сущности определяются пространством, например, все ключи с пространством \code{:author/} относятся к авторам. Напишем общую функцию \code{get-entity}, которая принимает пространство и запись базы данных. Функция отбирает только те ключи, пространства которых совпадают с указанным.
 
 \begin{english}
   \begin{clojure}
-(defn get-entity [db-row entity]
+(defn get-entity
+  [db-row entity]
   (reduce-kv
    (fn [result k v]
      (if (= (namespace k) entity)
@@ -3992,20 +4027,25 @@ LEFT JOIN comments c ON c.post_id = p.id;
 \begin{english}
   \begin{clojure}
 (get-entity row "author")
+
 #:author{:id 1 :name "Ivan Petrov"}
 
 (get-entity row "post")
+
 #:post{:id 10
        :title "Introduction to Python"
        :author-id 1}
   \end{clojure}
 \end{english}
 
-Более универсальное решение: напишем функцию, которая принимает запись и вернет словарь вида \{имя сущности \arr сущность\}:
+Более универсальное решение: напишем функцию, которая принимает запись и вернет словарь, где значения~--- сущности, а ключи~--- их имена:
+
+\pagebreaklarge
 
 \begin{english}
   \begin{clojure}
-(defn row->entities [db-row]
+(defn row->entities
+  [db-row]
   (reduce-kv
    (fn [result k v]
      (assoc-in result [(namespace k) k] v))

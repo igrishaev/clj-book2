@@ -23,3 +23,5 @@ continue next in out here eval inspect locals inject ...
 На первый взгляд не произойдет ничего особенного
 
 nREPL расширяют при помощи
+
+tables: + to |
