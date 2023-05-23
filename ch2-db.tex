@@ -3957,13 +3957,13 @@ LEFT JOIN comments c ON c.post_id = p.id;
 
 \begin{english}
   \begin{text*}{fontsize=\small}
-author/id | author/name | post/id |         post/title         .
-----------|-------------|---------|-----------------------------
-        1 | Ivan Petrov |      10 | Introduction to Python     .
-        1 | Ivan Petrov |      10 | Introduction to Python     .
-        2 | Ivan Rublev |      30 | Learning Clojure           .
-        1 | Ivan Petrov |      20 | Thoughts on LISP           .
-        2 | Ivan Rublev |      40 | Working on my pet project  .
+ author/id | author/name | post/id |         post/title         .
+-----------|-------------|---------|-----------------------------
+         1 | Ivan Petrov |      10 | Introduction to Python     .
+         1 | Ivan Petrov |      10 | Introduction to Python     .
+         2 | Ivan Rublev |      30 | Learning Clojure           .
+         1 | Ivan Petrov |      20 | Thoughts on LISP           .
+         2 | Ivan Rublev |      40 | Working on my pet project  .
   \end{text*}
 \end{english}
 
@@ -3986,16 +3986,16 @@ author/id | author/name | post/id |         post/title         .
 
 \begin{english}
   \begin{text*}{fontsize=\small}
-author/id | author/name | post/id |         post/title         .
-----------|-------------|---------|-----------------------------
-        1 | Ivan Petrov |      10 | Introduction to Python     .
-        1 | Ivan Petrov |      10 | Introduction to Python     .
-        2 | Ivan Rublev |      30 | Learning Clojure           .
-        1 | Ivan Petrov |      20 | Thoughts on LISP           .
-        2 | Ivan Rublev |      40 | Working on my pet project  .
+ author/id | author/name | post/id |         post/title         .
+-----------|-------------|---------|-----------------------------
+         1 | Ivan Petrov |      10 | Introduction to Python     .
+         1 | Ivan Petrov |      10 | Introduction to Python     .
+         2 | Ivan Rublev |      30 | Learning Clojure           .
+         1 | Ivan Petrov |      20 | Thoughts on LISP           .
+         2 | Ivan Rublev |      40 | Working on my pet project  .
 
 . post/author-id | comment/id |         comment/text
-. ---------------|------------|------------------------------
+-----------------|------------|------------------------------
 .              1 |        100 | Thanks for sharing this!
 .              1 |        200 | Nice reading, it was useful.
 .              2 |        300 | TL;DR: you must learn lisp
@@ -4060,11 +4060,13 @@ author/id | author/name | post/id |         post/title         .
   \begin{clojure}
 (row->entities row)
 
-{"author" #:author{:id 1
-                   :name "Ivan Petrov"}
- "post" #:post{:id 10
-               :title "Introduction to Python"
-               :author-id 1}}
+{"author"
+ {:author/id 1
+  :author/name "Ivan Petrov"}
+ "post"
+ {:post/id 10
+  :post/title "Introduction to Python"
+  :post/author-id 1}}
   \end{clojure}
 \end{english}
 
@@ -4116,7 +4118,7 @@ author/id | author/name | post/id |         post/title         .
   \end{clojure}
 \end{english}
 
-Обратите внимание: вместо линейного оператора \code{\arr} мы используем условный \code{cond\arr}. С ним комментарий добавляется к результату только если поле \code{comment-id} не пустое. Проверка необходима, потому что комментарий может быть пустым. Результат приведен на странице справа в листинге \ref{lis:nested-result}.
+Обратите внимание: вместо линейного оператора \code{\arr} мы используем условный \code{cond\arr}. С ним комментарий добавляется к результату только если поле \code{comment-id} не пустое. Проверка необходима, потому что комментарий может быть пустым. Результат приведен на следующей странице в листинге \ref{lis:nested-result}.
 
 \begin{figure}[ht!]
 
@@ -4369,12 +4371,12 @@ GROUP BY p.id;
 
 \begin{english}
   \begin{text*}{fontsize=\small}
- post/id |         post/title          | post/author-id | ..
----------+-----------------------------+----------------+---
-      10 | Introduction to Python      |              1 | ..
-      20 | Thoughts on LISP            |              1 | ..
-      30 | Learning Clojure            |              2 | ..
-      40 | Working on my pet project   |              2 | ..
+ post/id |         post/title          | post/author-id | .
+---------+-----------------------------+----------------+--
+      10 | Introduction to Python      |              1 | .
+      20 | Thoughts on LISP            |              1 | .
+      30 | Learning Clojure            |              2 | .
+      40 | Working on my pet project   |              2 | .
   \end{text*}
 \end{english}
 
@@ -4382,12 +4384,12 @@ GROUP BY p.id;
 
 \begin{english}
   \begin{text*}{fontsize=\small}
-.. |                    post/comments                   |
--- +----------------------------------------------------+
-.. | [{"id":100, ...}, {"id":200, ...}]                 |
-.. |                                                    |
-.. | [{"id":300, ...}]                                  |
-.. |                                                    |
+. |                    post/comments                   |
+--+----------------------------------------------------+
+. | [{"id":100, ...}, {"id":200, ...}]                 |
+. |                                                    |
+. | [{"id":300, ...}]                                  |
+. |                                                    |
   \end{text*}
 \end{english}
 
@@ -4593,8 +4595,12 @@ VALUES
 SELECT
   ga.good_id,
   jsonb_object_agg(ga.attr, ga.val) as attrs
-FROM good_attrs ga
-  GROUP BY ga.good_id;
+
+FROM
+  good_attrs ga
+
+GROUP BY
+  ga.good_id;
   \end{clojure}
 \end{english}
 
@@ -4616,14 +4622,16 @@ FROM good_attrs ga
 
 \begin{english}
   \begin{text*}{fontsize=\small}
-id |                          attrs
----+---------------------------------------------------------
- 3 | {"book.genre": "dystopia", "book.pages": 215}
- 1 | {"phone.display.diag": 145, "phone.wifi.support": true}
+ id |                          attrs
+----|---------------------------------------------------------
+  3 | {"book.genre": "dystopia", "book.pages": 215}
+  1 | {"phone.display.diag": 145, "phone.wifi.support": true}
   \end{text*}
 \end{english}
 
 Поместим его в подзапрос и присоединим к товарам при помощи \code{LEFT JOIN}:
+
+\pagebreaklarge
 
 \begin{english}
   \begin{sql}
@@ -4662,7 +4670,7 @@ LEFT JOIN (
 \begin{english}
   \begin{text}
  id |     title      |             attrs
-----+----------------+------------------------------
+----|----------------|------------------------------
   1 | iPhone 99x     | {"phone.display.diag": 145,
     |                |  "phone.wifi.support": true}
   2 | Galaxy 33.plus |
@@ -4699,7 +4707,7 @@ select 2 as id, 'bar' as name;
 \begin{english}
   \begin{text}
  id | name
-----+------
+----|------
   1 | foo
   2 | bar
   \end{text}
@@ -4762,12 +4770,12 @@ FROM
 
 \begin{english}
   \begin{text}
-id | type  |                 entity
----+-------+-----------------------------------------
- 1 | user  | {"id":1,"fname":"Ivan", ...}
- 3 | user  | {"id":3,"fname":"Huan", ...}
- 1 | admin | {"id":1,"full_name":"Petr Smirnov", ...}
- 2 | admin | {"id":2,"full_name":"Oleg Ivanov", ...}
+ id | type  |                 entity
+----|-------|-----------------------------------------
+  1 | user  | {"id":1,"fname":"Ivan", ...}
+  3 | user  | {"id":3,"fname":"Huan", ...}
+  1 | admin | {"id":1,"full_name":"Petr Smirnov", ...}
+  2 | admin | {"id":2,"full_name":"Oleg Ivanov", ...}
   \end{text}
 \end{english}
 
