@@ -4574,11 +4574,9 @@ VALUES
   :title "iPhone 99x"
   :attrs {:phone.display.diag 145
           :phone.wifi.support true}}
-
  {:id 2
   :title "Galaxy 33.plus"
   :attrs nil}
-
  {:id 3
   :title "G. Orwell 1984"
   :attrs {:book.genre "dystopia"
@@ -4595,10 +4593,8 @@ VALUES
 SELECT
   ga.good_id,
   jsonb_object_agg(ga.attr, ga.val) as attrs
-
 FROM
   good_attrs ga
-
 GROUP BY
   ga.good_id;
   \end{clojure}
@@ -4624,14 +4620,18 @@ GROUP BY
   \begin{text*}{fontsize=\small}
  id |                          attrs
 ----|---------------------------------------------------------
-  3 | {"book.genre": "dystopia", "book.pages": 215}
-  1 | {"phone.display.diag": 145, "phone.wifi.support": true}
+  3 | {
+    |   "book.genre": "dystopia",
+    |   "book.pages": 215
+    | }
+  1 | {
+    |   "book.genre": "dystopia",
+    |   "book.pages": 215
+    | }
   \end{text*}
 \end{english}
 
 Поместим его в подзапрос и присоединим к товарам при помощи \code{LEFT JOIN}:
-
-\pagebreaklarge
 
 \begin{english}
   \begin{sql}
@@ -4687,11 +4687,15 @@ LEFT JOIN (
 
 \begin{english}
   \begin{sql}
-select 1 as id, 'foo' as name
+SELECT
+  1 AS id, 'foo' AS name
 UNION
-select 2 as id, 'bar' as name;
+SELECT
+  2 AS id, 'bar' AS name;
   \end{sql}
 \end{english}
+
+Результат:
 
 %% \begin{table}[H]
 %% \begin{tabular}{|l|l|}
