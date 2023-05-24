@@ -5446,7 +5446,6 @@ SELECT * FROM requests;
 {:users/id 1
  :users/lname "Petrov"
  :users/fname "Ivan"
- :users/created_at #inst "2021-08-10T07:36:03"
  :profiles/id 1
  :profiles/user_id 1
  :profiles/avatar "kitten.jpg"}
@@ -5536,7 +5535,8 @@ vals.attnum)
 
 \begin{english}
   \begin{clojure}
-(jdbc/with-transaction [tx ds]
+(jdbc/with-transaction
+  [tx ds]
   (let [{:items/keys [id]}
         (jdbc.sql/insert! tx :items {...})]
     (jdbc.sql/insert!
@@ -5550,7 +5550,8 @@ Next.JDBC предлагает протоколы для чтения и зап�
 
 \begin{english}
   \begin{clojure}
-(defn pg->clj [^PGobject pg-obj]
+(defn pg->clj
+  [^PGobject pg-obj]
   (let [pg-val (.getValue pg-obj)
         pg-type (.getType pg-obj)]
     (case pg-type
@@ -5566,9 +5567,12 @@ Next.JDBC предлагает протоколы для чтения и зап�
 \begin{english}
   \begin{clojure}
 (extend-protocol jdbc.rs/ReadableColumn
+
   PGobject
+
   (read-column-by-label [v _]
     (pg->clj v))
+
   (read-column-by-index [v _ _]
     (pg->clj v)))
   \end{clojure}
