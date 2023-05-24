@@ -4784,32 +4784,22 @@ FROM
 \end{english}
 
 \noindent
-и в Clojure:
+и в Clojure (в сокращении):
 
 \begin{english}
   \begin{clojure}
 [{:id 1
   :type "user"
-  :entity {:id 1
-           :fname "Ivan"
-           :lname "Petrov"
-           ...}}
+  :entity {:id 1 :fname "Ivan" ...}}
  {:id 3
   :type "user"
-  :entity {:id 3
-           :fname "Huan"
-           :lname nil
-           ...}}
+  :entity {:id 3 :fname "Huan" ...}}
  {:id 1
   :type "admin"
-  :entity {:id 1
-           :full_name "Petr Smirnov"
-           :email "petr@test.com"}}
+  :entity {:id 1 :full_name "Petr Smirnov" ...}}
  {:id 2
   :type "admin"
-  :entity {:id 2
-           :full_name "Oleg Ivanov"
-           :email "oleg@test.com"}}]
+  :entity {:id 2 :full_name "Oleg Ivanov" ...}}]
   \end{clojure}
 \end{english}
 
@@ -4873,7 +4863,17 @@ CREATE TABLE migrations (
   \end{sql}
 \end{english}
 
-Таблица запоминает, когда и какие миграции мы применили. При запуске миграций программа читает таблицу и сканирует файлы на диске. Файлы называют по принципу \code{<time/id>-<description>.<up/down>.sql}. Объясним значения в угловых скобках:
+Таблица запоминает, когда и какие миграции мы применили. При запуске миграций программа читает таблицу и сканирует файлы на диске. Файлы называют по следующему шаблону:
+
+\begin{english}
+  \begin{text}
+<time/id>-<description>.<up/down>.sql
+  \end{text}
+\end{english}
+
+Объясним значения в угловых скобках:
+
+\pagebreaklarge
 
 \begin{itemize}
 
@@ -4938,8 +4938,9 @@ CREATE TABLE migrations (
   \begin{clojure}
 (defn match-migration
   [{:keys [id]}]
-  (and (>= id target_id)
-       (< id current-id)))
+  (and
+    (>= id target_id)
+    (< id current-id)))
 
 (->> migrations
      (filter match-migration)
@@ -4949,11 +4950,11 @@ CREATE TABLE migrations (
   \end{clojure}
 \end{english}
 
-У миграций несколько преимуществ. Прежде всего, это автоматизация. Не нужно подключаться к базе и добавлять колонку вручную. Достаточно вызвать прогон миграций на удаленной машине.
+У миграций несколько преимуществ. Прежде всего это автоматизация: не нужно подключаться к базе и добавлять колонку вручную. Достаточно вызвать прогон миграций на удаленной машине.
 
 При разработке мы работаем с разными версиями кода и базы. Переключать базу должно быть так же удобно, как ветку Git.
 
-Случается, что изменения в таблицах были неудачны, и это выяснилось в боевом запуске. В этом случае изменения открывают обратной миграцией. Конечно, лучше избежать такой ситуации, но знать об этом средстве не помешает.
+Случается, что изменения в таблицах были неудачны, и это выяснилось в боевом запуске. В этом случае изменения открывают обратной миграцией. Конечно, лучше избежать этой ситуации, но знать о том, как ее исправить, не помешает.
 
 Наконец, когда схема базы описана в файле, это означает контроль за ней. Проект легче запустить локально, а новичкам проще понять систему таблиц.
 
@@ -5069,7 +5070,7 @@ SELECT * FROM schema_migrations;
 \begin{english}
   \begin{text*}{fontsize=\small}
          id     |       applied       |      description
-----------------+---------------------+-----------------------
+----------------|---------------------|--------------------
  20210830075251 | 2021-08-28 09:28:26 | create-users-table
   \end{text*}
 \end{english}
@@ -5112,18 +5113,15 @@ Migratus не проверяет миграцию на корректность 
 {:profiles
  {:staging
   {:migratus
-   {:db {:dbname "prod_db"
-         :host ~(System/getenv "DB_HOST")
-         :user ~(System/getenv "DB_USER")
-         :password ~(System/getenv "DB_PASSWORD")}}}}}
+   {:db
+     {:dbname "prod_db"
+      :host ~(System/getenv "DB_HOST")
+      :user ~(System/getenv "DB_USER")
+      :password ~(System/getenv "DB_PASSWORD")}}}}}
   \end{clojure}
 \end{english}
 
 В примере выше в словаре \code{:db} нет поля \code{:dbtype}, потому что оно появится при слиянии профилей.
-
-
-
-
 
 Когда приложение развертывают на тестовой машине, в базе должны быть минимальные данные для проверки. Обычно это пользователь с известным паролем, несколько товаров, покупок и так далее. Поместим их в миграцию, которая выполняется только на удаленной машине. Создайте каталог \code{env/staging/resources/\-migrations} и файл в нем:
 
@@ -5145,7 +5143,8 @@ VALUES
   \begin{clojure}
 {:profiles
  {:staging
-  {:resource-paths ["env/staging/resources"]}}}
+  {:resource-paths
+    ["env/staging/resources"]}}}
   \end{clojure}
 \end{english}
 
@@ -5276,11 +5275,12 @@ SELECT * FROM requests;
 
 \def\urliploc{https://iplocation.com}
 
-Код страны получим с помощью сервиса \footurl{IP Location}{\urliploc}[IP Location] по HTTP API. Сервис принимает POST-запрос с адресом и выдает JSON с информацией о нем. Напишем функцию-клиент к этому сервису:
+Код страны получим с помощью сервиса \footurl{IP Location}{\urliploc}[IP Location][7mm] по HTTP API. Сервис принимает POST-запрос с адресом и выдает JSON с информацией о нем. Напишем функцию-клиент к этому сервису:
 
 \begin{english}
   \begin{clojure}
-(defn get-ip-info [ip]
+(defn get-ip-info
+  [ip]
   (:body
    (client/post "https://iplocation.com"
                 {:form-params {:ip ip}
@@ -5292,12 +5292,19 @@ SELECT * FROM requests;
 
 \begin{english}
   \begin{clojure}
-(defn migrate-up [{:keys [db]}]
-  (let [query "SELECT id, ip FROM requests
-               WHERE country_code IS NULL"
-        rows (jdbc/query db query)]
+(defn migrate-up
+  [{:keys [db]}]
+  (let [query
+        "SELECT id, ip FROM requests
+           WHERE country_code IS NULL"
+
+        rows
+        (jdbc/query db query)]
+
     (doseq [{:keys [id ip]} rows]
-      (let [{:keys [country_code]} (get-ip-info ip)]
+      (let [{:keys [country_code]}
+            (get-ip-info ip)]
+
         (jdbc/update! db :requests
                       {:country_code country_code}
                       ["id = ?" id])))))
@@ -5308,7 +5315,8 @@ SELECT * FROM requests;
 
 \begin{english}
   \begin{clojure}
-(defn migrate-down [{:keys [db]}]
+(defn migrate-down
+  [{:keys [db]}]
   (jdbc/update! db :requests
                 {:country_code nil}
                 ["true"]))
@@ -5350,7 +5358,7 @@ SELECT * FROM requests;
 
 \def\urlnextjdbc{https://github.com/seancorfield/next-jdbc}
 
-Библиотека \footurl{Next.JDBC}{\urlnextjdbc}[Next JDBC]~--- это вторая попытка адаптировать JDBC для Clojure. Проект ставит следующие цели:
+Библиотека \footurl{Next.JDBC}{\urlnextjdbc}[Next JDBC][7mm]~--- это вторая попытка адаптировать JDBC для Clojure. Проект ставит следующие цели:
 
 \begin{itemize}
 
