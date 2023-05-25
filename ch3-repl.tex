@@ -280,6 +280,8 @@ user=> *e
 
 \begin{english}
   \begin{clojure}
+(into {} (System/getenv))
+
 (spit "dump.edn" (pr-str *1))
   \end{clojure}
 \end{english}
@@ -297,7 +299,7 @@ user=> (read-string (slurp "dump.edn"))
   \end{clojure}
 \end{english}
 
-В REPL доступны три переменные результата: \code{*1}, \code{*2} и \code{*3}. С каждым вычислением результаты смещаются: последний будет в \code{*1}, предпоследний в \code{*2} так далее. Покажем это на примере:
+В REPL доступны три переменные результата: \code{*1}, \code{*2} и \code{*3}. С~каждым вычислением результаты смещаются: последний будет в \code{*1}, предпоследний в \code{*2} так далее. Покажем это на примере:
 
 \begin{english}
   \begin{clojure}
@@ -366,7 +368,7 @@ REPL удобен не только для быстрых эксперимент
 
 \def\urljokeapi{https://jokeapi.dev/}
 
-Предположим, мы пишем бота для Telegram, чтобы публиковать шутки для программистов. Понадобится сервис, который бы выступил в роли источника шуток. Быстрый поиск дает нам сервис \footurl{Joke API}{\urljokeapi}[Joke API][-5mm] с удобным API по протоколу HTTP.
+Предположим, мы пишем бота для Telegram, чтобы публиковать шутки для программистов. Понадобится сервис, который бы выступил в роли источника шуток. Быстрый поиск дает нам сервис \footurl{Joke API}{\urljokeapi}[Joke API][-15mm] с удобным API по протоколу HTTP.
 
 Прежде чем писать бота, убедимся в работе сервиса. Для этого понадобятся HTTP-клиент и парсер JSON. Если вы запускаете REPL при помощи \code{lein}, создайте файл \code{project.clj} с содержимым:
 
@@ -398,13 +400,14 @@ REPL удобен не только для быстрых эксперимент
   \end{clojure}
 \end{english}
 
-Подготовим словарь запроса:
+Подготовим словарь запроса. Мы передаем параметр \code{type=twopart}, чтобы шутка состояла из двух частей (подробней об этом ниже):
 
 \begin{english}
   \begin{clojure}
 (def request
   {:url "https://v2.jokeapi.dev/joke/Programming"
    :method :get
+   :query-params {:type "twopart"}
    :as :json})
   \end{clojure}
 \end{english}
@@ -448,6 +451,7 @@ REPL удобен не только для быстрых эксперимент
 \begin{english}
   \begin{clojure}
 (require '[clojure.inspector :as insp])
+
 (insp/inspect-tree data)
   \end{clojure}
 \end{english}
@@ -473,7 +477,7 @@ REPL удобен не только для быстрых эксперимент
 (def request
   {:url "https://v2.jokeapi.dev/joke/Programming"
    :method :get
-   :query-params {:contains "javascript"}
+   :query-params {:type "twopart" :contains "javascript"}
    :as :json})
 
 ...
@@ -493,7 +497,7 @@ REPL удобен не только для быстрых эксперимент
   (let [request
         {:url "https://v2.jokeapi.dev/joke/Programming"
          :method :get
-         :query-params {:contains lang}
+         :query-params {:type "twopart" :contains lang}
          :as :json}
 
         response
@@ -508,6 +512,8 @@ REPL удобен не только для быстрых эксперимент
     (format "%s %s" setup delivery)))
   \end{clojure}
 \end{english}
+
+\pagebreaklarge
 
 Вот что получилось у автора:
 
@@ -555,7 +561,7 @@ REPL удобен не только для быстрых эксперимент
 (def data
   (-> {:url "https://v2.jokeapi.dev/joke/Programming"
        :method :get
-       :query-params {:contains "clojure"}
+       :query-params {:type "twopart" :contains "clojure"}
        :as :json}
       (client/request)
       (:body)))
@@ -631,7 +637,7 @@ REPL удобен не только для быстрых эксперимент
   \end{clojure}
 \end{english}
 
-Это бесконечный цикл, где повторяются следующие четыре шага.
+Это бесконечный цикл в четыре шага, каждый из которых мы и рассмотрим.
 
 \subsubsection{Чтение}
 
@@ -642,6 +648,7 @@ REPL удобен не только для быстрых эксперимент
 \begin{english}
   \begin{clojure}
 => (read-string "(foo [1 false {:foo BAZ}])")
+
 ;; (foo [1 false {:foo BAZ}])
   \end{clojure}
 \end{english}
@@ -698,6 +705,7 @@ REPL удобен не только для быстрых эксперимент
 \begin{english}
   \begin{clojure}
 (eval 'dunno)
+
 Syntax error compiling at ...
 Unable to resolve symbol: dunno in this context
   \end{clojure}
@@ -717,7 +725,7 @@ Unable to resolve symbol: dunno in this context
 
 Оператор \code{loop} переносит нас к первому шагу~--- чтению с клавиатуры~--- и все повторяется.
 
-\subsubsection{Пробы}
+\subsubsection{Эксперименты}
 
 Хоть это и крайне сырая версия REPL, она работает. Скомпилируйте проект командой \code{lein uberjar} и запустите jar-файл:
 
@@ -816,7 +824,7 @@ Divide by zero
 
 В зависимости от того, что мы получили~--- результат или ошибку,~--- выводим результат в \code{stdout} или \code{stderr} при помощи связывания \code{binding}. В данном примере мы только печатаем текст исключения. Больше деталей можно получить функцией \code{print-stack-trace} из модуля \code{clojure.stacktrace}.
 
-Еще одно замечание касается строки \code{(if e ...)} \coderef{11}. Мы проверяем именно исключение, а не результат, потому что результат вполне может быть \code{nil}.
+Еще одно замечание касается строки \code{(if e ...)} \coderef{11}. Мы проверяем на истину именно исключение, а не результат, потому что результат вполне может быть \code{nil}.
 
 \subsubsection{Обработчик исключения}
 
@@ -845,7 +853,8 @@ Divide by zero
 
 \begin{english}
   \begin{clojure/lines}
-(defn repl [& [{:keys [exception-handler]}]]
+(defn repl
+  [& [{:keys [exception-handler]}]]
   (let [ex-handler
         (or exception-handler
             default-exception-handler)]
@@ -856,15 +865,20 @@ Divide by zero
   \end{clojure/lines}
 \end{english}
 
+\pagebreaklarge
+
 До того как мы вступим в цикл, переменной \code{ex-handler} назначается обработчик~--- переданный или заданный по умолчанию \coderef{2}. Эта оптимизация нужна, чтобы не вычислять его на каждом шаге.
 
 Запустите \code{repl} с обработчиком, который печатает тип исключения:
 
 \begin{english}
   \begin{clojure}
-(defn -main [& args]
-  (repl {:exception-handler
-         (fn [e] (println (type e)))}))
+(defn -main
+  [& args]
+  (repl
+    {:exception-handler
+      (fn [e]
+        (println (type e)))}))
   \end{clojure}
 \end{english}
 
@@ -873,6 +887,7 @@ Divide by zero
 \begin{english}
   \begin{clojure}
 => (/ 0 0)
+
 java.lang.ArithmeticException
   \end{clojure}
 \end{english}
@@ -887,7 +902,8 @@ java.lang.ArithmeticException
   (:require
    [clojure.pprint :as pprint]))
 
-(defn repl [...]
+(defn repl
+  [...]
   (loop []
     (let [...]
       (pprint/pprint result)
@@ -896,6 +912,8 @@ java.lang.ArithmeticException
 \end{english}
 
 Опробуем красивую печать в действии. Понадобится большая коллекция, например словарь переменных среды:
+
+\pagebreaklarge
 
 \begin{english}
   \begin{clojure}
@@ -943,7 +961,7 @@ java.lang.ArithmeticException
 
 По умолчанию REPL показывает приглашение \code{user=>}. Это удобно по двум причинам. Во-первых, ясно, в каком пространстве мы находимся сейчас~--- в процессе работы его часто переключают. Во-вторых, стрелка подсказывает, в каком месте от нас ожидают ввод.
 
-Добавьте приглашение перед вводом с клавиатуры (вызовом \code{read-line}). Для начала ограничимся статичной строкой:
+Добавьте приглашение перед вводом с клавиатуры (вызовом \code{read-line}). Для начала ограничимся строкой:
 
 \begin{english}
   \begin{clojure}
@@ -971,16 +989,20 @@ repl=> {:foo "test"}
 
 \begin{english}
   \begin{clojure/lines}
-(defn get-prompt [this-ns]
+(defn get-prompt
+  [this-ns]
   (format "%s=> " (ns-name this-ns)))
 
-(defn repl []
+(defn repl
+  []
   (binding [*ns* *ns*]
     (loop []
       (print (get-prompt *ns*))
       ...)))
   \end{clojure/lines}
 \end{english}
+
+\pagebreaklarge
 
 При смене пространства в REPL меняется и приглашение:
 
@@ -3287,7 +3309,7 @@ Cider предлагает полноценный отладчик, но по н
   (let [request
         {:url "https://v2.jokeapi.dev/joke/Programming"
          :method :get
-         :query-params {:contains lang}
+         :query-params {:type "twopart" :contains lang}
          :as :json}
 
         response
@@ -4063,7 +4085,7 @@ Help message...
   (let [request
         {:url "https://v2.jokeapi.dev/joke/Programming"
          :method :get
-         :query-params {:contains lang}
+         :query-params {:type "twopart" :contains lang}
          :as :json}
 
         response
@@ -4100,7 +4122,7 @@ Help message...
   (let [request
         {:url "https://v2.jokeapi.dev/joke/Programming"
          :method :get
-         :query-params {:contains lang}
+         :query-params {:type "twopart" :contains lang}
          :as :json}
         ...]
     #break
