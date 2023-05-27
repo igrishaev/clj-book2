@@ -3391,6 +3391,7 @@ Cider предлагает полноценный отладчик, но по н
 \begin{english}
   \begin{clojure}
 (defn get-joke [lang]
+
   (let [...
         response
         (client/request request)
@@ -3412,7 +3413,8 @@ Cider предлагает полноценный отладчик, но по н
 \begin{english}
   \begin{clojure}
 {:user
- :injections [(require 'clojure.pprint)]}
+  :injections
+   [(require 'clojure.pprint)]}
   \end{clojure}
 \end{english}
 
@@ -3423,6 +3425,8 @@ Cider предлагает полноценный отладчик, но по н
 \def\urlwrapreg{https://github.com/rejeep/wrap-region.el}
 
 Чтобы быстро вставить \code{pprint} в код, обратимся к плагину Emacs \footurl{wrap-region}{\urlwrapreg}[Wrap region][-5mm]. С его помощью выделенный текст оборачивают указанными строками. Установите плагин командой:
+
+\pagebreaklarge
 
 \begin{english}
   \begin{text}
@@ -3435,6 +3439,7 @@ M-x package-install <RET> wrap-region <RET>
 \begin{english}
   \begin{clojure}
 (require 'wrap-region)
+
 (wrap-region-mode t)
 
 (wrap-region-add-wrapper
@@ -3486,16 +3491,19 @@ M-x package-install <RET> wrap-region <RET>
 \begin{english}
   \begin{clojure}
 (defn request
+
   ([req]
    (request req nil nil))
-  ([{:keys [...]
-     :as req} respond raise]
+
+  ([{:keys [...] :as req} respond raise]
    (let [...]
      ...)))
   \end{clojure}
 \end{english}
 
 Буфер \code{clj-http.core} открыт в режиме чтения, потому что связан с архивом. Чтобы редактировать код, выполните \code{M-x toggle-read-only}. Теперь когда буфер доступен для изменений, добавьте инспекцию перед формой \code{let} \coderef{5}:
+
+\pagebreaklarge
 
 \begin{english}
   \begin{clojure/lines}
@@ -3606,7 +3614,7 @@ DEBUG>>
   \end{clojure}
 \end{english}
 
-Представим вызов функции: вычислим форму \code{'(+ a b)} при \code{a} = 1 и \code{b} = 2 в пространстве \code{clojure.core}:
+Представим вызов функции: вычислим форму \code{'(+ a b)} при $a = 1$ и $b = 2$ в пространстве \code{clojure.core}:
 
 \begin{english}
   \begin{clojure}
