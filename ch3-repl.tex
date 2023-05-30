@@ -1063,7 +1063,7 @@ false
   \end{clojure/lines}
 \end{english}
 
-Обратите внимание на то, как вычисляется результат \coderefs{7--11}. С~помощью оператора \code{case} мы проверяем: если поступил символ \code{-r}, вернем значение переменной \code{-r} при помощи \code{var-get}. Ввод \code{-r} считается особенным, потому что вычисляется без \code{eval}.
+Обратите внимание на то, как вычисляется переменная \code{result} \coderefs{7--11}. С~помощью оператора \code{case} мы проверяем: если поступил символ \code{-r}, вернем значение переменной \code{-r} при помощи \code{var-get}. Ввод \code{-r} считается особенным, потому что вычисляется без \code{eval}.
 
 Чтобы сослаться на \code{-r} в выражении, например \code{(+ -r 3)}, идут на трюк. Форма \code{expr} погружается в макрос \code{let}, где символ \mbox{\code{-r}} связан со значением \code{-r} \coderef{10}. Причина этих махинаций в том, что \code{eval} не учитывает локальные переменные, и без \code{let} мы получим ошибку, что символ \code{-r} неизвестен. Эту проблему мы подробно изучим в разделе про отладку \page{section-debug}, а пока что ограничимся минимально рабочим вариантом.
 
@@ -1531,14 +1531,15 @@ ends-with?
 Знакомый макрос \code{(doc ...)} печатает документацию переменной. Если это функция или макрос, вы увидите параметры вызова.
 
 \begin{english}
-  \begin{text*}{fontsize=\small}
+  \begin{text}
 (doc +)
 -------------------------
 clojure.core/+
 ([] [x] [x y] [x y & more])
-  Returns the sum of nums. (+) returns 0. Does not auto-promote
-  longs, will throw on overflow. See also: +'
-  \end{text*}
+  Returns the sum of nums. (+) returns 0.
+  Does not auto-promote longs, will throw on overflow.
+  See also: +'
+  \end{text}
 \end{english}
 
 Если возникло исключение, REPL напечатает только его класс и сообщение, чтобы не тратить место на стек-трейс. Функция \code{pst} (сокращение от \textbf{p}rint \textbf{s}tack \textbf{t}race) выводит данные о последнем исключении.
@@ -3324,7 +3325,7 @@ Cider предлагает полноценный отладчик, но по н
   \end{clojure/lines}
 \end{english}
 
-Перезагрузите функцию командой \code{cider-eval-defun-at-point}. Вызовите \code{remap-props}, и кроме результата в консоли появятся промежуточные шаги \code{reduce}:
+Перезагрузите функцию командой \code{cider-eval-defun-at-po\-int}. Вызовите \code{remap-props}, и кроме результата в консоли появятся промежуточные шаги \code{reduce}:
 
 \begin{english}
   \begin{text}
@@ -3476,7 +3477,7 @@ M-x package-install <RET> wrap-region <RET>
 
 Вернемся к функции \code{get-joke} для получения шуток. Функция обращается к сервису JokeAPI.dev при помощи библиотеки \code{clj-http}. Давайте шагнем вглубь \code{clj-http}, чтобы отследить, какие данные уходят в сеть.
 
-Наведите курсор на символ \code{client/request} и выполните \code{M-.} (команда \code{M-x cider-find-var}). Откроется модуль \code{clj-http.client} из jar-файла в директории \code{\tilde{}/.m2/repository/clj-http/clj-http/3.12.0}. Вы окажетесь на строке 1134, где объявлена переменная \code{request}:
+Наведите курсор на символ \code{client/request} и выполните \code{M-.} (команда \code{M-x cider-find-var}). Откроется модуль \code{clj-http.cli\-ent} из jar-файла в директории \code{\tilde{}/.m2/repository/clj-http/clj-http/\-3.12.0}. Вы окажетесь на строке 1134, где объявлена переменная \code{request}:
 
 \begin{english}
   \begin{clojure}
