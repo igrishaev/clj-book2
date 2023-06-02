@@ -27,3 +27,5 @@ continue next in out here eval inspect locals inject ...
 nREPL расширяют при помощи
 
 tables: + to |
+
+figures
