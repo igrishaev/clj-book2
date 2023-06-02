@@ -111,7 +111,10 @@ OCaml. Документ привлек внимание простотой и я
     zip/down
     zip/right)
 
-;; [2 {:l [1], :pnodes [[1 2 3]], :ppath nil, :r (3)}]
+[2 {:l [1]
+    :pnodes [[1 2 3]]
+    :ppath nil
+    :r (3)}]
   \end{clojure}
 \end{english}
 
@@ -136,6 +139,8 @@ OCaml. Документ привлек внимание простотой и я
   Если это ветка, как именно получить её элементы?
 
 \end{itemize}
+
+\pagebreaklarge
 
 Как только мы знаем ответы на эти вопросы, зиппер готов. Заметим, что для
 изменения зиппера нужен ответ на третий вопрос~--- как присоединить потомков к
@@ -215,6 +220,8 @@ OCaml. Документ привлек внимание простотой и я
   \label{fig:chart-zip-02}
 \end{figure}
 
+\pagebreaklarge
+
 Шаг вправо, указатель на двойке:
 
 \begin{figure}[H]
@@ -234,14 +241,11 @@ OCaml. Документ привлек внимание простотой и я
       zip/down
       zip/right))
 
-(-> loc2 zip/node)
-;; 2
+(-> loc2 zip/node)           ;; 2
 
-(-> loc2 zip/right zip/node)
-;; 3
+(-> loc2 zip/right zip/node) ;; 3
 
-(-> loc2 zip/left zip/node)
-;; 1
+(-> loc2 zip/left zip/node)  ;; 1
   \end{clojure}
 \end{english}
 
@@ -260,6 +264,8 @@ OCaml. Документ привлек внимание простотой и я
 ;; [1 2 3]
   \end{clojure}
 \end{english}
+
+\pagebreaklarge
 
 При ручном перемещении велики шансы выйти за пределы данных. Шаг в никуда вернёт
 \code{nil} вместо локации:
@@ -546,9 +552,11 @@ XML-документ. Нужный тег может располагаться 
 \begin{english}
   \begin{clojure}
 (-> loc-seq (nth 100) zip/node)
+
 ;; [1 [2 3] 4]
 
 (-> loc-seq (nth 1000) zip/node)
+
 ;; [1 [2 3] 4]
 
   \end{clojure}
@@ -584,12 +592,10 @@ loc-end
 
 \begin{english}
   \begin{clojure}
-(defn iter-zip
-  [zipper]
+(defn iter-zip [zipper]
   (->> zipper
        (iterate zip/next)
-       (take-while
-         (complement zip/end?))))
+       (take-while (complement zip/end?))))
   \end{clojure}
 \end{english}
 
@@ -627,9 +633,9 @@ loc-end
 (def data
   [1 [2 3 [:test [:foo :error]]] 4])
 
-(some loc-error?
-      (-> data zip/vector-zip iter-zip))
-
+(some loc-error? (-> data
+                     zip/vector-zip
+                     iter-zip))
 ;; true
   \end{clojure}
 \end{english}
@@ -982,8 +988,10 @@ XML. Прежде чем работать с ним, заглянем в опр�
      (filter loc-product?)
      (map loc->product))
 
-;; ("iPhone 11 Pro" "iPhone SE"
-;;  "iPad 3" "Macbook Pro")
+;; ("iPhone 11 Pro"
+;;  "iPhone SE"
+;;  "iPad 3"
+;;  "Macbook Pro")
   \end{clojure}
 \end{english}
 
@@ -994,33 +1002,6 @@ XML. Прежде чем работать с ним, заглянем в опр�
 
 \index{функции!clojure.core/mapcat}
 
-\iflarge
-
-\begin{english}
-  \begin{clojure}
-(def xml-data
-  (-> "products.xml"
-      io/resource
-      io/file
-      xml/parse))
-
-(def orgs
-  (:content xml-data))
-  \end{clojure}
-\end{english}
-
-\begin{english}
-  \begin{clojure}
-(def products
-  (mapcat :content orgs))
-
-(def product-names
-  (mapcat :content products))
-  \end{clojure}
-\end{english}
-
-\else
-
 \begin{english}
   \begin{clojure}
 (def xml-data
@@ -1040,7 +1021,7 @@ XML. Прежде чем работать с ним, заглянем в опр�
   \end{clojure}
 \end{english}
 
-\fi
+\pagebreaklarge
 
 Для краткости уберем переменные и сведем код к одной форме:
 
@@ -1081,7 +1062,9 @@ XML. Прежде чем работать с ним, заглянем в опр�
 \begin{english}
   \begin{clojure}
 ("iPhone 11 Pro"
+
  "iPhone SE"
+
  {:tag :product
   :attrs {:type "tablet"}
   :content ...})
@@ -1089,6 +1072,8 @@ XML. Прежде чем работать с ним, заглянем в опр�
 \end{english}
 
 В то время как зиппер вернёт \textbf{только} товары, в том числе из филиала:
+
+\pagebreaklarge
 
 \begin{english}
   \begin{clojure}
@@ -1098,8 +1083,10 @@ XML. Прежде чем работать с ним, заглянем в опр�
      (filter loc-product?)
      (map loc->product))
 
-;; ("iPhone 11 Pro" "iPhone SE"
-;;  "iPad 3" "Macbook Pro")
+;; ("iPhone 11 Pro"
+;;  "iPhone SE"
+;;  "iPad 3"
+;;  "Macbook Pro")
   \end{clojure}
 \end{english}
 
@@ -1121,6 +1108,9 @@ XML. Прежде чем работать с ним, заглянем в опр�
 \begin{english}
   \begin{clojure}
 (defn xml-seq
+  "A tree seq on the xml elements as per xml/parse"
+  {:added "1.0"
+   :static true}
   [root]
   (tree-seq (complement string?)
             (comp seq :content)
@@ -1134,6 +1124,8 @@ XML. Прежде чем работать с ним, заглянем в опр�
 данные без обёрток. Для обычного поиска \code{tree-seq} даже предпочтительней,
 поскольку не порождает лишних абстракций. Вот как выглядит сбор товаров с учётом
 филиалов:
+
+\pagebreaklarge
 
 \begin{english}
   \begin{clojure}
