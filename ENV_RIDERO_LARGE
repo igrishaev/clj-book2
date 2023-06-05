@@ -1,7 +1,0 @@
-DOCUMENT=book
-GEOMETRY=geom-ridero-large
-JOB=clojure_ridero_large
-PRINT=true
-RIDERO=true
-LARGE=true
-FONT=11

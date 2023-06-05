@@ -128,17 +128,6 @@ docker-build-ridero-draft:
 
 
 #
-# Ridero large
-#
-
-docker-build-ridero-large:
-	${DOCKER_RUN} --env-file=ENV_RIDERO_LARGE ${MAKE_BUILD}
-
-docker-build-ridero-large-draft:
-	${DOCKER_DRAFT} --env-file=ENV_RIDERO_LARGE ${MAKE_DRAFT}
-
-
-#
 # DMK
 #
 
