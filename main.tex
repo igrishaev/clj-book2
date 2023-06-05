@@ -263,7 +263,13 @@
 \let\Contentsline\contentsline
 \renewcommand\contentsline[3]{\thispagestyle{empty}\Contentsline{#1}{#2}{#3}}
 \cleardoublepage
+\iflarge
+\newgeometry{top=25mm}
 \tableofcontents
+\restoregeometry
+\else
+\tableofcontents
+\fi
 
 \input{exit}
 
