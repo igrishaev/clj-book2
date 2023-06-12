@@ -21,9 +21,8 @@ draft: \
 	pdf-build1
 
 
-build: \
-	clear-files pdf-build1 make-index pdf-build2 pdf-build3 \
-	check-refs check-lines
+# build: pdf-build1 make-index check-refs check-lines
+build: clear-files pdf-build1 make-index pdf-build2 pdf-build3 check-refs check-lines
 
 
 ## Build an index file with Clojure.
