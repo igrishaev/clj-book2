@@ -61,7 +61,7 @@
 \ifprint
 \NewDocumentCommand{\footurl}{ m m O{} o }{%
 #1%
-\footnote{\raggedright\StrSubstitute{#2}{https://}{}}%
+\footnote{\raggedright\StrSubstitute{#2}{https://}{}\ifdmk\hspace{0.1em}\tiny{.}\fi}%
 \marginpar{%
 \IfNoValueTF{#4}{}{\vspace{#4}}%
 \vspace{-5.5mm}%
