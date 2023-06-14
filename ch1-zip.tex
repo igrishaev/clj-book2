@@ -955,8 +955,7 @@ XML. Прежде чем работать с ним, заглянем в опр�
 
 \begin{english}
   \begin{clojure}
-(defn xml-zip
-  [root]
+(defn xml-zip [root]
   (zipper (complement string?)
           (comp seq :content)
           ...
