@@ -3351,9 +3351,14 @@ HTML. Разбор основан на Java-библиотеке \footurl{JSoup}
               java.net.URL.
               slurp))
 
-(def doc-src (h/parse html))
-(def doc-clj (h/as-hiccup doc-src))
-(def doc-zip (hz/hiccup-zip doc-clj))
+(def doc-src
+  (h/parse html))
+
+(def doc-clj
+  (h/as-hiccup doc-src))
+
+(def doc-zip
+  (hz/hiccup-zip doc-clj))
   \end{clojure}
 \end{english}
 
