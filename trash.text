@@ -1,0 +1,3 @@
+\newgeometry{top=25mm}
+\tableofcontents
+\restoregeometry

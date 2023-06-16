@@ -5,7 +5,6 @@
 %% Capture ENV vars from envsubst
 %%
 
-\def\AFIVE{$AFIVE}
 \def\COMMITHASH{$COMMIT_HASH}
 \def\COMMITTS{$COMMIT_TS}
 \def\COVER{$COVER}
@@ -18,7 +17,6 @@
 \def\PHONE{$PHONE}
 \def\PRINT{$PRINT}
 \def\QR{$QR}
-\def\RIDERO{$RIDERO}
 \def\DMK{$DMK}
 \def\TABLET{$TABLET}
 
@@ -117,7 +115,6 @@
 % code highlight
 \usepackage[newfloat=true]{minted}
 \usemintedstyle{print}
-%% \setminted{fontsize=\small} %% reduce minted font
 \SetupFloatingEnvironment{listing}{placement=H}
 
 \ifnarrow
@@ -230,38 +227,19 @@
 \setcounter{page}{1}
 \fi
 
-
 % always add title page
 \input{title}
 
-
 % opening page (UDK & BBK) / annotation
-\ifridero
-
-\iflarge
-  \includepdf[pages={1}]{media/ridero_opening_large.pdf}
-\else
-  \includepdf[pages={1}]{media/ridero_opening_normal.pdf}
-\fi
-
-\else
-
 \ifdmk
   \includepdf[pages={1}]{media/dmk_input_page.pdf}
 \else
   \input{abstract}
 \fi
 
-\fi
-
-% fix a widow line in TOC for A5
-\ifafive
-\setlength{\cftbeforetoctitleskip}{12mm}
-\fi
-
-% the same for large
+%% correct ToC top margin for large
 \iflarge
-\setlength{\cftbeforetoctitleskip}{25mm}
+\setlength{\cftbeforetoctitleskip}{35mm}
 \fi
 
 %%
@@ -270,13 +248,7 @@
 \let\Contentsline\contentsline
 \renewcommand\contentsline[3]{\thispagestyle{empty}\Contentsline{#1}{#2}{#3}}
 \cleardoublepage
-\iflarge
-\newgeometry{top=25mm}
 \tableofcontents
-\restoregeometry
-\else
-\tableofcontents
-\fi
 
 \input{exit}
 

@@ -116,17 +116,6 @@ docker-build-print-draft:
 
 
 #
-# Ridero
-#
-
-docker-build-ridero:
-	${DOCKER_RUN} --env-file=ENV_RIDERO ${MAKE_BUILD}
-
-docker-build-ridero-draft:
-	${DOCKER_DRAFT} --env-file=ENV_RIDERO ${MAKE_DRAFT}
-
-
-#
 # DMK
 #
 
@@ -189,9 +178,7 @@ docker-build-digital: \
 
 docker-build-all: \
 	docker-build-digital \
-	docker-build-ridero-large \
-	docker-build-ridero
-
+	docker-build-dmk
 
 
 #
@@ -212,10 +199,6 @@ lines-kindle:
 
 lines-phone:
 	! grep -i 'Overfull' clojure_phone.log
-
-
-lines-ridero-large:
-	! grep -i 'in paragraph at lines' clojure_ridero_large.log
 
 
 #
