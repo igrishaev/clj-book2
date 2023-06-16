@@ -237,15 +237,22 @@
 
 % opening page (UDK & BBK) / annotation
 \ifridero
-  \iflarge
-    \includepdf[pages={1}]{media/ridero_opening_large.pdf}
-  \else
-    \includepdf[pages={1}]{media/ridero_opening_normal.pdf}
-  \fi
+
+\iflarge
+  \includepdf[pages={1}]{media/ridero_opening_large.pdf}
 \else
- \input{abstract}
+  \includepdf[pages={1}]{media/ridero_opening_normal.pdf}
 \fi
 
+\else
+
+\ifdmk
+  \includepdf[pages={1}]{media/dmk_input_page.pdf}
+\else
+  \input{abstract}
+\fi
+
+\fi
 
 % fix a widow line in TOC for A5
 \ifafive
@@ -292,13 +299,12 @@
 
 \printindex
 
-\ifprint
-\input{exit}
-\input{exit}
+\ifebook
+  \input{author}
 \fi
 
-\ifebook
-\input{author}
+\ifdmk
+  \includepdf[pages={1}]{media/dmk_output_page.pdf}
 \fi
 
 \end{document}
