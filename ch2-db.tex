@@ -4194,13 +4194,13 @@ LEFT JOIN comments c ON c.post_id = p.id;
 
 \begin{english}
   \begin{text*}{fontsize=\small}
- author/id | author/name | post/id |         post/title         .
------------|-------------|---------|-----------------------------
-         1 | Ivan Petrov |      10 | Introduction to Python     .
-         1 | Ivan Petrov |      10 | Introduction to Python     .
-         2 | Ivan Rublev |      30 | Learning Clojure           .
-         1 | Ivan Petrov |      20 | Thoughts on LISP           .
-         2 | Ivan Rublev |      40 | Working on my pet project  .
+author/id | author/name | post/id |         post/title        | .
+----------|-------------|---------|---------------------------+--
+        1 | Ivan Petrov |      10 | Introduction to Python    | .
+        1 | Ivan Petrov |      10 | Introduction to Python    | .
+        2 | Ivan Rublev |      30 | Learning Clojure          | .
+        1 | Ivan Petrov |      20 | Thoughts on LISP          | .
+        2 | Ivan Rublev |      40 | Working on my pet project | .
   \end{text*}
 \end{english}
 
@@ -4208,13 +4208,13 @@ LEFT JOIN comments c ON c.post_id = p.id;
 
 \begin{english}
   \begin{text*}{fontsize=\small}
-. post/author-id | comment/id |         comment/text
------------------|------------|------------------------------
-.              1 |        100 | Thanks for sharing this!
-.              1 |        200 | Nice reading, it was useful.
-.              2 |        300 | TL;DR: you must learn lisp
-.              1 |            |
-.              2 |            |
+. | post/author-id | comment/id |         comment/text
+--+----------------|------------|-----------------------------
+. |              1 |        100 | Thanks for sharing this!
+. |              1 |        200 | Nice reading, it was useful.
+. |              2 |        300 | TL;DR: you must learn lisp
+. |              1 |            |
+. |              2 |            |
   \end{text*}
 \end{english}
 
@@ -4222,21 +4222,21 @@ LEFT JOIN comments c ON c.post_id = p.id;
 
 \begin{english}
   \begin{text*}{fontsize=\small}
- author/id | author/name | post/id |         post/title         .
------------|-------------|---------|-----------------------------
-         1 | Ivan Petrov |      10 | Introduction to Python     .
-         1 | Ivan Petrov |      10 | Introduction to Python     .
-         2 | Ivan Rublev |      30 | Learning Clojure           .
-         1 | Ivan Petrov |      20 | Thoughts on LISP           .
-         2 | Ivan Rublev |      40 | Working on my pet project  .
+author/id | author/name | post/id |         post/title        | .
+----------|-------------|---------|---------------------------+--
+        1 | Ivan Petrov |      10 | Introduction to Python    | .
+        1 | Ivan Petrov |      10 | Introduction to Python    | .
+        2 | Ivan Rublev |      30 | Learning Clojure          | .
+        1 | Ivan Petrov |      20 | Thoughts on LISP          | .
+        2 | Ivan Rublev |      40 | Working on my pet project | .
 
-. post/author-id | comment/id |         comment/text
------------------|------------|------------------------------
-.              1 |        100 | Thanks for sharing this!
-.              1 |        200 | Nice reading, it was useful.
-.              2 |        300 | TL;DR: you must learn lisp
-.              1 |            |
-.              2 |            |
+.| post/author-id | comment/id |         comment/text
+-+----------------|------------|-----------------------------
+.|              1 |        100 | Thanks for sharing this!
+.|              1 |        200 | Nice reading, it was useful.
+.|              2 |        300 | TL;DR: you must learn lisp
+.|              1 |            |
+.|              2 |            |
   \end{text*}
 \end{english}
 
