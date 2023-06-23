@@ -1,3 +1,113 @@
 \newgeometry{top=25mm}
 \tableofcontents
 \restoregeometry
+
+%% \begin{table}[H]
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l}
+%% \hline
+%% author/id & author/name & post/id &         post/title           & \ldots \\
+%% \hline
+%%          1 & Ivan Petrov &      10 & Introduction to Python      & \ldots \\
+%%          1 & Ivan Petrov &      10 & Introduction to Python      & \ldots \\
+%%          2 & Ivan Rublev &      30 & Learning Clojure            & \ldots \\
+%%          1 & Ivan Petrov &      20 & Thoughts on LISP            & \ldots \\
+%%          2 & Ivan Rublev &      40 & Working on my pet project   & \ldots \\
+%% \hline
+%% \end{tabular}}
+
+%% \vspace{3mm}
+
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{l|l|l|l|}
+%% \hline
+%% \ldots         & post/author-id & comment/id &         comment/text \\
+%% \hline
+%% \ldots   &              1 &        100 & Thanks for sharing this!       \\
+%% \ldots   &              1 &        200 & Nice reading, it was useful.   \\
+%% \ldots   &              2 &        300 & TL;DR: you must learn lisp     \\
+%% \ldots   &              1 &            &                                \\
+%% \ldots   &              2 &            &                                \\
+%% \hline
+%% \end{tabular}}
+%% \end{table}
+
+
+
+%% \begin{english}
+%%   \begin{text}
+%%  post/id |         post/title          | post/author-id |                                                       post/comments
+%% ---------+-----------------------------+----------------+----------------------------------------------------------------------------------------------------------------------------
+%%       10 | Introduction to Python      |              1 | [{"id":100,"text":"Thanks for sharing this!","post_id":10}, {"id":200,"text":"Nice reading, it was useful.","post_id":10}]
+%%       20 | Thoughts on LISP            |              1 |
+%%       30 | Learning Clojure            |              2 | [{"id":300,"text":"TL;DR: you must learn lisp","post_id":30}]
+%%       40 | Working on my pet project   |              2 |
+%%   \end{text}
+%% \end{english}
+
+
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{|l|l|l|l}
+%% \hline
+%%  post/id & post/title                  & post/author-id & \ldots \\
+%% \hline
+%%       10 & Introduction to Python      &              1 & \ldots \\
+%%       20 & Thoughts on LISP            &              1 & \ldots \\
+%%       30 & Learning Clojure            &              2 & \ldots \\
+%%       40 & Working on my pet project   &              2 & \ldots \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
+
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{l|l|}
+%% \hline
+%% \ldots & post/comments \\
+%% \hline
+%% \ldots & \mintinline{json}{[{"id": 100, ...}, {"id": 200, ...}]} \\
+%% \ldots & \\
+%% \ldots & \mintinline{json}{[{"id":300, ...}]} \\
+%% \ldots & \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
+
+
+
+%% \begin{table}[H]
+%% \begin{tabular}{|l|l|l|}
+%% \hline
+%% \code{id} & \code{title} & \code{attrs} \\
+%% \hline
+%% 1 & iPhone 99x     & \code{\{"phone.display.diag": 145{},} \\
+%%   &                & \code{\phantom{ }"phone.wifi.support": true\}} \\
+%% 2 & Galaxy 33.plus & \\
+%% 3 & G. Orwell 1984 & \code{\{"book.genre": "dystopia"{},} \\
+%%   &                & \code{\phantom{ }"book.pages": 215\}} \\
+%% \hline
+%% \end{tabular}
+%% \end{table}
+
+
+%% \begin{table}[H]
+%% \begin{tabular}{|l|l|}
+%% \hline
+%% id & name \\
+%% \hline
+%% 1 & foo \\
+%% 2 & bar \\
+%% \hline
+%% \end{tabular}
+%% \end{table}
+
+
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{|l|l|l|}
+%% \hline
+%% id     &         applied         &      description \\
+%% \hline
+%% 20210830075251 & 2021-08-28 09:28:26.911 & create-users-table \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
