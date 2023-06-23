@@ -111,3 +111,60 @@
 %% \hline
 %% \end{tabular}%}
 %% \end{table}
+
+
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{|l|l|}
+%% \hline
+%% \code{good\_id} & \code{attrs} \\
+%% \hline
+%% 3 & \code{\{"book.genre": "dystopia"{},} \\
+%%   & \code{\phantom{ }"book.pages": 215\}} \\
+%% 1 & \code{\{"phone.display.diag": 145{},} \\
+%%   & \code{\phantom{ }"phone.wifi.support": true\}} \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
+
+
+%% \begin{table}[H]
+%% %% \resizebox{\columnwidth}{!}{
+%% \begin{tabular}{|l|l|l|}
+%% \hline
+%% id & type & entity \\
+%% \hline
+%%   1 & user  & \mintinline{json}{{"id":1,"fname":"Ivan", ...}} \\
+%%   3 & user  & \mintinline{json}{{"id":3,"fname":"Huan", ...}} \\
+%%   1 & admin & \mintinline{json}{{"id":1,"full_name":"Petr Smirnov", ...}} \\
+%%   2 & admin & \mintinline{json}{{"id":2,"full_name":"Oleg Ivanov", ...}} \\
+%% \hline
+%% \end{tabular}%}
+%% \end{table}
+
+
+%% \begin{table}[H]
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l|}
+%% \hline
+%% id & name & id & title & author\_id \\
+%% \hline
+%%  1  &  Ivan Petrov  &  10  &  Introduction to Python     & 1 \\
+%%  1  &  Ivan Petrov  &  20  &  Thoughts on LISP           & 1 \\
+%%  2  &  Ivan Rublev  &  30  &  Learning Clojure           & 2 \\
+%%  2  &  Ivan Rublev  &  40  &  Working on my pet project  & 2 \\
+%% \hline
+%% \end{tabular}}
+%% \end{table}
+
+%% \begin{table}[H]
+%% \resizebox{\columnwidth}{!}{\begin{tabular}{|l|l|l|l|l|}
+%% \hline
+%% id & name & id & title & author\_id \\
+%% \hline
+%%  1  &  Ivan Petrov  &  10  &  Introduction to Python     & 1 \\
+%%  1  &  Ivan Petrov  &  20  &  Thoughts on LISP           & 1 \\
+%%  2  &  Ivan Rublev  &  30  &  Learning Clojure           & 2 \\
+%%  2  &  Ivan Rublev  &  40  &  Working on my pet project  & 2 \\
+%% \hline
+%% \end{tabular}}
+%% \end{table}
