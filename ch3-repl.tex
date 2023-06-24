@@ -1706,6 +1706,7 @@ Emacs запросит путь к интерпретатору Лиспа. Вв
 \begin{english}
   \begin{lisp}
 (setq inferior-lisp-program "clojure") ;; C-j
+
 (setq inferior-lisp-program "lein repl") ;; C-j
   \end{lisp}
 \end{english}
@@ -1715,6 +1716,7 @@ Emacs запустит процесс и соединится с его кана
 \begin{english}
   \begin{clojure}
 Clojure 1.10.1
+
 user=> (+ 1 2 3)
 6
   \end{clojure}
@@ -1824,6 +1826,7 @@ clojure -J-Dclojure.server.repl=\
 Trying 127.0.0.1...
 Connected to localhost.
 Escape character is '^]'.
+
 user=> (defn add [a b] (+ a b))
 #'user/add
   \end{text}
@@ -1876,10 +1879,8 @@ nREPL опирается на транспорт сообщений. Транс�
 > lein repl
 
 nREPL server started on port 52002 on host 127.0.0.1
-Clojure 1.10.1
 OpenJDK 64-Bit Server VM 11.0.12+6-jvmci-21.2-b08
     Docs: (doc function-name-here)
-          (find-doc "part-of-name-here")
   Source: (source function-name-here)
  Javadoc: (javadoc java-object-or-class-here)
     Exit: Control+D or (exit) or (quit)
@@ -1908,7 +1909,6 @@ user=>
 > clj -M:nrepl
 
 nREPL server started on port 55113 on host localhost
-nREPL 0.9.0
 Clojure 1.11.1
 OpenJDK 64-Bit Server VM 11.0.12+6-jvmci-21.2-b08
 Interrupt: Control+C
