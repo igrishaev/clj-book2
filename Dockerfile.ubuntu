@@ -22,6 +22,7 @@ RUN apt-get install -y -q \
 
 # latex
 RUN apt-get install -y -q \
+    texlive-font-utils \
     texlive-latex-extra \
     texlive-lang-cyrillic \
     texlive-fonts-extra \
