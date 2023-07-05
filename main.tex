@@ -39,18 +39,24 @@
 
 \usepackage{cmap}
 
-\usepackage[T2A]{fontenc}
-\usepackage{tikz}
-\usepackage{tocloft}
+\usepackage[T1,T2A]{fontenc}
 \usepackage{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[english,russian]{babel}
 
-\usepackage{caption}
-\DeclareCaptionLabelFormat{lis}{Листинг #2}
+% ToC
+\usepackage{tocloft}
 
-%% hyphenation in tt
-\usepackage[shortcuts]{extdash}
+% QR draft
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows, positioning, decorations.markings}
+
+% better captions
+\usepackage[font=small]{caption}
+\captionsetup{labelsep=period}
+\captionsetup[listing]{name=Листинг}
+\captionsetup[figure]{name=Рис.}
+\DeclareCaptionLabelFormat{lis}{Листинг #2}
 
 % for proper ' and `
 \usepackage{textcomp}
@@ -68,9 +74,6 @@
 % extra space at the end of macros
 \usepackage{xspace}
 
-% linebreaks in verbatim for mobile
-\usepackage{spverbatim}
-
 % http://www.khirevich.com/latex/microtype/
 \usepackage[
   activate={true, nocompatibility},
@@ -83,28 +86,18 @@
   shrink=10
 ]{microtype}
 
-% better captions
-\usepackage[font=small]{caption}
-
+% figures
 \usepackage{float}
-
-\captionsetup{labelsep=period}
-
-\captionsetup[listing]{name=Листинг}
-\captionsetup[figure]{name=Рис.}
 
 % https://tex.stackexchange.com/a/417276
 % ifthispageodd macro
 \usepackage{scrextend}
 
-% underline
-\usepackage[normalem]{ulem}
-
 % for QR codes in
 \usepackage{qrcode}
 
-% to have bold tt fonts in code listings
-\usepackage{bold-extra}
+% bold ttf in english
+\renewcommand{\ttdefault}{lmtt}
 
 % better macro args
 \usepackage{xparse}
@@ -145,14 +138,10 @@
 \idxlayout{columns=2}
 \fi
 
-\usepackage{setspace}
-
-
 % href ursl for ebooks
 \ifebook
 \usepackage[hidelinks, hyperindex=false]{hyperref}
 \fi
-
 
 % no indent for items in lists (in mobile)
 \ifnarrow
@@ -179,7 +168,6 @@
 \hfuzz=0.5pt
 \emergencystretch=5pt
 
-\input{charts}
 \input{macro}
 
 \author{Иван Гришаев}
@@ -217,7 +205,10 @@
 \setlength{\cftaftertoctitleskip}{2em}
 \fi
 
+
 \begin{document}
+
+\selectlanguage{russian}
 
 \input{hyphenation}
 

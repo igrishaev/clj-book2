@@ -22,9 +22,6 @@
 
 \newcommand{\RNum}[1]{\uppercase\expandafter{\romannumeral #1\relax}}
 
-% https://tex.stackexchange.com/questions/44361/
-\DeclareTextFontCommand{\code}{\ttfamily\hyphenchar\font=45\relax}
-
 \ifprint
 \newcommand{\page}[1]{(с.~\pageref{#1})}
 \newcommand{\fig}[1]{(рис.~\ref{#1})}
@@ -148,3 +145,9 @@
 \newminted[ini]{ini}{}
 
 \newenvironment{english}{\begin{otherlanguage}{english}}{\end{otherlanguage}}
+
+\newenvironment{russian}{\begin{otherlanguage}{russian}}{\end{otherlanguage}}
+
+\newcommand{\code}[1]{\begin{english}\ttfamily\hyphenchar\font=45\relax{#1}\end{english}}
+
+\newcommand{\angles}[1]{\textlangle{}#1\textrangle{}}
