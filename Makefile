@@ -49,10 +49,13 @@ clear-files:
 clear-pdf:
 	rm -f *.pdf
 
+inc-builds:
+	expr `cat BUILDS` + 1 > BUILDS
+
 #
 # A common LaTeX build command with three aliases
 #
-pdf-build1 pdf-build2 pdf-build3:
+pdf-build1 pdf-build2 pdf-build3: inc-builds
 	COMMIT_HASH=${COMMIT_HASH} \
 	COMMIT_TS=${COMMIT_TS} \
 	envsubst < main.tex | pdflatex -shell-escape -halt-on-error -jobname=${JOB}
