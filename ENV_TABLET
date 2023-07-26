@@ -1,7 +1,9 @@
-COVER=media/cover_tablet.jpg
+COVER=
 DOCUMENT=report
 EBOOK=true
 GEOMETRY=geom-tablet
 JOB=clojure_tablet
 NARROW=
+LARGE=true
 TABLET=true
+FONT=11
