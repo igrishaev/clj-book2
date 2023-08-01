@@ -7,7 +7,9 @@
 
 \def\COMMITHASH{$COMMIT_HASH}
 \def\COMMITTS{$COMMIT_TS}
-\def\COVER{$COVER}
+\def\COVERFACE{$COVERFACE}
+\def\COVERBACK{$COVERBACK}
+\def\TITLE{$TITLE}
 \def\DOMAIN{$DOMAIN}
 \def\EBOOK{$EBOOK}
 \def\EMAIL{$EMAIL}
@@ -216,14 +218,14 @@
 \input{hyphenation}
 
 % add cover when set
-\ifx\COVER\NIL
+\ifx\COVERFACE\NIL
 \else
-\includepdf{\COVER}
-\setcounter{page}{1}
+\includepdf{\COVERFACE}
 \fi
 
-% always add title page
-\input{title}
+\iftitle
+  \input{title}
+\fi
 
 % opening page (UDK & BBK) / annotation
 \ifdmk
@@ -266,13 +268,14 @@
 
 \printindex
 
-\ifebook
-  %% \input{author}
-\fi
-
 \ifdmk
   \input{exit}
   \includepdf[pages={1}]{media/dmk_output_page.pdf}
+\fi
+
+\ifx\COVERBACK\NIL
+\else
+\includepdf{\COVERBACK}
 \fi
 
 \end{document}

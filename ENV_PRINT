@@ -1,6 +1,8 @@
-COVER=media/cover_print.jpg
+COVERFACE=media/cover_print/cover_print_01.pdf
+COVERBACK=media/cover_print/cover_print_02.pdf
 DOCUMENT=book
 GEOMETRY=geom-print
 JOB=clojure_print
 PRINT=true
-AFIVE=true
+LARGE=true
+FONT=11
