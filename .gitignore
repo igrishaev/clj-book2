@@ -13,7 +13,6 @@ cover.pdf
 *.pyg
 *.idlk
 *.out
-photos
 pyg_print/build/
 pyg_print/dist/
 pyg_print/pyg_print.egg-info/

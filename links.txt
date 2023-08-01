@@ -1,0 +1,4 @@
+
+https://s3.amazonaws.com/igrishaev.public/clojure_book2/clojure_excerpt.pdf
+https://dobrofile.ru/?s=85af60a99
+https://grishaev.me/clojure-in-prod2/
