@@ -29,7 +29,7 @@ build: clear-files pdf-build1 make-index pdf-build2 pdf-build3 check-refs check-
 make-index:
 	echo 'make-index'
 	cd makeindex && \
-	lein run ${PWD}/${JOB}.idx ${PWD}/${JOB}.ind
+	/lein run ${PWD}/${JOB}.idx ${PWD}/${JOB}.ind
 
 
 # Drop unused files.
@@ -68,7 +68,7 @@ check-refs:
 	! grep -i 'LaTeX Warning: Reference' ${JOB}.log
 
 
-IMG = clj-book
+IMG = clj-book2
 IMG_SYS = ${IMG}:ubuntu
 IMG_RUN = ${IMG}:build
 
