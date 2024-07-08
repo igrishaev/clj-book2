@@ -29,7 +29,7 @@ build: clear-files pdf-build1 make-index pdf-build2 pdf-build3 check-refs check-
 make-index:
 	echo 'make-index'
 	cd makeindex && \
-	clojure -m makeindex.core ${PWD}/${JOB}.idx ${PWD}/${JOB}.ind
+	lein run ${PWD}/${JOB}.idx ${PWD}/${JOB}.ind
 
 
 # Drop unused files.
